@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAG Bot Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🤖 BAG Bot</h2>
+                <button class="close-sidebar" id="closeSidebar">✕</button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="home">
+                    <span>🏠</span> Accueil
+                </a>
+                <a href="#" class="nav-item" data-page="commands">
+                    <span>⚡</span> Commandes
+                </a>
+                <a href="#" class="nav-item" data-page="logs">
+                    <span>📋</span> Logs
+                </a>
+                <a href="#" class="nav-item" data-page="status">
+                    <span>📊</span> Statut
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <span>⚙️</span> Paramètres
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <h1>Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="pullBtn">🔄 Pull & Restart</button>
+                </div>
+            </header>
+
+            <!-- Pages -->
+            <div class="pages">
+                <!-- Home Page -->
+                <div class="page active" id="page-home">
+                    <div class="welcome-section">
+                        <div class="embed discord-embed">
+                            <div class="embed-author">
+                                <div class="embed-avatar">🤖</div>
+                                <div class="embed-author-name">BAG Bot</div>
+                            </div>
+                            <div class="embed-content">
+                                <h3>Bienvenue sur le Dashboard !</h3>
+                                <p>Le bot est actuellement en ligne et prêt à servir votre serveur.</p>
+                            </div>
+                            <div class="embed-footer">
+                                <span>🟢 En ligne</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-value" id="serverCount">-</div>
+                            <div class="stat-label">Serveurs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👤</div>
+                            <div class="stat-value" id="userCount">-</div>
+                            <div class="stat-label">Utilisateurs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-value" id="commandCount">-</div>
+                            <div class="stat-label">Commandes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-value" id="uptime">-</div>
+                            <div class="stat-label">Uptime</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commands Page -->
+                <div class="page" id="page-commands">
+                    <h2>Commandes disponibles</h2>
+                    <div class="commands-list">
+                        <div class="command-card">
+                            <div class="command-name">/ping</div>
+                            <div class="command-desc">Répond Pong!</div>
+                        </div>
+                        <div class="command-card">
+                            <div class="command-name">/bonjour</div>
+                            <div class="command-desc">Dit bonjour</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logs Page -->
+                <div class="page" id="page-logs">
+                    <h2>Logs du Bot</h2>
+                    <div class="log-container">
+                        <pre class="log-content" id="botLogs">Chargement des logs...</pre>
+                    </div>
+                </div>
+
+                <!-- Status Page -->
+                <div class="page" id="page-status">
+                    <h2>Statut PM2</h2>
+                    <div class="status-container">
+                        <pre class="status-content" id="pm2Status">Chargement du statut...</pre>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div class="page" id="page-settings">
+                    <h2>Paramètres</h2>
+                    <div class="settings-container">
+                        <div class="setting-item">
+                            <label>Token Discord</label>
+                            <input type="password" id="discordToken" placeholder="••••••••">
+                        </div>
+                        <div class="setting-item">
+                            <label>Client ID</label>
+                            <input type="text" id="clientId" placeholder="Votre Client ID">
+                        </div>
+                        <div class="setting-item">
+                            <label>Guild ID</label>
+                            <input type="text" id="guildId" placeholder="Votre Guild ID">
+                        </div>
+                        <button class="btn btn-primary" id="saveSettings">💾 Sauvegarder</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

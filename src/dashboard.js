@@ -8,14 +8,19 @@ const app = express();
 const PORT = process.env.PORT || 49501;
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Route principale
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 // Route pour le pull depuis GitHub
 app.post('/api/pull', async (req, res) => {
   try {
     console.log('🔄 Pull depuis GitHub...');
     
-    exec('git pull origin main', { cwd: process.cwd() }, (error, stdout, stderr) => {
+    exec('git pull origin main', { cwd: path.join(__dirname, '..') }, (error, stdout, stderr) => {
       if (error) {
         console.error('Erreur git pull:', error);
         return res.status(500).json({ error: 'Erreur lors du pull', details: stderr });
@@ -24,7 +29,7 @@ app.post('/api/pull', async (req, res) => {
       console.log('Pull réussi:', stdout);
       
       // Installer les dépendances si package.json a changé
-      exec('npm install', { cwd: process.cwd() }, (installError, installStdout, installStderr) => {
+      exec('npm install', { cwd: path.join(__dirname, '..') }, (installError, installStdout, installStderr) => {
         if (installError) {
           console.error('Erreur npm install:', installError);
           return res.status(500).json({ error: 'Erreur lors de npm install', details: installStderr });
@@ -33,7 +38,7 @@ app.post('/api/pull', async (req, res) => {
         console.log('npm install réussi');
         
         // Redémarrer PM2
-        exec('pm2 restart bagbot', (pm2Error, pm2Stdout, pm2Stderr) => {
+        exec('pm2 restart all', (pm2Error, pm2Stdout, pm2Stderr) => {
           if (pm2Error) {
             console.error('Erreur PM2 restart:', pm2Error);
             return res.status(500).json({ error: 'Erreur lors du redémarrage PM2', details: pm2Stderr });
@@ -53,7 +58,7 @@ app.post('/api/pull', async (req, res) => {
 // Route pour voir les logs du bot
 app.get('/api/logs/bot', (req, res) => {
   try {
-    const logPath = path.join(process.cwd(), 'logs', 'bagbot-out.log');
+    const logPath = path.join(__dirname, '../logs', 'bagbot-out.log');
     if (fs.existsSync(logPath)) {
       const logs = fs.readFileSync(logPath, 'utf8');
       res.json({ logs: logs.slice(-5000) }); // Derniers 5000 caractères
@@ -68,7 +73,7 @@ app.get('/api/logs/bot', (req, res) => {
 // Route pour voir les logs du dashboard
 app.get('/api/logs/dashboard', (req, res) => {
   try {
-    const logPath = path.join(process.cwd(), 'logs', 'dashboard-out.log');
+    const logPath = path.join(__dirname, '../logs', 'dashboard-out.log');
     if (fs.existsSync(logPath)) {
       const logs = fs.readFileSync(logPath, 'utf8');
       res.json({ logs: logs.slice(-5000) });
