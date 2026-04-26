@@ -3,7 +3,6 @@ module.exports = {
     {
       name: 'bagbot',
       script: './src/index.js',
-      cwd: '/home/maison/bagbot',
       instances: 1,
       autorestart: true,
       watch: false,
@@ -19,7 +18,6 @@ module.exports = {
     {
       name: 'bagbot-dashboard',
       script: './src/dashboard.js',
-      cwd: '/home/maison/bagbot',
       instances: 1,
       autorestart: true,
       watch: false,
@@ -36,7 +34,6 @@ module.exports = {
     {
       name: 'bagbot-webhook',
       script: './src/webhook.js',
-      cwd: '/home/maison/bagbot',
       instances: 1,
       autorestart: true,
       watch: false,
