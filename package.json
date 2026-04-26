@@ -1,0 +1,18 @@
+{
+  "name": "bagbot-lite",
+  "version": "1.0.0",
+  "description": "BAG Bot Lite - Discord Bot",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "register": "node src/deploy-commands.js",
+    "delete-commands": "node src/delete-commands.js"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.6.1"
+  }
+}
