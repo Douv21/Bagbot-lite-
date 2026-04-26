@@ -3,16 +3,145 @@ const express = require('express');
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+const session = require('express-session');
+const passport = require('passport');
+const { Strategy } = require('passport-discord');
 
 const app = express();
 const PORT = process.env.PORT || 49501;
 
+// Configuration Passport Discord
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
+
+passport.use(new Strategy({
+  clientID: process.env.DISCORD_CLIENT_ID,
+  clientSecret: process.env.DISCORD_CLIENT_SECRET,
+  callbackURL: process.env.DISCORD_CALLBACK_URL || `http://localhost:${PORT}/auth/callback`,
+  scope: ['identify', 'guilds']
+}, (accessToken, refreshToken, profile, done) => {
+  profile.accessToken = accessToken;
+  return done(null, profile);
+}));
+
+// Configuration de multer pour l'upload d'images
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (extname && mimetype) {
+      return cb(null, true);
+    }
+    cb(new Error('Seuls les images (JPEG, PNG, GIF, WebP) sont autorisées'));
+  }
+});
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Middleware pour vérifier l'authentification
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/auth/login');
+}
+
+// Middleware pour vérifier si l'utilisateur est admin
+function ensureAdmin(req, res, next) {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/auth/login');
+  }
+  
+  // Vérifier si l'utilisateur est admin d'au moins un serveur où le bot est présent
+  const userGuilds = req.user.guilds || [];
+  const hasAdminGuild = userGuilds.some(guild => 
+    guild.permissions & 0x8 || // ADMINISTRATOR permission
+    guild.owner === true
+  );
+  
+  if (hasAdminGuild) {
+    return next();
+  }
+  
+  res.status(403).json({ error: 'Accès refusé: Vous devez être administrateur d\'un serveur' });
+}
 
 // Route principale
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  if (req.isAuthenticated()) {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+  } else {
+    res.sendFile(path.join(__dirname, '../public/login.html'));
+  }
+});
+
+// Routes d'authentification Discord
+app.get('/auth/login', passport.authenticate('discord'));
+
+app.get('/auth/callback', passport.authenticate('discord', {
+  failureRedirect: '/auth/login'
+}), (req, res) => {
+  res.redirect('/');
+});
+
+app.get('/auth/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error('Erreur logout:', err);
+    }
+    res.redirect('/auth/login');
+  });
+});
+
+// API pour obtenir les infos de l'utilisateur connecté
+app.get('/api/user', ensureAuthenticated, (req, res) => {
+  res.json({
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      discriminator: req.user.discriminator,
+      avatar: req.user.avatar,
+      guilds: req.user.guilds
+    }
+  });
 });
 
 // Route pour le pull depuis GitHub
@@ -93,6 +222,60 @@ app.get('/api/status', (req, res) => {
     }
     res.json({ status: stdout });
   });
+});
+
+// Route pour l'upload d'images
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Aucun fichier uploadé' });
+    }
+    
+    const imageUrl = `/uploads/${req.file.filename}`;
+    res.json({ success: true, url: imageUrl });
+  } catch (error) {
+    console.error('Erreur upload:', error);
+    res.status(500).json({ error: 'Erreur lors de l\'upload' });
+  }
+});
+
+// Route pour la configuration de bienvenue/départ
+app.get('/api/welcome-depart/:guildId', (req, res) => {
+  try {
+    const configPath = path.join(__dirname, '../data/welcome-depart.json');
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      const guildConfig = config.guilds[req.params.guildId] || null;
+      res.json({ config: guildConfig });
+    } else {
+      res.json({ config: null });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lecture configuration' });
+  }
+});
+
+app.post('/api/welcome-depart/:guildId', (req, res) => {
+  try {
+    const configPath = path.join(__dirname, '../data/welcome-depart.json');
+    let config = { guilds: {} };
+    
+    if (fs.existsSync(configPath)) {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    }
+    
+    if (!config.guilds[req.params.guildId]) {
+      config.guilds[req.params.guildId] = {};
+    }
+    
+    config.guilds[req.params.guildId] = req.body;
+    
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erreur sauvegarde configuration:', error);
+    res.status(500).json({ error: 'Erreur sauvegarde configuration' });
+  }
 });
 
 app.listen(PORT, () => {

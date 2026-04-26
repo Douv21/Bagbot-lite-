@@ -7,6 +7,8 @@ const pages = document.querySelectorAll('.page');
 const pullBtn = document.getElementById('pullBtn');
 const botLogs = document.getElementById('botLogs');
 const pm2Status = document.getElementById('pm2Status');
+const logoutBtn = document.getElementById('logoutBtn');
+const userInfo = document.getElementById('userInfo');
 
 // Mobile Sidebar Toggle
 menuToggle.addEventListener('click', () => {
@@ -131,6 +133,41 @@ function updateStats() {
 // Initialize
 updateStats();
 
+// Load user info
+async function loadUserInfo() {
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        
+        if (data.user) {
+            const user = data.user;
+            const avatarUrl = user.avatar 
+                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                : `https://cdn.discordapp.com/embed/avatars/${user.discriminator % 5}.png`;
+            
+            userInfo.innerHTML = `
+                <img src="${avatarUrl}" alt="Avatar" class="user-avatar">
+                <span>${user.username}#${user.discriminator}</span>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading user info:', error);
+    }
+}
+
+// Logout
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await fetch('/auth/logout');
+        window.location.href = '/auth/login';
+    } catch (error) {
+        console.error('Error logout:', error);
+    }
+});
+
+// Load user info on page load
+loadUserInfo();
+
 // Auto-refresh logs every 10 seconds if on logs page
 setInterval(() => {
     const logsPage = document.getElementById('page-logs');
@@ -146,3 +183,151 @@ setInterval(() => {
         loadStatus();
     }
 }, 30000);
+
+// Welcome/Depart Configuration
+const uploadImageBtn = document.getElementById('uploadImage');
+const saveWelcomeConfigBtn = document.getElementById('saveWelcomeConfig');
+const loadWelcomeConfigBtn = document.getElementById('loadWelcomeConfig');
+
+// Upload image
+uploadImageBtn.addEventListener('click', async () => {
+    const fileInput = document.getElementById('imageUpload');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Veuillez sélectionner une image');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('uploadResult').innerHTML = `
+                <p style="color: #3BA55C;">✅ Image uploadée avec succès !</p>
+                <p>URL: <a href="${data.url}" target="_blank">${data.url}</a></p>
+            `;
+        } else {
+            document.getElementById('uploadResult').innerHTML = `<p style="color: #ED4245;">❌ Erreur: ${data.error}</p>`;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('uploadResult').innerHTML = `<p style="color: #ED4245;">❌ Erreur lors de l'upload</p>`;
+    }
+});
+
+// Save welcome/depart configuration
+saveWelcomeConfigBtn.addEventListener('click', async () => {
+    const guildId = document.getElementById('welcomeGuildId').value;
+    
+    if (!guildId) {
+        alert('Veuillez entrer le Guild ID');
+        return;
+    }
+    
+    const config = {
+        welcome: {
+            enabled: document.getElementById('welcomeEnabled').checked,
+            channelId: document.getElementById('welcomeChannelId').value,
+            message: document.getElementById('welcomeMessage').value,
+            color: document.getElementById('welcomeColor').value,
+            logo: document.getElementById('welcomeLogo').value,
+            thumbnail: document.getElementById('welcomeThumbnail').value,
+            image: document.getElementById('welcomeImage').value,
+            footer: document.getElementById('welcomeFooter').value,
+            footerIcon: document.getElementById('welcomeFooterIcon').value
+        },
+        depart: {
+            enabled: document.getElementById('departEnabled').checked,
+            channelId: document.getElementById('departChannelId').value,
+            message: document.getElementById('departMessage').value,
+            color: document.getElementById('departColor').value,
+            logo: document.getElementById('departLogo').value,
+            thumbnail: document.getElementById('departThumbnail').value,
+            image: document.getElementById('departImage').value,
+            footer: document.getElementById('departFooter').value,
+            footerIcon: document.getElementById('departFooterIcon').value
+        }
+    };
+    
+    try {
+        const response = await fetch(`/api/welcome-depart/${guildId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(config)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Configuration sauvegardée avec succès !');
+        } else {
+            alert('❌ Erreur lors de la sauvegarde');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Erreur lors de la sauvegarde');
+    }
+});
+
+// Load welcome/depart configuration
+loadWelcomeConfigBtn.addEventListener('click', async () => {
+    const guildId = document.getElementById('welcomeGuildId').value;
+    
+    if (!guildId) {
+        alert('Veuillez entrer le Guild ID');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/welcome-depart/${guildId}`);
+        const data = await response.json();
+        
+        if (data.config) {
+            const config = data.config;
+            
+            // Load welcome config
+            if (config.welcome) {
+                document.getElementById('welcomeEnabled').checked = config.welcome.enabled;
+                document.getElementById('welcomeChannelId').value = config.welcome.channelId || '';
+                document.getElementById('welcomeMessage').value = config.welcome.message || '';
+                document.getElementById('welcomeColor').value = config.welcome.color || '#FF0040';
+                document.getElementById('welcomeLogo').value = config.welcome.logo || '';
+                document.getElementById('welcomeThumbnail').value = config.welcome.thumbnail || '';
+                document.getElementById('welcomeImage').value = config.welcome.image || '';
+                document.getElementById('welcomeFooter').value = config.welcome.footer || '';
+                document.getElementById('welcomeFooterIcon').value = config.welcome.footerIcon || '';
+            }
+            
+            // Load depart config
+            if (config.depart) {
+                document.getElementById('departEnabled').checked = config.depart.enabled;
+                document.getElementById('departChannelId').value = config.depart.channelId || '';
+                document.getElementById('departMessage').value = config.depart.message || '';
+                document.getElementById('departColor').value = config.depart.color || '#FF0040';
+                document.getElementById('departLogo').value = config.depart.logo || '';
+                document.getElementById('departThumbnail').value = config.depart.thumbnail || '';
+                document.getElementById('departImage').value = config.depart.image || '';
+                document.getElementById('departFooter').value = config.depart.footer || '';
+                document.getElementById('departFooterIcon').value = config.depart.footerIcon || '';
+            }
+            
+            alert('✅ Configuration chargée avec succès !');
+        } else {
+            alert('⚠️ Aucune configuration trouvée pour ce serveur');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Erreur lors du chargement');
+    }
+});
