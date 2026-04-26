@@ -168,6 +168,178 @@ logoutBtn.addEventListener('click', async () => {
 // Load user info on page load
 loadUserInfo();
 
+// Load guilds on select-server page
+async function loadGuilds() {
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        
+        if (data.user && data.user.guilds) {
+            const guildsList = document.getElementById('guildsList');
+            
+            // Filtrer seulement les serveurs où l'utilisateur est admin
+            const adminGuilds = data.user.guilds.filter(guild => 
+                guild.permissions & 0x8 || guild.owner === true
+            );
+            
+            if (adminGuilds.length === 0) {
+                guildsList.innerHTML = '<p>Vous n\'êtes administrateur d\'aucun serveur.</p>';
+                return;
+            }
+            
+            guildsList.innerHTML = adminGuilds.map(guild => {
+                const icon = guild.icon 
+                    ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png" alt="${guild.name}" class="guild-icon">`
+                    : `<div class="guild-icon">${guild.name.substring(0, 2).toUpperCase()}</div>`;
+                
+                return `
+                    <div class="guild-card" onclick="selectGuild('${guild.id}')">
+                        ${icon}
+                        <div class="guild-name">${guild.name}</div>
+                        ${guild.owner ? '<div class="guild-owner">👑 Propriétaire</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+    } catch (error) {
+        console.error('Error loading guilds:', error);
+        document.getElementById('guildsList').innerHTML = '<p>Erreur lors du chargement des serveurs.</p>';
+    }
+}
+
+// Select guild
+async function selectGuild(guildId) {
+    try {
+        const response = await fetch('/api/select-guild', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ guildId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = '/';
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error selecting guild:', error);
+        alert('Erreur lors de la sélection du serveur');
+    }
+}
+
+// Load guilds if on select-server page
+if (document.getElementById('guildsList')) {
+    loadGuilds();
+}
+
+// Tabs functionality
+const tabs = document.querySelectorAll('.tab');
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const tabName = tab.getAttribute('data-tab');
+        
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        
+        // Add active class to clicked tab
+        tab.classList.add('active');
+        
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Show target tab content
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+    });
+});
+
+// Update welcome preview
+function updateWelcomePreview() {
+    const preview = document.getElementById('welcomePreview');
+    const message = document.getElementById('welcomeMessage').value || 'Bienvenue {user} sur {server} !';
+    const color = document.getElementById('welcomeColor').value;
+    const logo = document.getElementById('welcomeLogo').value;
+    const thumbnail = document.getElementById('welcomeThumbnail').value;
+    const image = document.getElementById('welcomeImage').value;
+    const footer = document.getElementById('welcomeFooter').value || 'Bienvenue !';
+    const footerIcon = document.getElementById('welcomeFooterIcon').value;
+    
+    preview.style.borderLeftColor = color;
+    
+    let html = `
+        <div class="embed-preview-header">
+            ${logo ? `<img src="${logo}" alt="Logo" class="embed-preview-avatar">` : '<div class="embed-preview-avatar">🤖</div>'}
+            <div class="embed-preview-author">Nom du serveur</div>
+        </div>
+        <div class="embed-preview-content">
+            <p>${message}</p>
+        </div>
+    `;
+    
+    if (thumbnail) {
+        html += `<img src="${thumbnail}" alt="Thumbnail" class="embed-preview-image" style="max-width: 80px; max-height: 80px; border-radius: 8px; margin-bottom: 10px;">`;
+    }
+    
+    if (image) {
+        html += `<img src="${image}" alt="Image" class="embed-preview-image">`;
+    }
+    
+    html += `
+        <div class="embed-preview-footer">
+            ${footerIcon ? `<img src="${footerIcon}" alt="Footer Icon" style="width: 20px; height: 20px; border-radius: 50%;">` : ''}
+            <span>${footer}</span>
+        </div>
+    `;
+    
+    preview.innerHTML = html;
+}
+
+// Update depart preview
+function updateDepartPreview() {
+    const preview = document.getElementById('departPreview');
+    const message = document.getElementById('departMessage').value || '{user} a quitté {server} !';
+    const color = document.getElementById('departColor').value;
+    const logo = document.getElementById('departLogo').value;
+    const thumbnail = document.getElementById('departThumbnail').value;
+    const image = document.getElementById('departImage').value;
+    const footer = document.getElementById('departFooter').value || 'Au revoir !';
+    const footerIcon = document.getElementById('departFooterIcon').value;
+    
+    preview.style.borderLeftColor = color;
+    
+    let html = `
+        <div class="embed-preview-header">
+            ${logo ? `<img src="${logo}" alt="Logo" class="embed-preview-avatar">` : '<div class="embed-preview-avatar">🤖</div>'}
+            <div class="embed-preview-author">Nom du serveur</div>
+        </div>
+        <div class="embed-preview-content">
+            <p>${message}</p>
+        </div>
+    `;
+    
+    if (thumbnail) {
+        html += `<img src="${thumbnail}" alt="Thumbnail" class="embed-preview-image" style="max-width: 80px; max-height: 80px; border-radius: 8px; margin-bottom: 10px;">`;
+    }
+    
+    if (image) {
+        html += `<img src="${image}" alt="Image" class="embed-preview-image">`;
+    }
+    
+    html += `
+        <div class="embed-preview-footer">
+            ${footerIcon ? `<img src="${footerIcon}" alt="Footer Icon" style="width: 20px; height: 20px; border-radius: 50%;">` : ''}
+            <span>${footer}</span>
+        </div>
+    `;
+    
+    preview.innerHTML = html;
+}
+
 // Auto-refresh logs every 10 seconds if on logs page
 setInterval(() => {
     const logsPage = document.getElementById('page-logs');

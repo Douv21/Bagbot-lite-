@@ -155,80 +155,120 @@
                             <input type="text" id="welcomeGuildId" placeholder="ID du serveur">
                         </div>
                         
-                        <h3>👋 Message de Bienvenue</h3>
-                        <div class="setting-item">
-                            <label>Activer la bienvenue</label>
-                            <input type="checkbox" id="welcomeEnabled">
-                        </div>
-                        <div class="setting-item">
-                            <label>Salon de bienvenue (ID)</label>
-                            <input type="text" id="welcomeChannelId" placeholder="ID du salon">
-                        </div>
-                        <div class="setting-item">
-                            <label>Message</label>
-                            <input type="text" id="welcomeMessage" placeholder="Bienvenue {user} sur {server} !">
-                        </div>
-                        <div class="setting-item">
-                            <label>Couleur (hex)</label>
-                            <input type="color" id="welcomeColor" value="#FF0040">
-                        </div>
-                        <div class="setting-item">
-                            <label>Logo du serveur (URL)</label>
-                            <input type="text" id="welcomeLogo" placeholder="https://...">
-                        </div>
-                        <div class="setting-item">
-                            <label>Thumbnail (URL)</label>
-                            <input type="text" id="welcomeThumbnail" placeholder="https://...">
-                        </div>
-                        <div class="setting-item">
-                            <label>Image (URL)</label>
-                            <input type="text" id="welcomeImage" placeholder="https://...">
-                        </div>
-                        <div class="setting-item">
-                            <label>Footer</label>
-                            <input type="text" id="welcomeFooter" placeholder="Bienvenue !">
-                        </div>
-                        <div class="setting-item">
-                            <label>Footer Icon (URL)</label>
-                            <input type="text" id="welcomeFooterIcon" placeholder="https://...">
+                        <!-- Tabs -->
+                        <div class="tabs">
+                            <div class="tab active" data-tab="welcome">👋 Bienvenue</div>
+                            <div class="tab" data-tab="depart">👋 Départ</div>
                         </div>
                         
-                        <h3>👋 Message de Départ</h3>
-                        <div class="setting-item">
-                            <label>Activer le départ</label>
-                            <input type="checkbox" id="departEnabled">
+                        <!-- Welcome Tab -->
+                        <div class="tab-content active" id="tab-welcome">
+                            <h3>Aperçu de l'embed</h3>
+                            <div class="embed-preview" id="welcomePreview">
+                                <div class="embed-preview-header">
+                                    <div class="embed-preview-avatar">🤖</div>
+                                    <div class="embed-preview-author">Nom du serveur</div>
+                                </div>
+                                <div class="embed-preview-content">
+                                    <p>Bienvenue @user sur @server !</p>
+                                </div>
+                                <div class="embed-preview-footer">
+                                    <span>🟢 Bienvenue !</span>
+                                </div>
+                            </div>
+                            
+                            <h3>Configuration</h3>
+                            <div class="setting-item">
+                                <label>Activer la bienvenue</label>
+                                <input type="checkbox" id="welcomeEnabled">
+                            </div>
+                            <div class="setting-item">
+                                <label>Salon de bienvenue (ID)</label>
+                                <input type="text" id="welcomeChannelId" placeholder="ID du salon">
+                            </div>
+                            <div class="setting-item">
+                                <label>Message</label>
+                                <input type="text" id="welcomeMessage" placeholder="Bienvenue {user} sur {server} !" oninput="updateWelcomePreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Couleur (hex)</label>
+                                <input type="color" id="welcomeColor" value="#FF0040" oninput="updateWelcomePreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Logo du serveur (URL)</label>
+                                <input type="text" id="welcomeLogo" placeholder="https://..." oninput="updateWelcomePreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Thumbnail (URL)</label>
+                                <input type="text" id="welcomeThumbnail" placeholder="https://..." oninput="updateWelcomePreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Image (URL)</label>
+                                <input type="text" id="welcomeImage" placeholder="https://..." oninput="updateWelcomePreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Footer</label>
+                                <input type="text" id="welcomeFooter" placeholder="Bienvenue !" oninput="updateWelcomePreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Footer Icon (URL)</label>
+                                <input type="text" id="welcomeFooterIcon" placeholder="https://..." oninput="updateWelcomePreview()">
+                            </div>
                         </div>
-                        <div class="setting-item">
-                            <label>Salon de départ (ID)</label>
-                            <input type="text" id="departChannelId" placeholder="ID du salon">
-                        </div>
-                        <div class="setting-item">
-                            <label>Message</label>
-                            <input type="text" id="departMessage" placeholder="{user} a quitté {server} !">
-                        </div>
-                        <div class="setting-item">
-                            <label>Couleur (hex)</label>
-                            <input type="color" id="departColor" value="#FF0040">
-                        </div>
-                        <div class="setting-item">
-                            <label>Logo du serveur (URL)</label>
-                            <input type="text" id="departLogo" placeholder="https://...">
-                        </div>
-                        <div class="setting-item">
-                            <label>Thumbnail (URL)</label>
-                            <input type="text" id="departThumbnail" placeholder="https://...">
-                        </div>
-                        <div class="setting-item">
-                            <label>Image (URL)</label>
-                            <input type="text" id="departImage" placeholder="https://...">
-                        </div>
-                        <div class="setting-item">
-                            <label>Footer</label>
-                            <input type="text" id="departFooter" placeholder="Au revoir !">
-                        </div>
-                        <div class="setting-item">
-                            <label>Footer Icon (URL)</label>
-                            <input type="text" id="departFooterIcon" placeholder="https://...">
+                        
+                        <!-- Depart Tab -->
+                        <div class="tab-content" id="tab-depart">
+                            <h3>Aperçu de l'embed</h3>
+                            <div class="embed-preview" id="departPreview">
+                                <div class="embed-preview-header">
+                                    <div class="embed-preview-avatar">🤖</div>
+                                    <div class="embed-preview-author">Nom du serveur</div>
+                                </div>
+                                <div class="embed-preview-content">
+                                    <p>@user a quitté @server !</p>
+                                </div>
+                                <div class="embed-preview-footer">
+                                    <span>🟢 Au revoir !</span>
+                                </div>
+                            </div>
+                            
+                            <h3>Configuration</h3>
+                            <div class="setting-item">
+                                <label>Activer le départ</label>
+                                <input type="checkbox" id="departEnabled">
+                            </div>
+                            <div class="setting-item">
+                                <label>Salon de départ (ID)</label>
+                                <input type="text" id="departChannelId" placeholder="ID du salon">
+                            </div>
+                            <div class="setting-item">
+                                <label>Message</label>
+                                <input type="text" id="departMessage" placeholder="{user} a quitté {server} !" oninput="updateDepartPreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Couleur (hex)</label>
+                                <input type="color" id="departColor" value="#FF0040" oninput="updateDepartPreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Logo du serveur (URL)</label>
+                                <input type="text" id="departLogo" placeholder="https://..." oninput="updateDepartPreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Thumbnail (URL)</label>
+                                <input type="text" id="departThumbnail" placeholder="https://..." oninput="updateDepartPreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Image (URL)</label>
+                                <input type="text" id="departImage" placeholder="https://..." oninput="updateDepartPreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Footer</label>
+                                <input type="text" id="departFooter" placeholder="Au revoir !" oninput="updateDepartPreview()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Footer Icon (URL)</label>
+                                <input type="text" id="departFooterIcon" placeholder="https://..." oninput="updateDepartPreview()">
+                            </div>
                         </div>
                         
                         <h3>📤 Upload d'images</h3>

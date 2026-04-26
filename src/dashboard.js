@@ -105,11 +105,12 @@ function ensureAdmin(req, res, next) {
 }
 
 // Route principale
-app.get('/', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+app.get('/', ensureAuthenticated, (req, res) => {
+  // Si aucun serveur n'est sélectionné, rediriger vers la sélection
+  if (!req.session.selectedGuild) {
+    res.sendFile(path.join(__dirname, '../public/select-server.html'));
   } else {
-    res.sendFile(path.join(__dirname, '../public/login.html'));
+    res.sendFile(path.join(__dirname, '../public/index.html'));
   }
 });
 
@@ -142,6 +143,39 @@ app.get('/api/user', ensureAuthenticated, (req, res) => {
       guilds: req.user.guilds
     }
   });
+});
+
+// API pour sélectionner un serveur
+app.post('/api/select-guild', ensureAuthenticated, (req, res) => {
+  const { guildId } = req.body;
+  
+  if (!guildId) {
+    return res.status(400).json({ error: 'Guild ID requis' });
+  }
+  
+  // Vérifier si l'utilisateur est admin de ce serveur
+  const userGuilds = req.user.guilds || [];
+  const guild = userGuilds.find(g => g.id === guildId);
+  
+  if (!guild) {
+    return res.status(403).json({ error: 'Vous n\'êtes pas membre de ce serveur' });
+  }
+  
+  const isAdmin = guild.permissions & 0x8 || guild.owner === true;
+  
+  if (!isAdmin) {
+    return res.status(403).json({ error: 'Vous n\'êtes pas administrateur de ce serveur' });
+  }
+  
+  // Sauvegarder le serveur sélectionné dans la session
+  req.session.selectedGuild = guild;
+  
+  res.json({ success: true, guild });
+});
+
+// API pour obtenir le serveur sélectionné
+app.get('/api/selected-guild', ensureAuthenticated, (req, res) => {
+  res.json({ guild: req.session.selectedGuild || null });
 });
 
 // Route pour le pull depuis GitHub
