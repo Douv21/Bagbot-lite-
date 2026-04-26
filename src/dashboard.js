@@ -124,10 +124,11 @@ app.get('/auth/callback', passport.authenticate('discord', {
 });
 
 app.get('/auth/logout', (req, res) => {
-  req.logout((err) => {
+  req.session.destroy((err) => {
     if (err) {
       console.error('Erreur logout:', err);
     }
+    res.clearCookie('connect.sid');
     res.redirect('/auth/login');
   });
 });
@@ -176,6 +177,14 @@ app.post('/api/select-guild', ensureAuthenticated, (req, res) => {
 // API pour obtenir le serveur sélectionné
 app.get('/api/selected-guild', ensureAuthenticated, (req, res) => {
   res.json({ guild: req.session.selectedGuild || null });
+});
+
+// API pour obtenir les serveurs où le bot est présent
+app.get('/api/bot-guilds', ensureAuthenticated, (req, res) => {
+  // Pour l'instant, on retourne une liste vide
+  // Cette fonctionnalité nécessitera d'accéder au client Discord du bot
+  // Pour l'instant, on utilise les guilds de l'utilisateur
+  res.json({ guilds: [] });
 });
 
 // Route pour le pull depuis GitHub

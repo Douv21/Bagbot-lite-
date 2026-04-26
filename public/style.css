@@ -5,19 +5,20 @@
 }
 
 :root {
-    --primary-color: #FF0040;
-    --primary-dark: #CC0033;
-    --secondary-color: #FF3366;
-    --danger-color: #FF0040;
-    --warning-color: #FF6600;
-    --bg-dark: #1A0000;
-    --bg-darker: #0D0000;
-    --bg-light: #330000;
+    --primary-color: #FFD700;
+    --primary-dark: #FFA500;
+    --secondary-color: #C0C0C0;
+    --danger-color: #FF4444;
+    --warning-color: #FFAA00;
+    --bg-dark: #1A1A2E;
+    --bg-darker: #0F0F1A;
+    --bg-light: #2A2A4A;
     --text-primary: #FFFFFF;
-    --text-secondary: #FF6B6B;
+    --text-secondary: #B8B8D0;
     --sidebar-width: 250px;
-    --accent-red: #FF0040;
-    --accent-dark-red: #990000;
+    --accent-gold: #FFD700;
+    --accent-dark-gold: #B8860B;
+    --accent-silver: #C0C0C0;
 }
 
 body {
@@ -43,8 +44,8 @@ body {
     top: 0;
     z-index: 1000;
     transition: transform 0.3s ease;
-    border-right: 2px solid var(--accent-red);
-    box-shadow: 4px 0 20px rgba(255, 0, 64, 0.3);
+    border-right: 2px solid var(--accent-gold);
+    box-shadow: 4px 0 20px rgba(255, 215, 0, 0.2);
 }
 
 .sidebar-header {
@@ -58,8 +59,8 @@ body {
 
 .sidebar-header h2 {
     font-size: 1.5rem;
-    color: var(--accent-red);
-    text-shadow: 0 0 10px rgba(255, 0, 64, 0.5);
+    color: var(--accent-gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     font-weight: 700;
 }
 
@@ -90,15 +91,15 @@ body {
 }
 
 .nav-item:hover {
-    background: var(--accent-red);
-    color: var(--text-primary);
-    box-shadow: 0 0 15px rgba(255, 0, 64, 0.4);
+    background: var(--accent-gold);
+    color: var(--bg-darker);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
 .nav-item.active {
-    background: var(--accent-red);
-    color: var(--text-primary);
-    box-shadow: 0 0 15px rgba(255, 0, 64, 0.4);
+    background: var(--accent-gold);
+    color: var(--bg-darker);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
     border-left: 3px solid var(--text-primary);
 }
 
@@ -120,11 +121,11 @@ body {
     align-items: center;
     padding: 20px 30px;
     background: linear-gradient(90deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-    border-bottom: 2px solid var(--accent-red);
+    border-bottom: 2px solid var(--accent-gold);
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.2);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
 }
 
 .menu-toggle {
@@ -174,14 +175,14 @@ body {
 }
 
 .btn-primary {
-    background: var(--accent-red);
-    color: var(--text-primary);
-    box-shadow: 0 0 15px rgba(255, 0, 64, 0.4);
+    background: var(--accent-gold);
+    color: var(--bg-darker);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
 .btn-primary:hover {
     background: var(--primary-dark);
-    box-shadow: 0 0 25px rgba(255, 0, 64, 0.6);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
 }
 
 .btn-danger {
@@ -213,12 +214,12 @@ body {
 
 .discord-embed {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-    border-left: 4px solid var(--accent-red);
+    border-left: 4px solid var(--accent-gold);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.3);
-    border: 1px solid var(--accent-dark-red);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+    border: 1px solid var(--accent-dark-gold);
 }
 
 .embed-author {
@@ -231,13 +232,13 @@ body {
 .embed-avatar {
     width: 40px;
     height: 40px;
-    background: var(--accent-red);
+    background: var(--accent-gold);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    box-shadow: 0 0 15px rgba(255, 0, 64, 0.5);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
 
 .embed-author-name {
@@ -277,14 +278,14 @@ body {
     padding: 25px;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.2);
-    border: 1px solid var(--accent-dark-red);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+    border: 1px solid var(--accent-dark-gold);
     transition: all 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(255, 0, 64, 0.4);
+    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
 }
 
 .stat-icon {
@@ -295,9 +296,9 @@ body {
 .stat-value {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--accent-red);
+    color: var(--accent-gold);
     margin-bottom: 5px;
-    text-shadow: 0 0 10px rgba(255, 0, 64, 0.5);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .stat-label {
@@ -318,19 +319,19 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.2);
-    border: 1px solid var(--accent-dark-red);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+    border: 1px solid var(--accent-dark-gold);
     transition: all 0.3s ease;
 }
 
 .command-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 25px rgba(255, 0, 64, 0.4);
+    box-shadow: 0 6px 25px rgba(255, 215, 0, 0.3);
 }
 
 .command-name {
     font-weight: 600;
-    color: var(--accent-red);
+    color: var(--accent-gold);
     font-size: 1.1rem;
 }
 
@@ -344,8 +345,8 @@ body {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.2);
-    border: 1px solid var(--accent-dark-red);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+    border: 1px solid var(--accent-dark-gold);
 }
 
 .log-content,
@@ -367,8 +368,8 @@ body {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.2);
-    border: 1px solid var(--accent-dark-red);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+    border: 1px solid var(--accent-dark-gold);
 }
 
 .setting-item {
@@ -394,8 +395,8 @@ body {
 
 .setting-item input:focus {
     outline: none;
-    border-color: var(--accent-red);
-    box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 /* Responsive Design */
@@ -489,10 +490,10 @@ body {
 
 .login-box {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-    border: 2px solid var(--accent-red);
+    border: 2px solid var(--accent-gold);
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 8px 40px rgba(255, 0, 64, 0.3);
+    box-shadow: 0 8px 40px rgba(255, 215, 0, 0.2);
     max-width: 450px;
     width: 90%;
     text-align: center;
@@ -500,8 +501,8 @@ body {
 
 .login-header h1 {
     font-size: 2.5rem;
-    color: var(--accent-red);
-    text-shadow: 0 0 20px rgba(255, 0, 64, 0.5);
+    color: var(--accent-gold);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
     margin-bottom: 10px;
 }
 
@@ -559,7 +560,7 @@ body {
 
 .guild-card {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-    border: 2px solid var(--accent-dark-red);
+    border: 2px solid var(--accent-dark-gold);
     border-radius: 12px;
     padding: 20px;
     cursor: pointer;
@@ -568,8 +569,8 @@ body {
 }
 
 .guild-card:hover {
-    border-color: var(--accent-red);
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.4);
+    border-color: var(--accent-gold);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
     transform: translateY(-3px);
 }
 
@@ -578,13 +579,13 @@ body {
     height: 64px;
     border-radius: 50%;
     margin: 0 auto 10px;
-    background: var(--accent-red);
+    background: var(--accent-gold);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--bg-darker);
 }
 
 .guild-name {
@@ -596,7 +597,7 @@ body {
 
 .guild-owner {
     font-size: 0.8rem;
-    color: var(--accent-red);
+    color: var(--accent-gold);
 }
 
 /* Tabs for Welcome/Depart */
@@ -604,14 +605,14 @@ body {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    border-bottom: 2px solid var(--accent-dark-red);
+    border-bottom: 2px solid var(--accent-dark-gold);
     padding-bottom: 10px;
 }
 
 .tab {
     padding: 10px 20px;
     background: var(--bg-dark);
-    border: 2px solid var(--accent-dark-red);
+    border: 2px solid var(--accent-dark-gold);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -620,15 +621,15 @@ body {
 }
 
 .tab:hover {
-    border-color: var(--accent-red);
+    border-color: var(--accent-gold);
     color: var(--text-primary);
 }
 
 .tab.active {
-    background: var(--accent-red);
-    border-color: var(--accent-red);
-    color: var(--text-primary);
-    box-shadow: 0 0 15px rgba(255, 0, 64, 0.4);
+    background: var(--accent-gold);
+    border-color: var(--accent-gold);
+    color: var(--bg-darker);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
 .tab-content {
@@ -642,12 +643,12 @@ body {
 /* Embed Preview */
 .embed-preview {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-    border-left: 4px solid var(--accent-red);
+    border-left: 4px solid var(--accent-gold);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 20px rgba(255, 0, 64, 0.3);
-    border: 1px solid var(--accent-dark-red);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+    border: 1px solid var(--accent-dark-gold);
 }
 
 .embed-preview-header {
@@ -660,13 +661,13 @@ body {
 .embed-preview-avatar {
     width: 40px;
     height: 40px;
-    background: var(--accent-red);
+    background: var(--accent-gold);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    box-shadow: 0 0 15px rgba(255, 0, 64, 0.5);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
 
 .embed-preview-author {

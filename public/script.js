@@ -187,6 +187,13 @@ async function loadGuilds() {
                 return;
             }
             
+            // Trier les serveurs: d'abord ceux où l'utilisateur est owner
+            adminGuilds.sort((a, b) => {
+                if (a.owner && !b.owner) return -1;
+                if (!a.owner && b.owner) return 1;
+                return 0;
+            });
+            
             guildsList.innerHTML = adminGuilds.map(guild => {
                 const icon = guild.icon 
                     ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png" alt="${guild.name}" class="guild-icon">`
@@ -196,7 +203,7 @@ async function loadGuilds() {
                     <div class="guild-card" onclick="selectGuild('${guild.id}')">
                         ${icon}
                         <div class="guild-name">${guild.name}</div>
-                        ${guild.owner ? '<div class="guild-owner">👑 Propriétaire</div>' : ''}
+                        ${guild.owner ? '<div class="guild-owner">👑 Propriétaire</div>' : '<div class="guild-owner">⚡ Administrateur</div>'}
                     </div>
                 `;
             }).join('');
