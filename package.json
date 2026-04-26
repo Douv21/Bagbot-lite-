@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "register": "node src/deploy-commands.js",
-    "delete-commands": "node src/delete-commands.js"
+    "delete-commands": "node src/delete-commands.js",
+    "test-token": "node src/test-token.js"
   },
   "engines": {
     "node": ">=18.17.0"
