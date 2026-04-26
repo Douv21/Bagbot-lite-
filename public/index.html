@@ -44,8 +44,6 @@
                 <button class="menu-toggle" id="menuToggle">☰</button>
                 <h1>Dashboard</h1>
                 <div class="header-actions">
-                    <div class="user-info" id="userInfo"></div>
-                    <button class="btn btn-danger" id="logoutBtn">🚪 Déconnexion</button>
                     <button class="btn btn-primary" id="pullBtn">🔄 Pull & Restart</button>
                 </div>
             </header>
@@ -151,8 +149,9 @@
                     
                     <div class="settings-container">
                         <div class="setting-item">
-                            <label>Guild ID</label>
-                            <input type="text" id="welcomeGuildId" placeholder="ID du serveur">
+                            <label>Serveur (Guild ID)</label>
+                            <input type="text" id="welcomeGuildId" placeholder="ID du serveur" value="">
+                            <small style="color: var(--text-secondary);">Laissez vide pour utiliser le serveur par défaut</small>
                         </div>
                         
                         <!-- Tabs -->
@@ -183,8 +182,10 @@
                                 <input type="checkbox" id="welcomeEnabled">
                             </div>
                             <div class="setting-item">
-                                <label>Salon de bienvenue (ID)</label>
-                                <input type="text" id="welcomeChannelId" placeholder="ID du salon">
+                                <label>Salon de bienvenue</label>
+                                <select id="welcomeChannelId">
+                                    <option value="">Sélectionner un salon</option>
+                                </select>
                             </div>
                             <div class="setting-item">
                                 <label>Message</label>
@@ -238,8 +239,10 @@
                                 <input type="checkbox" id="departEnabled">
                             </div>
                             <div class="setting-item">
-                                <label>Salon de départ (ID)</label>
-                                <input type="text" id="departChannelId" placeholder="ID du salon">
+                                <label>Salon de départ</label>
+                                <select id="departChannelId">
+                                    <option value="">Sélectionner un salon</option>
+                                </select>
                             </div>
                             <div class="setting-item">
                                 <label>Message</label>

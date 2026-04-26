@@ -7,8 +7,6 @@ const pages = document.querySelectorAll('.page');
 const pullBtn = document.getElementById('pullBtn');
 const botLogs = document.getElementById('botLogs');
 const pm2Status = document.getElementById('pm2Status');
-const logoutBtn = document.getElementById('logoutBtn');
-const userInfo = document.getElementById('userInfo');
 
 // Mobile Sidebar Toggle
 menuToggle.addEventListener('click', () => {
@@ -133,114 +131,37 @@ function updateStats() {
 // Initialize
 updateStats();
 
-// Load user info
-async function loadUserInfo() {
-    try {
-        const response = await fetch('/api/user');
-        const data = await response.json();
-        
-        if (data.user) {
-            const user = data.user;
-            const avatarUrl = user.avatar 
-                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-                : `https://cdn.discordapp.com/embed/avatars/${user.discriminator % 5}.png`;
-            
-            userInfo.innerHTML = `
-                <img src="${avatarUrl}" alt="Avatar" class="user-avatar">
-                <span>${user.username}#${user.discriminator}</span>
-            `;
-        }
-    } catch (error) {
-        console.error('Error loading user info:', error);
-    }
-}
-
-// Logout
-logoutBtn.addEventListener('click', async () => {
-    try {
-        await fetch('/auth/logout');
-        window.location.href = '/auth/login';
-    } catch (error) {
-        console.error('Error logout:', error);
-    }
+// Load channels when guild ID changes
+document.getElementById('welcomeGuildId').addEventListener('change', async function() {
+  const guildId = this.value;
+  if (guildId) {
+    await loadChannels(guildId);
+  }
 });
 
-// Load user info on page load
-loadUserInfo();
-
-// Load guilds on select-server page
-async function loadGuilds() {
-    try {
-        const response = await fetch('/api/user');
-        const data = await response.json();
-        
-        if (data.user && data.user.guilds) {
-            const guildsList = document.getElementById('guildsList');
-            
-            // Filtrer seulement les serveurs où l'utilisateur est admin
-            const adminGuilds = data.user.guilds.filter(guild => 
-                guild.permissions & 0x8 || guild.owner === true
-            );
-            
-            if (adminGuilds.length === 0) {
-                guildsList.innerHTML = '<p>Vous n\'êtes administrateur d\'aucun serveur.</p>';
-                return;
-            }
-            
-            // Trier les serveurs: d'abord ceux où l'utilisateur est owner
-            adminGuilds.sort((a, b) => {
-                if (a.owner && !b.owner) return -1;
-                if (!a.owner && b.owner) return 1;
-                return 0;
-            });
-            
-            guildsList.innerHTML = adminGuilds.map(guild => {
-                const icon = guild.icon 
-                    ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png" alt="${guild.name}" class="guild-icon">`
-                    : `<div class="guild-icon">${guild.name.substring(0, 2).toUpperCase()}</div>`;
-                
-                return `
-                    <div class="guild-card" onclick="selectGuild('${guild.id}')">
-                        ${icon}
-                        <div class="guild-name">${guild.name}</div>
-                        ${guild.owner ? '<div class="guild-owner">👑 Propriétaire</div>' : '<div class="guild-owner">⚡ Administrateur</div>'}
-                    </div>
-                `;
-            }).join('');
-        }
-    } catch (error) {
-        console.error('Error loading guilds:', error);
-        document.getElementById('guildsList').innerHTML = '<p>Erreur lors du chargement des serveurs.</p>';
+// Load channels from API
+async function loadChannels(guildId) {
+  try {
+    const response = await fetch(`/api/guilds/${guildId}/channels`);
+    const data = await response.json();
+    
+    const welcomeSelect = document.getElementById('welcomeChannelId');
+    const departSelect = document.getElementById('departChannelId');
+    
+    // Clear existing options except the first one
+    welcomeSelect.innerHTML = '<option value="">Sélectionner un salon</option>';
+    departSelect.innerHTML = '<option value="">Sélectionner un salon</option>';
+    
+    if (data.channels && data.channels.length > 0) {
+      data.channels.forEach(channel => {
+        const option = `<option value="${channel.id}">${channel.name}</option>`;
+        welcomeSelect.innerHTML += option;
+        departSelect.innerHTML += option;
+      });
     }
-}
-
-// Select guild
-async function selectGuild(guildId) {
-    try {
-        const response = await fetch('/api/select-guild', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ guildId })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            window.location.href = '/';
-        } else {
-            alert('Erreur: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Error selecting guild:', error);
-        alert('Erreur lors de la sélection du serveur');
-    }
-}
-
-// Load guilds if on select-server page
-if (document.getElementById('guildsList')) {
-    loadGuilds();
+  } catch (error) {
+    console.error('Error loading channels:', error);
+  }
 }
 
 // Tabs functionality
