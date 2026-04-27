@@ -3,290 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAG Bot Dashboard</title>
+    <title>BAG Bot - Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>👑 Bagbot Elite</h2>
-                <button class="close-sidebar" id="closeSidebar">✕</button>
+                <h1>🤖 BAG Bot</h1>
+                <p>Dashboard</p>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" data-page="home">
-                    <span>🏠</span> Accueil
-                </a>
-                <a href="#" class="nav-item" data-page="commands">
-                    <span>⚡</span> Commandes
-                </a>
-                <a href="#" class="nav-item" data-page="logs">
-                    <span>📋</span> Logs
-                </a>
-                <a href="#" class="nav-item" data-page="status">
-                    <span>📊</span> Statut
-                </a>
-                <a href="#" class="nav-item" data-page="settings">
-                    <span>⚙️</span> Paramètres
-                </a>
-                <a href="#" class="nav-item" data-page="welcome">
-                    <span>👋</span> Bienvenue/Départ
-                </a>
+                <div class="nav-item active" data-page="welcome-depart">
+                    <span>👋</span> Bienvenue/Depart
+                </div>
             </nav>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
             <header class="header">
-                <button class="menu-toggle" id="menuToggle">☰</button>
-                <h1>Dashboard</h1>
-                <div class="header-actions">
-                    <div class="user-info" id="userInfo"></div>
-                    <button class="btn btn-danger" id="logoutBtn">🚪 Déconnexion</button>
-                    <button class="btn btn-primary" id="pullBtn">🔄 Pull & Restart</button>
-                </div>
+                <h1>Bienvenue/Depart</h1>
             </header>
 
-            <!-- Pages -->
-            <div class="pages">
-                <!-- Home Page -->
-                <div class="page active" id="page-home">
-                    <div class="welcome-section">
-                        <div class="embed discord-embed">
-                            <div class="embed-author">
-                                <div class="embed-avatar">🤖</div>
-                                <div class="embed-author-name">BAG Bot</div>
-                            </div>
-                            <div class="embed-content">
-                                <h3>Bienvenue sur le Dashboard !</h3>
-                                <p>Le bot est actuellement en ligne et prêt à servir votre serveur.</p>
-                            </div>
-                            <div class="embed-footer">
-                                <span>🟢 En ligne</span>
-                            </div>
-                        </div>
+            <div class="content">
+                <!-- Welcome Section -->
+                <div class="section">
+                    <h2>👋 Bienvenue</h2>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="welcomeEnabled" checked>
+                            Activer les messages de bienvenue
+                        </label>
                     </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">👥</div>
-                            <div class="stat-value" id="serverCount">-</div>
-                            <div class="stat-label">Serveurs</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">👤</div>
-                            <div class="stat-value" id="userCount">-</div>
-                            <div class="stat-label">Utilisateurs</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">⚡</div>
-                            <div class="stat-value" id="commandCount">-</div>
-                            <div class="stat-label">Commandes</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">⏱️</div>
-                            <div class="stat-value" id="uptime">-</div>
-                            <div class="stat-label">Uptime</div>
-                        </div>
+                    <div class="form-group">
+                        <label>Message de bienvenue</label>
+                        <textarea id="welcomeMessage" rows="3">Bienvenue {user} !</textarea>
+                        <small>Variables: {user}, {server}</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Salon de bienvenue</label>
+                        <input type="text" id="welcomeChannel" placeholder="ID du salon">
                     </div>
                 </div>
 
-                <!-- Commands Page -->
-                <div class="page" id="page-commands">
-                    <h2>Commandes disponibles</h2>
-                    <div class="commands-list">
-                        <div class="command-card">
-                            <div class="command-name">/ping</div>
-                            <div class="command-desc">Répond Pong!</div>
-                        </div>
-                        <div class="command-card">
-                            <div class="command-name">/bonjour</div>
-                            <div class="command-desc">Dit bonjour</div>
-                        </div>
+                <!-- Depart Section -->
+                <div class="section">
+                    <h2>👋 Départ</h2>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="departEnabled" checked>
+                            Activer les messages de départ
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Message de départ</label>
+                        <textarea id="departMessage" rows="3">Au revoir {user} !</textarea>
+                        <small>Variables: {user}, {server}</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Salon de départ</label>
+                        <input type="text" id="departChannel" placeholder="ID du salon">
                     </div>
                 </div>
 
-                <!-- Logs Page -->
-                <div class="page" id="page-logs">
-                    <h2>Logs du Bot</h2>
-                    <div class="log-container">
-                        <pre class="log-content" id="botLogs">Chargement des logs...</pre>
-                    </div>
-                </div>
-
-                <!-- Status Page -->
-                <div class="page" id="page-status">
-                    <h2>Statut PM2</h2>
-                    <div class="status-container">
-                        <pre class="status-content" id="pm2Status">Chargement du statut...</pre>
-                    </div>
-                </div>
-
-                <!-- Settings Page -->
-                <div class="page" id="page-settings">
-                    <h2>Paramètres</h2>
-                    <div class="settings-container">
-                        <div class="setting-item">
-                            <label>Token Discord</label>
-                            <input type="password" id="discordToken" placeholder="••••••••">
-                        </div>
-                        <div class="setting-item">
-                            <label>Client ID</label>
-                            <input type="text" id="clientId" placeholder="Votre Client ID">
-                        </div>
-                        <div class="setting-item">
-                            <label>Guild ID</label>
-                            <input type="text" id="guildId" placeholder="Votre Guild ID">
-                        </div>
-                        <button class="btn btn-primary" id="saveSettings">💾 Sauvegarder</button>
-                    </div>
-                </div>
-
-                <!-- Welcome/Depart Page -->
-                <div class="page" id="page-welcome">
-                    <h2>Configuration Bienvenue/Départ</h2>
-                    
-                    <div class="settings-container">
-                        <div class="setting-item">
-                            <label>Serveur (Guild ID)</label>
-                            <input type="text" id="welcomeGuildId" placeholder="ID du serveur" value="">
-                            <small style="color: var(--text-secondary);">Laissez vide pour utiliser le serveur par défaut</small>
-                        </div>
-                        
-                        <!-- Tabs -->
-                        <div class="tabs">
-                            <div class="tab active" data-tab="welcome">👋 Bienvenue</div>
-                            <div class="tab" data-tab="depart">👋 Départ</div>
-                        </div>
-                        
-                        <!-- Welcome Tab -->
-                        <div class="tab-content active" id="tab-welcome">
-                            <h3>Aperçu de l'embed</h3>
-                            <div class="embed-preview" id="welcomePreview">
-                                <div class="embed-preview-header">
-                                    <div class="embed-preview-avatar">🤖</div>
-                                    <div class="embed-preview-author">Nom du serveur</div>
-                                </div>
-                                <div class="embed-preview-content">
-                                    <p>Bienvenue @user sur @server !</p>
-                                </div>
-                                <div class="embed-preview-footer">
-                                    <span>🟢 Bienvenue !</span>
-                                </div>
-                            </div>
-                            
-                            <h3>Configuration</h3>
-                            <div class="setting-item">
-                                <label>Activer la bienvenue</label>
-                                <input type="checkbox" id="welcomeEnabled">
-                            </div>
-                            <div class="setting-item">
-                                <label>Salon de bienvenue</label>
-                                <select id="welcomeChannelId">
-                                    <option value="">Sélectionner un salon</option>
-                                </select>
-                            </div>
-                            <div class="setting-item">
-                                <label>Message</label>
-                                <input type="text" id="welcomeMessage" placeholder="Bienvenue {user} sur {server} !" oninput="updateWelcomePreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Couleur (hex)</label>
-                                <input type="color" id="welcomeColor" value="#FF0040" oninput="updateWelcomePreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Logo du serveur (URL)</label>
-                                <input type="text" id="welcomeLogo" placeholder="https://..." oninput="updateWelcomePreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Thumbnail (URL)</label>
-                                <input type="text" id="welcomeThumbnail" placeholder="https://..." oninput="updateWelcomePreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Image (URL)</label>
-                                <input type="text" id="welcomeImage" placeholder="https://..." oninput="updateWelcomePreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Footer</label>
-                                <input type="text" id="welcomeFooter" placeholder="Bienvenue !" oninput="updateWelcomePreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Footer Icon (URL)</label>
-                                <input type="text" id="welcomeFooterIcon" placeholder="https://..." oninput="updateWelcomePreview()">
-                            </div>
-                        </div>
-                        
-                        <!-- Depart Tab -->
-                        <div class="tab-content" id="tab-depart">
-                            <h3>Aperçu de l'embed</h3>
-                            <div class="embed-preview" id="departPreview">
-                                <div class="embed-preview-header">
-                                    <div class="embed-preview-avatar">🤖</div>
-                                    <div class="embed-preview-author">Nom du serveur</div>
-                                </div>
-                                <div class="embed-preview-content">
-                                    <p>@user a quitté @server !</p>
-                                </div>
-                                <div class="embed-preview-footer">
-                                    <span>🟢 Au revoir !</span>
-                                </div>
-                            </div>
-                            
-                            <h3>Configuration</h3>
-                            <div class="setting-item">
-                                <label>Activer le départ</label>
-                                <input type="checkbox" id="departEnabled">
-                            </div>
-                            <div class="setting-item">
-                                <label>Salon de départ</label>
-                                <select id="departChannelId">
-                                    <option value="">Sélectionner un salon</option>
-                                </select>
-                            </div>
-                            <div class="setting-item">
-                                <label>Message</label>
-                                <input type="text" id="departMessage" placeholder="{user} a quitté {server} !" oninput="updateDepartPreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Couleur (hex)</label>
-                                <input type="color" id="departColor" value="#FF0040" oninput="updateDepartPreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Logo du serveur (URL)</label>
-                                <input type="text" id="departLogo" placeholder="https://..." oninput="updateDepartPreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Thumbnail (URL)</label>
-                                <input type="text" id="departThumbnail" placeholder="https://..." oninput="updateDepartPreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Image (URL)</label>
-                                <input type="text" id="departImage" placeholder="https://..." oninput="updateDepartPreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Footer</label>
-                                <input type="text" id="departFooter" placeholder="Au revoir !" oninput="updateDepartPreview()">
-                            </div>
-                            <div class="setting-item">
-                                <label>Footer Icon (URL)</label>
-                                <input type="text" id="departFooterIcon" placeholder="https://..." oninput="updateDepartPreview()">
-                            </div>
-                        </div>
-                        
-                        <h3>📤 Upload d'images</h3>
-                        <div class="setting-item">
-                            <label>Uploader une image</label>
-                            <input type="file" id="imageUpload" accept="image/*">
-                        </div>
-                        <button class="btn btn-primary" id="uploadImage">📤 Uploader</button>
-                        <div id="uploadResult"></div>
-                        
-                        <button class="btn btn-primary" id="saveWelcomeConfig">💾 Sauvegarder la configuration</button>
-                        <button class="btn btn-primary" id="loadWelcomeConfig">📥 Charger la configuration</button>
-                    </div>
+                <!-- Save Button -->
+                <div class="actions">
+                    <button class="btn btn-primary" id="saveBtn">💾 Sauvegarder</button>
                 </div>
             </div>
         </main>

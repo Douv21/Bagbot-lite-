@@ -1,24 +1,17 @@
 {
-  "name": "bagbot-lite",
+  "name": "bagbot-dashboard",
   "version": "1.0.0",
-  "description": "BAG Bot Lite - Discord Bot",
-  "main": "src/index.js",
+  "description": "Dashboard BAG Bot - Bienvenue/Depart",
+  "main": "src/dashboard.js",
   "scripts": {
-    "start": "node src/index.js",
-    "register": "node src/deploy-commands.js",
-    "delete-commands": "node src/delete-commands.js",
-    "test-token": "node src/test-token.js"
+    "start": "node src/dashboard.js",
+    "dev": "node src/dashboard.js"
   },
   "engines": {
     "node": ">=18.17.0"
   },
   "dependencies": {
-    "discord.js": "^14.16.3",
-    "dotenv": "^16.6.1",
     "express": "^4.19.2",
-    "multer": "^1.4.5-lts.1",
-    "express-session": "^1.18.1",
-    "passport": "^0.7.0",
-    "passport-discord": "^0.1.4"
+    "dotenv": "^16.6.1"
   }
 }
