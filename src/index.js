@@ -1,13 +1,30 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const { Client, GatewayIntentBits } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
+
+// Debug: Vérifier si le fichier .env existe
+const envPath = path.resolve(__dirname, '../.env');
+console.log('🔍 Debug - Chemin .env:', envPath);
+console.log('🔍 Debug - Fichier .env existe:', fs.existsSync(envPath));
+
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  console.log('🔍 Debug - Contenu .env (premières lignes):');
+  console.log(envContent.split('\n').slice(0, 5).join('\n'));
+}
 
 // Debug: Afficher toutes les variables d'environnement
 console.log('🔍 Debug variables d\'environnement:');
 console.log('DISCORD_TOKEN présent:', !!process.env.DISCORD_TOKEN);
 console.log('DISCORD_TOKEN longueur:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : 0);
 if (process.env.DISCORD_TOKEN) {
-  console.log('DISCORD_TOKEN début:', process.env.DISCORD_TOKEN.substring(0, 10) + '...');
-  console.log('DISCORD_TOKEN fin:', '...' + process.env.DISCORD_TOKEN.substring(process.env.DISCORD_TOKEN.length - 10));
+  const token = process.env.DISCORD_TOKEN;
+  console.log('DISCORD_TOKEN brut (repr):', JSON.stringify(token));
+  console.log('DISCORD_TOKEN début:', token.substring(0, 10) + '...');
+  console.log('DISCORD_TOKEN fin:', '...' + token.substring(token.length - 10));
+  console.log('DISCORD_TOKEN a des espaces:', token !== token.trim());
+  console.log('DISCORD_TOKEN après trim:', token.trim().length, 'caractères');
 }
 
 // Vérifier que le token est présent
