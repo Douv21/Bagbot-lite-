@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'bagbot-dashboard',
       script: './src/dashboard.js',
-      cwd: '/home/maison/bagbot',
+      cwd: '/home/maison/bagbot/bagbot',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,
@@ -17,7 +17,7 @@ module.exports = {
     {
       name: 'bagbot',
       script: './src/bot.js',
-      cwd: '/home/maison/bagbot',
+      cwd: '/home/maison/bagbot/bagbot',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,
