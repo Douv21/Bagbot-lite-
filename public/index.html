@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAG Bot - Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1>🤖 BAG Bot</h1>
+                <h1>BAG Bot</h1>
                 <p>Dashboard</p>
             </div>
             <nav class="sidebar-nav">
@@ -29,43 +29,95 @@
             </header>
 
             <div class="content">
-                <!-- Welcome Section -->
-                <div class="section">
-                    <h2>👋 Bienvenue</h2>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="welcomeEnabled" checked>
-                            Activer les messages de bienvenue
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Message de bienvenue</label>
-                        <textarea id="welcomeMessage" rows="3">Bienvenue {user} !</textarea>
-                        <small>Variables: {user}, {server}</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Salon de bienvenue</label>
-                        <input type="text" id="welcomeChannel" placeholder="ID du salon">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" data-tab="welcome">Bienvenue</div>
+                    <div class="tab" data-tab="depart">Départ</div>
+                </div>
+
+                <!-- Welcome Tab Content -->
+                <div class="tab-content active" id="tab-welcome">
+                    <div class="section">
+                        <h2>Configuration Bienvenue</h2>
+                        
+                        <!-- Embed Preview -->
+                        <div class="embed-preview" id="welcomeEmbedPreview" onclick="editWelcomeEmbed()">
+                            <div class="embed-author">
+                                <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Bot">
+                                <div class="embed-author-name">BAG Bot</div>
+                            </div>
+                            <div class="embed-title" id="welcomeEmbedTitle">👋 Bienvenue</div>
+                            <div class="embed-description" id="welcomeEmbedDescription">Bienvenue {user} sur le serveur !</div>
+                            <img class="embed-image" id="welcomeEmbedImage" src="" alt="" style="display: none;">
+                            <div class="embed-footer">BAG Bot Dashboard</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="welcomeEnabled" checked>
+                                Activer les messages de bienvenue
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Titre de l'embed</label>
+                            <input type="text" id="welcomeTitle" value="👋 Bienvenue" oninput="updateWelcomeEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Message de bienvenue</label>
+                            <textarea id="welcomeMessage" rows="4" oninput="updateWelcomeEmbed()">Bienvenue {user} sur le serveur !</textarea>
+                            <small>Variables: {user}, {server}, {member_count}</small>
+                        </div>
+                        <div class="form-group">
+                            <label>URL de l'image</label>
+                            <input type="text" id="welcomeImage" placeholder="https://..." oninput="updateWelcomeEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Salon de bienvenue</label>
+                            <input type="text" id="welcomeChannel" placeholder="ID du salon">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Depart Section -->
-                <div class="section">
-                    <h2>👋 Départ</h2>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="departEnabled" checked>
-                            Activer les messages de départ
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Message de départ</label>
-                        <textarea id="departMessage" rows="3">Au revoir {user} !</textarea>
-                        <small>Variables: {user}, {server}</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Salon de départ</label>
-                        <input type="text" id="departChannel" placeholder="ID du salon">
+                <!-- Depart Tab Content -->
+                <div class="tab-content" id="tab-depart">
+                    <div class="section">
+                        <h2>Configuration Départ</h2>
+                        
+                        <!-- Embed Preview -->
+                        <div class="embed-preview" id="departEmbedPreview" onclick="editDepartEmbed()">
+                            <div class="embed-author">
+                                <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Bot">
+                                <div class="embed-author-name">BAG Bot</div>
+                            </div>
+                            <div class="embed-title" id="departEmbedTitle">👋 Au revoir</div>
+                            <div class="embed-description" id="departEmbedDescription">Au revoir {user} !</div>
+                            <img class="embed-image" id="departEmbedImage" src="" alt="" style="display: none;">
+                            <div class="embed-footer">BAG Bot Dashboard</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="departEnabled" checked>
+                                Activer les messages de départ
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Titre de l'embed</label>
+                            <input type="text" id="departTitle" value="👋 Au revoir" oninput="updateDepartEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Message de départ</label>
+                            <textarea id="departMessage" rows="4" oninput="updateDepartEmbed()">Au revoir {user} !</textarea>
+                            <small>Variables: {user}, {server}</small>
+                        </div>
+                        <div class="form-group">
+                            <label>URL de l'image</label>
+                            <input type="text" id="departImage" placeholder="https://..." oninput="updateDepartEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Salon de départ</label>
+                            <input type="text" id="departChannel" placeholder="ID du salon">
+                        </div>
                     </div>
                 </div>
 
