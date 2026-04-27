@@ -38,12 +38,28 @@ app.get('/api/config', (req, res) => {
       res.json({
         welcome: {
           enabled: true,
-          message: 'Bienvenue {user} !',
+          title: '👋 Bienvenue',
+          message: 'Bienvenue {user} sur le serveur !',
+          color: '#C41E3A',
+          image: '',
+          thumbnail: '',
+          authorName: '',
+          authorIcon: '',
+          footerText: '',
+          footerIcon: '',
           channel: ''
         },
         depart: {
           enabled: true,
+          title: '👋 Au revoir',
           message: 'Au revoir {user} !',
+          color: '#C41E3A',
+          image: '',
+          thumbnail: '',
+          authorName: '',
+          authorIcon: '',
+          footerText: '',
+          footerIcon: '',
           channel: ''
         }
       });
@@ -51,6 +67,24 @@ app.get('/api/config', (req, res) => {
   } catch (error) {
     console.error('Erreur chargement:', error);
     res.status(500).json({ error: 'Erreur chargement' });
+  }
+});
+
+// API pour récupérer les channels (mock pour l'instant)
+app.get('/api/channels', (req, res) => {
+  try {
+    // Pour l'instant, retourne des channels mockés
+    // Plus tard, cela utilisera le bot Discord pour récupérer les vrais channels
+    const channels = [
+      { id: 'general', name: 'général' },
+      { id: 'welcome', name: 'bienvenue' },
+      { id: 'announcements', name: 'annonces' },
+      { id: 'rules', name: 'règlement' }
+    ];
+    res.json(channels);
+  } catch (error) {
+    console.error('Erreur chargement channels:', error);
+    res.status(500).json({ error: 'Erreur chargement channels' });
   }
 });
 

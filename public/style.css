@@ -202,6 +202,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    max-width: 500px;
 }
 
 .embed-preview:hover {
@@ -210,17 +211,18 @@ body {
 }
 
 .embed-preview::after {
-    content: '✏️ Cliquez pour modifier';
+    content: '✏️ Cliquez pour modifier les images';
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     color: var(--text-gold);
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 0.75rem;
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: 10;
 }
 
 .embed-preview:hover::after {
@@ -260,10 +262,24 @@ body {
     margin-bottom: 12px;
 }
 
+.embed-thumbnail {
+    float: right;
+    margin-left: 16px;
+    margin-bottom: 8px;
+}
+
+.embed-thumbnail img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
 .embed-image {
     max-width: 100%;
     border-radius: 8px;
     margin-top: 10px;
+    clear: both;
 }
 
 .embed-footer {
@@ -272,6 +288,116 @@ body {
     border-top: 1px solid #40444B;
     color: #99AAB5;
     font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.embed-footer img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-red);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-red);
+    padding-bottom: 15px;
+}
+
+.modal-header h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-gold);
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: var(--primary-red);
+}
+
+.modal-body {
+    margin-bottom: 25px;
+}
+
+.modal-footer {
+    text-align: right;
+}
+
+/* Select */
+select {
+    width: 100%;
+    padding: 15px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-red);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+select option {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* Color Picker */
+input[type="color"] {
+    width: 60px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--border-red);
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+}
+
+input[type="color"]:focus {
+    outline: none;
+    border-color: var(--gold);
 }
 
 /* Form Group */

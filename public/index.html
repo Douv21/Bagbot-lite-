@@ -41,15 +41,22 @@
                         <h2>Configuration Bienvenue</h2>
                         
                         <!-- Embed Preview -->
-                        <div class="embed-preview" id="welcomeEmbedPreview" onclick="editWelcomeEmbed()">
-                            <div class="embed-author">
-                                <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Bot">
-                                <div class="embed-author-name">BAG Bot</div>
+                        <div class="embed-preview" id="welcomeEmbedPreview" style="border-left-color: #C41E3A;" onclick="openImageModal('welcome')">
+                            <div class="embed-author" id="welcomeEmbedAuthor" style="display: none;">
+                                <img src="" alt="Author" id="welcomeEmbedAuthorIcon">
+                                <div class="embed-author-name" id="welcomeEmbedAuthorName"></div>
                             </div>
                             <div class="embed-title" id="welcomeEmbedTitle">👋 Bienvenue</div>
                             <div class="embed-description" id="welcomeEmbedDescription">Bienvenue {user} sur le serveur !</div>
+                            <div class="embed-fields" id="welcomeEmbedFields" style="display: none;"></div>
+                            <div class="embed-thumbnail" id="welcomeEmbedThumbnail" style="display: none;">
+                                <img src="" alt="Thumbnail">
+                            </div>
                             <img class="embed-image" id="welcomeEmbedImage" src="" alt="" style="display: none;">
-                            <div class="embed-footer">BAG Bot Dashboard</div>
+                            <div class="embed-footer" id="welcomeEmbedFooter" style="display: none;">
+                                <span id="welcomeEmbedFooterText"></span>
+                                <span id="welcomeEmbedFooterIcon"></span>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -57,6 +64,16 @@
                                 <input type="checkbox" id="welcomeEnabled" checked>
                                 Activer les messages de bienvenue
                             </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Salon de bienvenue</label>
+                            <select id="welcomeChannel">
+                                <option value="">Sélectionner un salon...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Couleur de l'embed</label>
+                            <input type="color" id="welcomeColor" value="#C41E3A" oninput="updateWelcomeEmbed()">
                         </div>
                         <div class="form-group">
                             <label>Titre de l'embed</label>
@@ -68,12 +85,28 @@
                             <small>Variables: {user}, {server}, {member_count}</small>
                         </div>
                         <div class="form-group">
-                            <label>URL de l'image</label>
+                            <label>Author Name</label>
+                            <input type="text" id="welcomeAuthorName" placeholder="Nom de l'auteur" oninput="updateWelcomeEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Author Icon URL</label>
+                            <input type="text" id="welcomeAuthorIcon" placeholder="https://..." oninput="updateWelcomeEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Thumbnail URL</label>
+                            <input type="text" id="welcomeThumbnail" placeholder="https://..." oninput="updateWelcomeEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL</label>
                             <input type="text" id="welcomeImage" placeholder="https://..." oninput="updateWelcomeEmbed()">
                         </div>
                         <div class="form-group">
-                            <label>Salon de bienvenue</label>
-                            <input type="text" id="welcomeChannel" placeholder="ID du salon">
+                            <label>Footer Text</label>
+                            <input type="text" id="welcomeFooterText" placeholder="Texte du footer" oninput="updateWelcomeEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Footer Icon URL</label>
+                            <input type="text" id="welcomeFooterIcon" placeholder="https://..." oninput="updateWelcomeEmbed()">
                         </div>
                     </div>
                 </div>
@@ -84,15 +117,22 @@
                         <h2>Configuration Départ</h2>
                         
                         <!-- Embed Preview -->
-                        <div class="embed-preview" id="departEmbedPreview" onclick="editDepartEmbed()">
-                            <div class="embed-author">
-                                <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Bot">
-                                <div class="embed-author-name">BAG Bot</div>
+                        <div class="embed-preview" id="departEmbedPreview" style="border-left-color: #C41E3A;" onclick="openImageModal('depart')">
+                            <div class="embed-author" id="departEmbedAuthor" style="display: none;">
+                                <img src="" alt="Author" id="departEmbedAuthorIcon">
+                                <div class="embed-author-name" id="departEmbedAuthorName"></div>
                             </div>
                             <div class="embed-title" id="departEmbedTitle">👋 Au revoir</div>
                             <div class="embed-description" id="departEmbedDescription">Au revoir {user} !</div>
+                            <div class="embed-fields" id="departEmbedFields" style="display: none;"></div>
+                            <div class="embed-thumbnail" id="departEmbedThumbnail" style="display: none;">
+                                <img src="" alt="Thumbnail">
+                            </div>
                             <img class="embed-image" id="departEmbedImage" src="" alt="" style="display: none;">
-                            <div class="embed-footer">BAG Bot Dashboard</div>
+                            <div class="embed-footer" id="departEmbedFooter" style="display: none;">
+                                <span id="departEmbedFooterText"></span>
+                                <span id="departEmbedFooterIcon"></span>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -100,6 +140,16 @@
                                 <input type="checkbox" id="departEnabled" checked>
                                 Activer les messages de départ
                             </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Salon de départ</label>
+                            <select id="departChannel">
+                                <option value="">Sélectionner un salon...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Couleur de l'embed</label>
+                            <input type="color" id="departColor" value="#C41E3A" oninput="updateDepartEmbed()">
                         </div>
                         <div class="form-group">
                             <label>Titre de l'embed</label>
@@ -111,12 +161,28 @@
                             <small>Variables: {user}, {server}</small>
                         </div>
                         <div class="form-group">
-                            <label>URL de l'image</label>
+                            <label>Author Name</label>
+                            <input type="text" id="departAuthorName" placeholder="Nom de l'auteur" oninput="updateDepartEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Author Icon URL</label>
+                            <input type="text" id="departAuthorIcon" placeholder="https://..." oninput="updateDepartEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Thumbnail URL</label>
+                            <input type="text" id="departThumbnail" placeholder="https://..." oninput="updateDepartEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL</label>
                             <input type="text" id="departImage" placeholder="https://..." oninput="updateDepartEmbed()">
                         </div>
                         <div class="form-group">
-                            <label>Salon de départ</label>
-                            <input type="text" id="departChannel" placeholder="ID du salon">
+                            <label>Footer Text</label>
+                            <input type="text" id="departFooterText" placeholder="Texte du footer" oninput="updateDepartEmbed()">
+                        </div>
+                        <div class="form-group">
+                            <label>Footer Icon URL</label>
+                            <input type="text" id="departFooterIcon" placeholder="https://..." oninput="updateDepartEmbed()">
                         </div>
                     </div>
                 </div>
@@ -127,6 +193,37 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal" id="imageModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier les images</h2>
+                <button class="modal-close" onclick="closeImageModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Thumbnail URL</label>
+                    <input type="text" id="modalThumbnail" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="text" id="modalImage" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Author Icon URL</label>
+                    <input type="text" id="modalAuthorIcon" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Footer Icon URL</label>
+                    <input type="text" id="modalFooterIcon" placeholder="https://...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveImageModal()">Appliquer</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

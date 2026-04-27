@@ -5,13 +5,15 @@
   "main": "src/dashboard.js",
   "scripts": {
     "start": "node src/dashboard.js",
-    "dev": "node src/dashboard.js"
+    "dev": "node src/dashboard.js",
+    "bot": "node src/bot.js"
   },
   "engines": {
     "node": ">=18.17.0"
   },
   "dependencies": {
     "express": "^4.19.2",
-    "dotenv": "^16.6.1"
+    "dotenv": "^16.6.1",
+    "discord.js": "^14.14.1"
   }
 }
