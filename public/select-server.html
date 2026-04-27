@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAG Bot - Sélection du serveur</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>🤖 BAG Bot</h1>
+                <p>Dashboard</p>
+            </div>
+            <div class="login-content">
+                <h2>Sélectionnez un serveur</h2>
+                <p>Choisissez le serveur que vous souhaitez gérer.</p>
+                <div class="guilds-list" id="guildsList">
+                    <p>Chargement des serveurs...</p>
+                </div>
+                <button class="btn btn-danger" id="logoutBtn">🚪 Déconnexion</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadGuilds() {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                
+                if (data.user && data.user.guilds) {
+                    const guildsList = document.getElementById('guildsList');
+                    
+                    // Filtrer seulement les serveurs où l'utilisateur est admin
+                    const adminGuilds = data.user.guilds.filter(guild => 
+                        guild.permissions & 0x8 || guild.owner === true
+                    );
+                    
+                    if (adminGuilds.length === 0) {
+                        guildsList.innerHTML = '<p>Vous n\'êtes administrateur d\'aucun serveur.</p>';
+                        return;
+                    }
+                    
+                    // Trier les serveurs: d'abord ceux où l'utilisateur est owner
+                    adminGuilds.sort((a, b) => {
+                        if (a.owner && !b.owner) return -1;
+                        if (!a.owner && b.owner) return 1;
+                        return 0;
+                    });
+                    
+                    guildsList.innerHTML = adminGuilds.map(guild => {
+                        const icon = guild.icon 
+                            ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png" alt="${guild.name}" class="guild-icon">`
+                            : `<div class="guild-icon">${guild.name.substring(0, 2).toUpperCase()}</div>`;
+                        
+                        return `
+                            <div class="guild-card" onclick="selectGuild('${guild.id}')">
+                                ${icon}
+                                <div class="guild-name">${guild.name}</div>
+                                ${guild.owner ? '<div class="guild-owner">👑 Propriétaire</div>' : '<div class="guild-owner">⚡ Administrateur</div>'}
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading guilds:', error);
+                document.getElementById('guildsList').innerHTML = '<p>Erreur lors du chargement des serveurs.</p>';
+            }
+        }
+
+        async function selectGuild(guildId) {
+            try {
+                const response = await fetch('/api/select-guild', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ guildId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error selecting guild:', error);
+                alert('Erreur lors de la sélection du serveur');
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch('/auth/logout');
+                window.location.href = '/auth/login';
+            } catch (error) {
+                console.error('Error logout:', error);
+            }
+        });
+
+        // Load guilds on page load
+        loadGuilds();
+    </script>
+</body>
+</html>

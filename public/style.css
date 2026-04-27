@@ -143,16 +143,19 @@ body {
 
 .header-actions {
     display: flex;
-    gap: 10px;
     align-items: center;
+    gap: 15px;
 }
 
+/* User Info */
 .user-info {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    padding: 8px 15px;
+    background: var(--bg-dark);
+    border: 1px solid var(--bg-light);
+    border-radius: 8px;
 }
 
 .user-avatar {
@@ -160,6 +163,11 @@ body {
     height: 32px;
     border-radius: 50%;
     border: 2px solid var(--accent-red);
+}
+
+.user-info span {
+    color: var(--text-primary);
+    font-weight: 500;
 }
 
 /* Buttons */

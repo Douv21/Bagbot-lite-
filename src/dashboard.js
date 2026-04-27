@@ -4,9 +4,67 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const session = require('express-session');
+const passport = require('passport');
+const DiscordStrategy = require('passport-discord').Strategy;
+const { Client, GatewayIntentBits } = require('discord.js');
+
+// Créer un client Discord pour le dashboard (pour récupérer les channels/roles)
+const botClient = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers
+  ]
+});
+
+// Connecter le bot au démarrage
+botClient.login(process.env.DISCORD_TOKEN).catch(error => {
+  console.error('Erreur connexion bot dashboard:', error.message);
+});
 
 const app = express();
 const PORT = process.env.PORT || 49501;
+
+// Configuration de la session
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'bagbot-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24h
+}));
+
+// Configuration de Passport
+passport.use(new DiscordStrategy({
+  clientID: process.env.DISCORD_CLIENT_ID,
+  clientSecret: process.env.DISCORD_CLIENT_SECRET,
+  callbackURL: process.env.DISCORD_CALLBACK_URL || 'http://localhost:49501/auth/callback',
+  scope: ['identify', 'guilds']
+}, (accessToken, refreshToken, profile, done) => {
+  profile.accessToken = accessToken;
+  profile.refreshToken = refreshToken;
+  return done(null, profile);
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Middleware d'authentification
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ error: 'Non authentifié' });
+}
 
 // Configuration de multer pour l'upload d'images
 const storage = multer.diskStorage({
@@ -43,9 +101,78 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Route principale
-app.get('/', (req, res) => {
+app.get('/', ensureAuthenticated, (req, res) => {
   // Si aucun serveur n'est sélectionné, rediriger vers la sélection
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  if (!req.session.selectedGuild) {
+    res.sendFile(path.join(__dirname, '../public/select-server.html'));
+  } else {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+  }
+});
+
+// Routes d'authentification Discord
+app.get('/auth/login', passport.authenticate('discord'));
+
+app.get('/auth/callback', passport.authenticate('discord', {
+  failureRedirect: '/auth/login'
+}), (req, res) => {
+  res.redirect('/');
+});
+
+app.get('/auth/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Erreur logout:', err);
+    }
+    res.clearCookie('connect.sid');
+    res.redirect('/auth/login');
+  });
+});
+
+// API pour obtenir les infos de l'utilisateur connecté
+app.get('/api/user', ensureAuthenticated, (req, res) => {
+  res.json({
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      discriminator: req.user.discriminator,
+      avatar: req.user.avatar,
+      guilds: req.user.guilds
+    }
+  });
+});
+
+// API pour sélectionner un serveur
+app.post('/api/select-guild', ensureAuthenticated, (req, res) => {
+  const { guildId } = req.body;
+  
+  if (!guildId) {
+    return res.status(400).json({ error: 'Guild ID requis' });
+  }
+  
+  // Vérifier si l'utilisateur est admin de ce serveur
+  const userGuilds = req.user.guilds || [];
+  const guild = userGuilds.find(g => g.id === guildId);
+  
+  if (!guild) {
+    return res.status(403).json({ error: 'Vous n\'êtes pas membre de ce serveur' });
+  }
+  
+  const isAdmin = guild.permissions & 0x8 || guild.owner === true;
+  
+  if (!isAdmin) {
+    return res.status(403).json({ error: 'Vous n\'êtes pas administrateur de ce serveur' });
+  }
+  
+  // Sauvegarder le serveur sélectionné dans la session
+  req.session.selectedGuild = guild;
+  
+  res.json({ success: true, guild });
+});
+
+// API pour obtenir le serveur sélectionné
+app.get('/api/selected-guild', ensureAuthenticated, (req, res) => {
+  res.json({ guild: req.session.selectedGuild || null });
 });
 
 // Route pour le pull depuis GitHub
@@ -182,18 +309,56 @@ app.post('/api/welcome-depart/:guildId', (req, res) => {
   }
 });
 
-// API pour obtenir les channels d'un serveur (placeholder)
+// API pour obtenir les channels d'un serveur
 app.get('/api/guilds/:guildId/channels', (req, res) => {
-  // Pour l'instant, retourne une liste vide
-  // Cette fonctionnalité nécessitera d'accéder au client Discord du bot
-  res.json({ channels: [] });
+  try {
+    const guildId = req.params.guildId;
+    const guild = botClient.guilds.cache.get(guildId);
+    
+    if (!guild) {
+      return res.status(404).json({ error: 'Serveur non trouvé ou bot non présent' });
+    }
+    
+    const channels = guild.channels.cache
+      .filter(channel => channel.type === 0) // Text channels only
+      .map(channel => ({
+        id: channel.id,
+        name: channel.name,
+        type: channel.type
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    res.json({ channels });
+  } catch (error) {
+    console.error('Erreur récupération channels:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des channels' });
+  }
 });
 
-// API pour obtenir les rôles d'un serveur (placeholder)
+// API pour obtenir les rôles d'un serveur
 app.get('/api/guilds/:guildId/roles', (req, res) => {
-  // Pour l'instant, retourne une liste vide
-  // Cette fonctionnalité nécessitera d'accéder au client Discord du bot
-  res.json({ roles: [] });
+  try {
+    const guildId = req.params.guildId;
+    const guild = botClient.guilds.cache.get(guildId);
+    
+    if (!guild) {
+      return res.status(404).json({ error: 'Serveur non trouvé ou bot non présent' });
+    }
+    
+    const roles = guild.roles.cache
+      .filter(role => role.name !== '@everyone')
+      .map(role => ({
+        id: role.id,
+        name: role.name,
+        color: role.hexColor
+      }))
+      .sort((a, b) => b.position - a.position);
+    
+    res.json({ roles });
+  } catch (error) {
+    console.error('Erreur récupération rôles:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des rôles' });
+  }
 });
 
 app.listen(PORT, () => {

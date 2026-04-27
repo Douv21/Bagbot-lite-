@@ -7,6 +7,8 @@ const pages = document.querySelectorAll('.page');
 const pullBtn = document.getElementById('pullBtn');
 const botLogs = document.getElementById('botLogs');
 const pm2Status = document.getElementById('pm2Status');
+const logoutBtn = document.getElementById('logoutBtn');
+const userInfo = document.getElementById('userInfo');
 
 // Mobile Sidebar Toggle
 menuToggle.addEventListener('click', () => {
@@ -130,6 +132,62 @@ function updateStats() {
 
 // Initialize
 updateStats();
+
+// Load user info
+async function loadUserInfo() {
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        
+        if (data.user) {
+            const user = data.user;
+            const avatarUrl = user.avatar 
+                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                : `https://cdn.discordapp.com/embed/avatars/${user.discriminator % 5}.png`;
+            
+            userInfo.innerHTML = `
+                <img src="${avatarUrl}" alt="Avatar" class="user-avatar">
+                <span>${user.username}#${user.discriminator}</span>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading user info:', error);
+    }
+}
+
+// Logout
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await fetch('/auth/logout');
+        window.location.href = '/auth/login';
+    } catch (error) {
+        console.error('Error logout:', error);
+    }
+});
+
+// Load user info on page load
+loadUserInfo();
+
+// Load selected guild info
+async function loadSelectedGuild() {
+    try {
+        const response = await fetch('/api/selected-guild');
+        const data = await response.json();
+        
+        if (data.guild) {
+            const guildInput = document.getElementById('welcomeGuildId');
+            if (guildInput) {
+                guildInput.value = data.guild.id;
+                loadChannels(data.guild.id);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading selected guild:', error);
+    }
+}
+
+// Load selected guild on page load
+loadSelectedGuild();
 
 // Load channels when guild ID changes
 document.getElementById('welcomeGuildId').addEventListener('change', async function() {
