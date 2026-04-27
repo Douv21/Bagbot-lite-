@@ -7,22 +7,9 @@ const multer = require('multer');
 const session = require('express-session');
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
-const { Client, GatewayIntentBits } = require('discord.js');
 
-// Créer un client Discord pour le dashboard (pour récupérer les channels/roles)
-const botClient = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers
-  ]
-});
-
-// Connecter le bot au démarrage
-botClient.login(process.env.DISCORD_TOKEN).catch(error => {
-  console.error('Erreur connexion bot dashboard:', error.message);
-});
+// Variable globale pour le client Discord (sera partagée avec le bot)
+let botClient = null;
 
 const app = express();
 const PORT = process.env.PORT || 49501;
@@ -65,6 +52,14 @@ function ensureAuthenticated(req, res, next) {
   }
   res.status(401).json({ error: 'Non authentifié' });
 }
+
+// API pour définir le client Discord (appelée par le bot au démarrage)
+app.post('/api/set-bot-client', (req, res) => {
+  // Cette API sera appelée par le bot pour partager son client
+  // Pour l'instant, nous allons utiliser une approche différente
+  // Le bot et le dashboard doivent être séparés pour éviter les conflits
+  res.json({ success: false, message: 'Non implémenté - utiliser API REST à la place' });
+});
 
 // Configuration de multer pour l'upload d'images
 const storage = multer.diskStorage({
@@ -309,18 +304,31 @@ app.post('/api/welcome-depart/:guildId', (req, res) => {
   }
 });
 
-// API pour obtenir les channels d'un serveur
-app.get('/api/guilds/:guildId/channels', (req, res) => {
+// API pour obtenir les channels d'un serveur (via Discord REST API)
+app.get('/api/guilds/:guildId/channels', ensureAuthenticated, async (req, res) => {
   try {
     const guildId = req.params.guildId;
-    const guild = botClient.guilds.cache.get(guildId);
+    const accessToken = req.user.accessToken;
     
-    if (!guild) {
-      return res.status(404).json({ error: 'Serveur non trouvé ou bot non présent' });
+    if (!accessToken) {
+      return res.status(401).json({ error: 'Access token non disponible' });
     }
     
-    const channels = guild.channels.cache
-      .filter(channel => channel.type === 0) // Text channels only
+    const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+    
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Erreur Discord API' });
+    }
+    
+    const channels = await response.json();
+    
+    // Filtrer seulement les channels textuels et trier par nom
+    const textChannels = channels
+      .filter(channel => channel.type === 0)
       .map(channel => ({
         id: channel.id,
         name: channel.name,
@@ -328,33 +336,46 @@ app.get('/api/guilds/:guildId/channels', (req, res) => {
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
     
-    res.json({ channels });
+    res.json({ channels: textChannels });
   } catch (error) {
     console.error('Erreur récupération channels:', error);
     res.status(500).json({ error: 'Erreur lors de la récupération des channels' });
   }
 });
 
-// API pour obtenir les rôles d'un serveur
-app.get('/api/guilds/:guildId/roles', (req, res) => {
+// API pour obtenir les rôles d'un serveur (via Discord REST API)
+app.get('/api/guilds/:guildId/roles', ensureAuthenticated, async (req, res) => {
   try {
     const guildId = req.params.guildId;
-    const guild = botClient.guilds.cache.get(guildId);
+    const accessToken = req.user.accessToken;
     
-    if (!guild) {
-      return res.status(404).json({ error: 'Serveur non trouvé ou bot non présent' });
+    if (!accessToken) {
+      return res.status(401).json({ error: 'Access token non disponible' });
     }
     
-    const roles = guild.roles.cache
+    const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/roles`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+    
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Erreur Discord API' });
+    }
+    
+    const roles = await response.json();
+    
+    // Filtrer @everyone et trier par position
+    const filteredRoles = roles
       .filter(role => role.name !== '@everyone')
       .map(role => ({
         id: role.id,
         name: role.name,
-        color: role.hexColor
+        color: role.color ? `#${role.color.toString(16).padStart(6, '0')}` : null
       }))
       .sort((a, b) => b.position - a.position);
     
-    res.json({ roles });
+    res.json({ roles: filteredRoles });
   } catch (error) {
     console.error('Erreur récupération rôles:', error);
     res.status(500).json({ error: 'Erreur lors de la récupération des rôles' });

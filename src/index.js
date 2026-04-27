@@ -1,5 +1,14 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const { Client, GatewayIntentBits } = require('discord.js');
+
+// Debug: Afficher toutes les variables d'environnement
+console.log('🔍 Debug variables d\'environnement:');
+console.log('DISCORD_TOKEN présent:', !!process.env.DISCORD_TOKEN);
+console.log('DISCORD_TOKEN longueur:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : 0);
+if (process.env.DISCORD_TOKEN) {
+  console.log('DISCORD_TOKEN début:', process.env.DISCORD_TOKEN.substring(0, 10) + '...');
+  console.log('DISCORD_TOKEN fin:', '...' + process.env.DISCORD_TOKEN.substring(process.env.DISCORD_TOKEN.length - 10));
+}
 
 // Vérifier que le token est présent
 if (!process.env.DISCORD_TOKEN) {
