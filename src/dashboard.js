@@ -121,11 +121,53 @@ app.get('/api/user', (req, res) => {
   }
 });
 
-// API pour obtenir les serveurs
-app.get('/api/guilds', (req, res) => {
-  if (req.session.user && req.session.user.guilds) {
-    res.json(req.session.user.guilds);
-  } else {
+// API pour obtenir les serveurs (filtrés)
+app.get('/api/guilds', async (req, res) => {
+  try {
+    if (!req.session.user || !req.session.user.guilds) {
+      return res.json([]);
+    }
+
+    const userGuilds = req.session.user.guilds;
+    const filteredGuilds = [];
+
+    // Récupérer les serveurs où le bot est présent
+    const botGuildsResponse = await fetch('https://discord.com/api/users/@me/guilds', {
+      headers: {
+        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      },
+    });
+
+    let botGuilds = [];
+    if (botGuildsResponse.ok) {
+      botGuilds = await botGuildsResponse.json();
+    }
+
+    const botGuildIds = new Set(botGuilds.map(g => g.id));
+
+    // Filtrer les serveurs
+    for (const guild of userGuilds) {
+      // Vérifier si le bot est sur le serveur
+      if (!botGuildIds.has(guild.id)) {
+        continue;
+      }
+
+      // Vérifier les permissions (owner, admin, ou modo)
+      // 0x8 = Administrator, 0x20 = Manage Server, 0x10000000 = Kick Members, 0x20000000 = Ban Members
+      const hasPermissions = guild.owner || 
+        (guild.permissions & 0x8) || // Administrator
+        (guild.permissions & 0x20) || // Manage Server
+        (guild.permissions & 0x10000000) || // Kick Members
+        (guild.permissions & 0x20000000); // Ban Members
+
+      if (hasPermissions) {
+        filteredGuilds.push(guild);
+      }
+    }
+
+    res.json(filteredGuilds);
+  } catch (error) {
+    console.error('Error filtering guilds:', error);
     res.json([]);
   }
 });

@@ -16,15 +16,14 @@ async function checkAuth() {
         document.getElementById('userAvatar').style.backgroundImage = `url(https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.png)`;
       }
       
-      // Load guilds
-      loadGuilds(data.user.guilds);
+      // Load guilds (filtered)
+      loadGuildsFromAPI();
       
       // Check selected guild
       const guildResponse = await fetch('/api/selected-guild');
       const guildData = await guildResponse.json();
       
       if (guildData.guildId) {
-        document.getElementById('guildSelect').value = guildData.guildId;
         document.getElementById('configContent').style.display = 'block';
         document.getElementById('mainContent').style.display = 'none';
         loadConfig();
@@ -32,7 +31,7 @@ async function checkAuth() {
       } else {
         document.getElementById('guildSelector').style.display = 'block';
         document.getElementById('configContent').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('mainContent').style.display = 'none';
       }
     } else {
       // Show login button
@@ -47,26 +46,74 @@ async function checkAuth() {
   }
 }
 
+// Load guilds from API (filtered)
+async function loadGuildsFromAPI() {
+  try {
+    const response = await fetch('/api/guilds');
+    const guilds = await response.json();
+    loadGuilds(guilds);
+  } catch (error) {
+    console.error('Error loading guilds:', error);
+  }
+}
+
 // Load guilds
 function loadGuilds(guilds) {
-  const select = document.getElementById('guildSelect');
-  select.innerHTML = '<option value="">Sélectionner un serveur</option>';
+  const grid = document.getElementById('guildGrid');
+  grid.innerHTML = '';
+  
+  if (guilds.length === 0) {
+    grid.innerHTML = '<p style="color: var(--text-secondary);">Aucun serveur disponible. Le bot doit être présent sur le serveur et vous devez avoir les permissions nécessaires.</p>';
+    return;
+  }
   
   guilds.forEach(guild => {
-    const option = document.createElement('option');
-    option.value = guild.id;
-    option.textContent = guild.name;
-    select.appendChild(option);
+    const card = document.createElement('div');
+    card.className = 'guild-card';
+    card.dataset.guildId = guild.id;
+    
+    const icon = document.createElement('div');
+    icon.className = 'guild-icon';
+    
+    if (guild.icon) {
+      icon.style.backgroundImage = `url(https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png)`;
+    } else {
+      icon.textContent = guild.name.charAt(0).toUpperCase();
+    }
+    
+    const name = document.createElement('div');
+    name.className = 'guild-name';
+    name.textContent = guild.name;
+    
+    card.appendChild(icon);
+    card.appendChild(name);
+    
+    if (guild.owner) {
+      const owner = document.createElement('div');
+      owner.className = 'guild-owner';
+      owner.textContent = 'Owner';
+      card.appendChild(owner);
+    }
+    
+    card.addEventListener('click', () => selectGuild(guild.id));
+    grid.appendChild(card);
   });
 }
 
 // Select guild
-async function selectGuild() {
-  const guildId = document.getElementById('guildSelect').value;
+async function selectGuild(guildId) {
   if (!guildId) {
     document.getElementById('configContent').style.display = 'none';
     return;
   }
+  
+  // Update visual selection
+  document.querySelectorAll('.guild-card').forEach(card => {
+    card.classList.remove('selected');
+    if (card.dataset.guildId === guildId) {
+      card.classList.add('selected');
+    }
+  });
   
   try {
     const response = await fetch('/api/select-guild', {
@@ -78,6 +125,7 @@ async function selectGuild() {
     if (response.ok) {
       document.getElementById('configContent').style.display = 'block';
       document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('guildSelector').style.display = 'none';
       loadConfig();
       loadChannels();
     }

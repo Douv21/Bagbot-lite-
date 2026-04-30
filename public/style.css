@@ -198,11 +198,73 @@ body {
 
 /* Guild Selector */
 .guild-selector {
-    margin-bottom: 25px;
+    margin-bottom: 40px;
 }
 
-.guild-selector select {
-    min-width: 250px;
+.guild-selector h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-gold);
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.guild-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.guild-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-red);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.guild-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+    border-color: var(--gold);
+}
+
+.guild-card.selected {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.guild-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--primary-red);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    background-size: cover;
+    background-position: center;
+}
+
+.guild-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+}
+
+.guild-owner {
+    color: var(--text-gold);
+    font-size: 0.75rem;
 }
 
 /* Login Prompt */
