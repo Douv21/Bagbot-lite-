@@ -122,46 +122,143 @@ function updateDepartEmbed() {
   }
 }
 
-// Open image modal
-function openImageModal(type) {
+// Modal functions
+function openModal(modalId) {
+  document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).style.display = 'none';
+}
+
+// Title modal
+function openTitleModal(type) {
   currentModalType = type;
-  document.getElementById('imageModal').style.display = 'flex';
-  
-  // Load current values
-  if (type === 'welcome') {
-    document.getElementById('modalThumbnail').value = document.getElementById('welcomeThumbnail').value;
-    document.getElementById('modalImage').value = document.getElementById('welcomeImage').value;
-    document.getElementById('modalAuthorIcon').value = document.getElementById('welcomeAuthorIcon').value;
-    document.getElementById('modalFooterIcon').value = document.getElementById('welcomeFooterIcon').value;
+  document.getElementById('modalTitle').value = type === 'welcome' 
+    ? document.getElementById('welcomeTitle').value 
+    : document.getElementById('departTitle').value;
+  openModal('titleModal');
+}
+
+function saveTitleModal() {
+  if (currentModalType === 'welcome') {
+    document.getElementById('welcomeTitle').value = document.getElementById('modalTitle').value;
+    updateWelcomeEmbed();
   } else {
-    document.getElementById('modalThumbnail').value = document.getElementById('departThumbnail').value;
-    document.getElementById('modalImage').value = document.getElementById('departImage').value;
-    document.getElementById('modalAuthorIcon').value = document.getElementById('departAuthorIcon').value;
-    document.getElementById('modalFooterIcon').value = document.getElementById('departFooterIcon').value;
+    document.getElementById('departTitle').value = document.getElementById('modalTitle').value;
+    updateDepartEmbed();
   }
+  closeModal('titleModal');
 }
 
-// Close image modal
-function closeImageModal() {
-  document.getElementById('imageModal').style.display = 'none';
+// Description modal
+function openDescriptionModal(type) {
+  currentModalType = type;
+  document.getElementById('modalDescription').value = type === 'welcome' 
+    ? document.getElementById('welcomeMessage').value 
+    : document.getElementById('departMessage').value;
+  openModal('descriptionModal');
 }
 
-// Save image modal
-function saveImageModal() {
+function saveDescriptionModal() {
+  if (currentModalType === 'welcome') {
+    document.getElementById('welcomeMessage').value = document.getElementById('modalDescription').value;
+    updateWelcomeEmbed();
+  } else {
+    document.getElementById('departMessage').value = document.getElementById('modalDescription').value;
+    updateDepartEmbed();
+  }
+  closeModal('descriptionModal');
+}
+
+// Author modal
+function openAuthorModal(type) {
+  currentModalType = type;
+  document.getElementById('modalAuthorName').value = type === 'welcome' 
+    ? document.getElementById('welcomeAuthorName').value 
+    : document.getElementById('departAuthorName').value;
+  document.getElementById('modalAuthorIcon').value = type === 'welcome' 
+    ? document.getElementById('welcomeAuthorIcon').value 
+    : document.getElementById('departAuthorIcon').value;
+  openModal('authorModal');
+}
+
+function saveAuthorModal() {
+  if (currentModalType === 'welcome') {
+    document.getElementById('welcomeAuthorName').value = document.getElementById('modalAuthorName').value;
+    document.getElementById('welcomeAuthorIcon').value = document.getElementById('modalAuthorIcon').value;
+    updateWelcomeEmbed();
+  } else {
+    document.getElementById('departAuthorName').value = document.getElementById('modalAuthorName').value;
+    document.getElementById('departAuthorIcon').value = document.getElementById('modalAuthorIcon').value;
+    updateDepartEmbed();
+  }
+  closeModal('authorModal');
+}
+
+// Thumbnail modal
+function openThumbnailModal(type) {
+  currentModalType = type;
+  document.getElementById('modalThumbnail').value = type === 'welcome' 
+    ? document.getElementById('welcomeThumbnail').value 
+    : document.getElementById('departThumbnail').value;
+  openModal('thumbnailModal');
+}
+
+function saveThumbnailModal() {
   if (currentModalType === 'welcome') {
     document.getElementById('welcomeThumbnail').value = document.getElementById('modalThumbnail').value;
-    document.getElementById('welcomeImage').value = document.getElementById('modalImage').value;
-    document.getElementById('welcomeAuthorIcon').value = document.getElementById('modalAuthorIcon').value;
-    document.getElementById('welcomeFooterIcon').value = document.getElementById('modalFooterIcon').value;
     updateWelcomeEmbed();
   } else {
     document.getElementById('departThumbnail').value = document.getElementById('modalThumbnail').value;
+    updateDepartEmbed();
+  }
+  closeModal('thumbnailModal');
+}
+
+// Image modal
+function openImageModal(type) {
+  currentModalType = type;
+  document.getElementById('modalImage').value = type === 'welcome' 
+    ? document.getElementById('welcomeImage').value 
+    : document.getElementById('departImage').value;
+  openModal('imageModal');
+}
+
+function saveImageModal() {
+  if (currentModalType === 'welcome') {
+    document.getElementById('welcomeImage').value = document.getElementById('modalImage').value;
+    updateWelcomeEmbed();
+  } else {
     document.getElementById('departImage').value = document.getElementById('modalImage').value;
-    document.getElementById('departAuthorIcon').value = document.getElementById('modalAuthorIcon').value;
+    updateDepartEmbed();
+  }
+  closeModal('imageModal');
+}
+
+// Footer modal
+function openFooterModal(type) {
+  currentModalType = type;
+  document.getElementById('modalFooterText').value = type === 'welcome' 
+    ? document.getElementById('welcomeFooterText').value 
+    : document.getElementById('departFooterText').value;
+  document.getElementById('modalFooterIcon').value = type === 'welcome' 
+    ? document.getElementById('welcomeFooterIcon').value 
+    : document.getElementById('departFooterIcon').value;
+  openModal('footerModal');
+}
+
+function saveFooterModal() {
+  if (currentModalType === 'welcome') {
+    document.getElementById('welcomeFooterText').value = document.getElementById('modalFooterText').value;
+    document.getElementById('welcomeFooterIcon').value = document.getElementById('modalFooterIcon').value;
+    updateWelcomeEmbed();
+  } else {
+    document.getElementById('departFooterText').value = document.getElementById('modalFooterText').value;
     document.getElementById('departFooterIcon').value = document.getElementById('modalFooterIcon').value;
     updateDepartEmbed();
   }
-  closeImageModal();
+  closeModal('footerModal');
 }
 
 // Load channels

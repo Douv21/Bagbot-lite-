@@ -41,19 +41,19 @@
                         <h2>Configuration Bienvenue</h2>
                         
                         <!-- Embed Preview -->
-                        <div class="embed-preview" id="welcomeEmbedPreview" style="border-left-color: #C41E3A;" onclick="openImageModal('welcome')">
-                            <div class="embed-author" id="welcomeEmbedAuthor" style="display: none;">
+                        <div class="embed-preview" id="welcomeEmbedPreview" style="border-left-color: #C41E3A;">
+                            <div class="embed-author" id="welcomeEmbedAuthor" style="display: none;" onclick="openAuthorModal('welcome')">
                                 <img src="" alt="Author" id="welcomeEmbedAuthorIcon">
                                 <div class="embed-author-name" id="welcomeEmbedAuthorName"></div>
                             </div>
-                            <div class="embed-title" id="welcomeEmbedTitle">👋 Bienvenue</div>
-                            <div class="embed-description" id="welcomeEmbedDescription">Bienvenue {user} sur le serveur !</div>
+                            <div class="embed-title" id="welcomeEmbedTitle" onclick="openTitleModal('welcome')">👋 Bienvenue</div>
+                            <div class="embed-description" id="welcomeEmbedDescription" onclick="openDescriptionModal('welcome')">Bienvenue {user} sur le serveur !</div>
                             <div class="embed-fields" id="welcomeEmbedFields" style="display: none;"></div>
-                            <div class="embed-thumbnail" id="welcomeEmbedThumbnail" style="display: none;">
+                            <div class="embed-thumbnail" id="welcomeEmbedThumbnail" style="display: none;" onclick="openThumbnailModal('welcome')">
                                 <img src="" alt="Thumbnail">
                             </div>
-                            <img class="embed-image" id="welcomeEmbedImage" src="" alt="" style="display: none;">
-                            <div class="embed-footer" id="welcomeEmbedFooter" style="display: none;">
+                            <img class="embed-image" id="welcomeEmbedImage" src="" alt="" style="display: none;" onclick="openImageModal('welcome')">
+                            <div class="embed-footer" id="welcomeEmbedFooter" style="display: none;" onclick="openFooterModal('welcome')">
                                 <span id="welcomeEmbedFooterText"></span>
                                 <span id="welcomeEmbedFooterIcon"></span>
                             </div>
@@ -117,19 +117,19 @@
                         <h2>Configuration Départ</h2>
                         
                         <!-- Embed Preview -->
-                        <div class="embed-preview" id="departEmbedPreview" style="border-left-color: #C41E3A;" onclick="openImageModal('depart')">
-                            <div class="embed-author" id="departEmbedAuthor" style="display: none;">
+                        <div class="embed-preview" id="departEmbedPreview" style="border-left-color: #C41E3A;">
+                            <div class="embed-author" id="departEmbedAuthor" style="display: none;" onclick="openAuthorModal('depart')">
                                 <img src="" alt="Author" id="departEmbedAuthorIcon">
                                 <div class="embed-author-name" id="departEmbedAuthorName"></div>
                             </div>
-                            <div class="embed-title" id="departEmbedTitle">👋 Au revoir</div>
-                            <div class="embed-description" id="departEmbedDescription">Au revoir {user} !</div>
+                            <div class="embed-title" id="departEmbedTitle" onclick="openTitleModal('depart')">👋 Au revoir</div>
+                            <div class="embed-description" id="departEmbedDescription" onclick="openDescriptionModal('depart')">Au revoir {user} !</div>
                             <div class="embed-fields" id="departEmbedFields" style="display: none;"></div>
-                            <div class="embed-thumbnail" id="departEmbedThumbnail" style="display: none;">
+                            <div class="embed-thumbnail" id="departEmbedThumbnail" style="display: none;" onclick="openThumbnailModal('depart')">
                                 <img src="" alt="Thumbnail">
                             </div>
-                            <img class="embed-image" id="departEmbedImage" src="" alt="" style="display: none;">
-                            <div class="embed-footer" id="departEmbedFooter" style="display: none;">
+                            <img class="embed-image" id="departEmbedImage" src="" alt="" style="display: none;" onclick="openImageModal('depart')">
+                            <div class="embed-footer" id="departEmbedFooter" style="display: none;" onclick="openFooterModal('depart')">
                                 <span id="departEmbedFooterText"></span>
                                 <span id="departEmbedFooterIcon"></span>
                             </div>
@@ -195,33 +195,125 @@
         </main>
     </div>
 
+    <!-- Title Modal -->
+    <div class="modal" id="titleModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier le titre</h2>
+                <button class="modal-close" onclick="closeModal('titleModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Titre de l'embed</label>
+                    <input type="text" id="modalTitle" placeholder="Titre...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveTitleModal()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description Modal -->
+    <div class="modal" id="descriptionModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier la description</h2>
+                <button class="modal-close" onclick="closeModal('descriptionModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="modalDescription" rows="4" placeholder="Description..."></textarea>
+                    <small>Variables: {user}, {server}, {member_count}</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveDescriptionModal()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Author Modal -->
+    <div class="modal" id="authorModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier l'auteur</h2>
+                <button class="modal-close" onclick="closeModal('authorModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nom de l'auteur</label>
+                    <input type="text" id="modalAuthorName" placeholder="Nom...">
+                </div>
+                <div class="form-group">
+                    <label>URL de l'icone</label>
+                    <input type="text" id="modalAuthorIcon" placeholder="https://...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveAuthorModal()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thumbnail Modal -->
+    <div class="modal" id="thumbnailModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier la miniature</h2>
+                <button class="modal-close" onclick="closeModal('thumbnailModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>URL de la miniature</label>
+                    <input type="text" id="modalThumbnail" placeholder="https://...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveThumbnailModal()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Image Modal -->
     <div class="modal" id="imageModal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Modifier les images</h2>
-                <button class="modal-close" onclick="closeImageModal()">✕</button>
+                <h2>Modifier l'image</h2>
+                <button class="modal-close" onclick="closeModal('imageModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Thumbnail URL</label>
-                    <input type="text" id="modalThumbnail" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label>Image URL</label>
+                    <label>URL de l'image</label>
                     <input type="text" id="modalImage" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label>Author Icon URL</label>
-                    <input type="text" id="modalAuthorIcon" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label>Footer Icon URL</label>
-                    <input type="text" id="modalFooterIcon" placeholder="https://...">
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" onclick="saveImageModal()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Modal -->
+    <div class="modal" id="footerModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier le footer</h2>
+                <button class="modal-close" onclick="closeModal('footerModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Texte du footer</label>
+                    <input type="text" id="modalFooterText" placeholder="Texte...">
+                </div>
+                <div class="form-group">
+                    <label>URL de l'icone</label>
+                    <input type="text" id="modalFooterIcon" placeholder="https://...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveFooterModal()">Appliquer</button>
             </div>
         </div>
     </div>
