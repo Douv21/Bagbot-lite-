@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
   const clientId = process.env.DISCORD_CLIENT_ID;
   const redirectUri = encodeURIComponent(process.env.DISCORD_CALLBACK_URL || `http://localhost:${PORT}/callback`);
-  const scope = encodeURIComponent('identify guilds');
+  const scope = encodeURIComponent('identify guilds guilds.members.read');
   res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`);
 });
 
@@ -145,26 +145,36 @@ app.get('/api/guilds', async (req, res) => {
 
     const botGuildIds = new Set(botGuilds.map(g => g.id));
 
+    console.log('Bot guilds:', botGuildIds);
+    console.log('User guilds:', userGuilds.map(g => ({ id: g.id, name: g.name, owner: g.owner, permissions: g.permissions })));
+
     // Filtrer les serveurs
     for (const guild of userGuilds) {
       // Vérifier si le bot est sur le serveur
       if (!botGuildIds.has(guild.id)) {
+        console.log(`Guild ${guild.name} (${guild.id}): Bot not present`);
         continue;
       }
 
       // Vérifier les permissions (owner, admin, ou modo)
+      // Les permissions sont une chaîne hexadécimale
+      const permissions = parseInt(guild.permissions, 16);
+      
       // 0x8 = Administrator, 0x20 = Manage Server, 0x10000000 = Kick Members, 0x20000000 = Ban Members
       const hasPermissions = guild.owner || 
-        (guild.permissions & 0x8) || // Administrator
-        (guild.permissions & 0x20) || // Manage Server
-        (guild.permissions & 0x10000000) || // Kick Members
-        (guild.permissions & 0x20000000); // Ban Members
+        (permissions & 0x8) || // Administrator
+        (permissions & 0x20) || // Manage Server
+        (permissions & 0x10000000) || // Kick Members
+        (permissions & 0x20000000); // Ban Members
+
+      console.log(`Guild ${guild.name} (${guild.id}): Owner=${guild.owner}, Permissions=${permissions}, HasPermissions=${hasPermissions}`);
 
       if (hasPermissions) {
         filteredGuilds.push(guild);
       }
     }
 
+    console.log('Filtered guilds:', filteredGuilds.map(g => g.name));
     res.json(filteredGuilds);
   } catch (error) {
     console.error('Error filtering guilds:', error);
