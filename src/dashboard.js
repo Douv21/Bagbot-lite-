@@ -131,8 +131,8 @@ app.get('/api/guilds', async (req, res) => {
     const userGuilds = req.session.user.guilds;
     const filteredGuilds = [];
 
-    // Récupérer les serveurs où le bot est présent
-    const botGuildsResponse = await fetch('https://discord.com/api/users/@me/guilds', {
+    // Récupérer les serveurs où le bot est présent via l'endpoint /guilds
+    const botGuildsResponse = await fetch('https://discord.com/api/guilds', {
       headers: {
         Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
       },
@@ -141,6 +141,8 @@ app.get('/api/guilds', async (req, res) => {
     let botGuilds = [];
     if (botGuildsResponse.ok) {
       botGuilds = await botGuildsResponse.json();
+    } else {
+      console.error('Error fetching bot guilds:', botGuildsResponse.status, botGuildsResponse.statusText);
     }
 
     const botGuildIds = new Set(botGuilds.map(g => g.id));
