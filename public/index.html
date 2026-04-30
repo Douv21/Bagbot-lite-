@@ -9,26 +9,46 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
+            <div class="logo">
                 <h1>BAG Bot</h1>
                 <p>Dashboard</p>
             </div>
-            <nav class="sidebar-nav">
-                <div class="nav-item active" data-page="welcome-depart">
-                    <span>👋</span> Bienvenue/Depart
-                </div>
+            <nav>
+                <a href="#" class="nav-item active">Bienvenue/Depart</a>
             </nav>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <div class="user-name" id="userName"></div>
+                    <a href="/logout" class="logout-btn">Déconnexion</a>
+                </div>
+            </div>
+            <div class="login-section" id="loginSection">
+                <a href="/login" class="btn btn-login">Connexion Discord</a>
+            </div>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
             <header class="header">
                 <h1>Bienvenue/Depart</h1>
+                <div class="guild-selector" id="guildSelector" style="display: none;">
+                    <select id="guildSelect" onchange="selectGuild()">
+                        <option value="">Sélectionner un serveur</option>
+                    </select>
+                </div>
             </header>
 
-            <div class="content">
+            <div class="content" id="mainContent" style="display: none;">
+                <div class="login-prompt">
+                    <h2>🔐 Connexion requise</h2>
+                    <p>Veuillez vous connecter avec votre compte Discord pour accéder au dashboard.</p>
+                    <a href="/login" class="btn btn-primary">Connexion Discord</a>
+                </div>
+            </div>
+
+            <div class="content" id="configContent" style="display: none;">
                 <!-- Tabs -->
                 <div class="tabs">
                     <div class="tab active" data-tab="welcome">Bienvenue</div>

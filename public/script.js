@@ -1,5 +1,91 @@
 let currentModalType = 'welcome';
 
+// Check authentication on page load
+async function checkAuth() {
+  try {
+    const response = await fetch('/api/user');
+    const data = await response.json();
+    
+    if (data.authenticated) {
+      // Show user info
+      document.getElementById('userInfo').style.display = 'flex';
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('userName').textContent = data.user.username;
+      
+      if (data.user.avatar) {
+        document.getElementById('userAvatar').style.backgroundImage = `url(https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.png)`;
+      }
+      
+      // Load guilds
+      loadGuilds(data.user.guilds);
+      
+      // Check selected guild
+      const guildResponse = await fetch('/api/selected-guild');
+      const guildData = await guildResponse.json();
+      
+      if (guildData.guildId) {
+        document.getElementById('guildSelect').value = guildData.guildId;
+        document.getElementById('configContent').style.display = 'block';
+        document.getElementById('mainContent').style.display = 'none';
+        loadConfig();
+        loadChannels();
+      } else {
+        document.getElementById('guildSelector').style.display = 'block';
+        document.getElementById('configContent').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      }
+    } else {
+      // Show login button
+      document.getElementById('userInfo').style.display = 'none';
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('guildSelector').style.display = 'none';
+      document.getElementById('configContent').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Error checking auth:', error);
+  }
+}
+
+// Load guilds
+function loadGuilds(guilds) {
+  const select = document.getElementById('guildSelect');
+  select.innerHTML = '<option value="">Sélectionner un serveur</option>';
+  
+  guilds.forEach(guild => {
+    const option = document.createElement('option');
+    option.value = guild.id;
+    option.textContent = guild.name;
+    select.appendChild(option);
+  });
+}
+
+// Select guild
+async function selectGuild() {
+  const guildId = document.getElementById('guildSelect').value;
+  if (!guildId) {
+    document.getElementById('configContent').style.display = 'none';
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/select-guild', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guildId })
+    });
+    
+    if (response.ok) {
+      document.getElementById('configContent').style.display = 'block';
+      document.getElementById('mainContent').style.display = 'none';
+      loadConfig();
+      loadChannels();
+    }
+  } catch (error) {
+    console.error('Error selecting guild:', error);
+  }
+}
+
 // Tab switching
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -382,6 +468,5 @@ async function saveConfig() {
 // Event listeners
 document.getElementById('saveBtn').addEventListener('click', saveConfig);
 
-// Load config and channels on page load
-loadConfig();
-loadChannels();
+// Check auth on page load
+checkAuth();
