@@ -2,6 +2,7 @@ require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const express = require('express');
 
 const client = new Client({
   intents: [
@@ -9,6 +10,22 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages
   ]
+});
+
+// API server pour exposer les guilds du bot
+const apiApp = express();
+const API_PORT = process.env.BOT_API_PORT || 49502;
+
+apiApp.get('/guilds', (req, res) => {
+  const guilds = client.guilds.cache.map(guild => ({
+    id: guild.id,
+    name: guild.name
+  }));
+  res.json(guilds);
+});
+
+apiApp.listen(API_PORT, () => {
+  console.log(`✓ Bot API running on port ${API_PORT}`);
 });
 
 client.once('ready', () => {

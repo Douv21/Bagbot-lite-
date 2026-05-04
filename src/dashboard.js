@@ -131,12 +131,9 @@ app.get('/api/guilds', async (req, res) => {
     const userGuilds = req.session.user.guilds;
     const filteredGuilds = [];
 
-    // Récupérer les serveurs où le bot est présent via l'endpoint /guilds
-    const botGuildsResponse = await fetch('https://discord.com/api/guilds', {
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-      },
-    });
+    // Récupérer les serveurs où le bot est présent via l'API locale du bot
+    const botApiPort = process.env.BOT_API_PORT || 49502;
+    const botGuildsResponse = await fetch(`http://localhost:${botApiPort}/guilds`);
 
     let botGuilds = [];
     if (botGuildsResponse.ok) {
