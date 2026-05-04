@@ -59,6 +59,7 @@
                 <div class="tab-content active" id="tab-welcome">
                     <div class="section">
                         <h2>Configuration Bienvenue</h2>
+                        <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
                         
                         <!-- Embed Preview -->
                         <div class="embed-preview" id="welcomeEmbedPreview" style="border-left-color: #C41E3A;">
@@ -95,39 +96,16 @@
                             <label>Couleur de l'embed</label>
                             <input type="color" id="welcomeColor" value="#C41E3A" oninput="updateWelcomeEmbed()">
                         </div>
-                        <div class="form-group">
-                            <label>Titre de l'embed</label>
-                            <input type="text" id="welcomeTitle" value="👋 Bienvenue" oninput="updateWelcomeEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Message de bienvenue</label>
-                            <textarea id="welcomeMessage" rows="4" oninput="updateWelcomeEmbed()">Bienvenue {user} sur le serveur !</textarea>
-                            <small>Variables: {user}, {server}, {member_count}</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Author Name</label>
-                            <input type="text" id="welcomeAuthorName" placeholder="Nom de l'auteur" oninput="updateWelcomeEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Author Icon URL</label>
-                            <input type="text" id="welcomeAuthorIcon" placeholder="https://..." oninput="updateWelcomeEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Thumbnail URL</label>
-                            <input type="text" id="welcomeThumbnail" placeholder="https://..." oninput="updateWelcomeEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Image URL</label>
-                            <input type="text" id="welcomeImage" placeholder="https://..." oninput="updateWelcomeEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Footer Text</label>
-                            <input type="text" id="welcomeFooterText" placeholder="Texte du footer" oninput="updateWelcomeEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Footer Icon URL</label>
-                            <input type="text" id="welcomeFooterIcon" placeholder="https://..." oninput="updateWelcomeEmbed()">
-                        </div>
+                        
+                        <!-- Hidden fields for modals -->
+                        <input type="hidden" id="welcomeTitle" value="👋 Bienvenue">
+                        <input type="hidden" id="welcomeMessage" value="Bienvenue {user} sur le serveur !">
+                        <input type="hidden" id="welcomeAuthorName" value="">
+                        <input type="hidden" id="welcomeAuthorIcon" value="">
+                        <input type="hidden" id="welcomeThumbnail" value="">
+                        <input type="hidden" id="welcomeImage" value="">
+                        <input type="hidden" id="welcomeFooterText" value="">
+                        <input type="hidden" id="welcomeFooterIcon" value="">
                     </div>
                 </div>
 
@@ -135,6 +113,7 @@
                 <div class="tab-content" id="tab-depart">
                     <div class="section">
                         <h2>Configuration Départ</h2>
+                        <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
                         
                         <!-- Embed Preview -->
                         <div class="embed-preview" id="departEmbedPreview" style="border-left-color: #C41E3A;">
@@ -171,39 +150,16 @@
                             <label>Couleur de l'embed</label>
                             <input type="color" id="departColor" value="#C41E3A" oninput="updateDepartEmbed()">
                         </div>
-                        <div class="form-group">
-                            <label>Titre de l'embed</label>
-                            <input type="text" id="departTitle" value="👋 Au revoir" oninput="updateDepartEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Message de départ</label>
-                            <textarea id="departMessage" rows="4" oninput="updateDepartEmbed()">Au revoir {user} !</textarea>
-                            <small>Variables: {user}, {server}</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Author Name</label>
-                            <input type="text" id="departAuthorName" placeholder="Nom de l'auteur" oninput="updateDepartEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Author Icon URL</label>
-                            <input type="text" id="departAuthorIcon" placeholder="https://..." oninput="updateDepartEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Thumbnail URL</label>
-                            <input type="text" id="departThumbnail" placeholder="https://..." oninput="updateDepartEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Image URL</label>
-                            <input type="text" id="departImage" placeholder="https://..." oninput="updateDepartEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Footer Text</label>
-                            <input type="text" id="departFooterText" placeholder="Texte du footer" oninput="updateDepartEmbed()">
-                        </div>
-                        <div class="form-group">
-                            <label>Footer Icon URL</label>
-                            <input type="text" id="departFooterIcon" placeholder="https://..." oninput="updateDepartEmbed()">
-                        </div>
+                        
+                        <!-- Hidden fields for modals -->
+                        <input type="hidden" id="departTitle" value="👋 Au revoir">
+                        <input type="hidden" id="departMessage" value="Au revoir {user} !">
+                        <input type="hidden" id="departAuthorName" value="">
+                        <input type="hidden" id="departAuthorIcon" value="">
+                        <input type="hidden" id="departThumbnail" value="">
+                        <input type="hidden" id="departImage" value="">
+                        <input type="hidden" id="departFooterText" value="">
+                        <input type="hidden" id="departFooterIcon" value="">
                     </div>
                 </div>
 
