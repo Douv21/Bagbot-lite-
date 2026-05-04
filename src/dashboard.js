@@ -296,28 +296,19 @@ app.get('/api/config', (req, res) => {
   }
 });
 
-// API pour récupérer les channels (via Discord API)
+// API pour récupérer les channels (via API locale du bot)
 app.get('/api/channels', async (req, res) => {
   try {
     if (!req.session.user || !req.session.selectedGuild) {
       return res.json([]);
     }
 
-    const response = await fetch(`https://discord.com/api/guilds/${req.session.selectedGuild}/channels`, {
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-      },
-    });
+    const botApiPort = process.env.BOT_API_PORT || 49502;
+    const response = await fetch(`http://localhost:${botApiPort}/guilds/${req.session.selectedGuild}/channels`);
 
     if (!response.ok) {
-      // Fallback: channels mockés si le bot n'est pas connecté
-      const channels = [
-        { id: 'general', name: 'général', type: 0 },
-        { id: 'welcome', name: 'bienvenue', type: 0 },
-        { id: 'announcements', name: 'annonces', type: 0 },
-        { id: 'rules', name: 'règlement', type: 0 }
-      ];
-      return res.json(channels);
+      console.error('Error fetching channels:', response.status, response.statusText);
+      return res.json([]);
     }
 
     const channels = await response.json();
@@ -329,14 +320,7 @@ app.get('/api/channels', async (req, res) => {
     res.json(textChannels);
   } catch (error) {
     console.error('Erreur chargement channels:', error);
-    // Fallback: channels mockés
-    const channels = [
-      { id: 'general', name: 'général' },
-      { id: 'welcome', name: 'bienvenue' },
-      { id: 'announcements', name: 'annonces' },
-      { id: 'rules', name: 'règlement' }
-    ];
-    res.json(channels);
+    res.json([]);
   }
 });
 

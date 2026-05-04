@@ -19,9 +19,24 @@ const API_PORT = process.env.BOT_API_PORT || 49502;
 apiApp.get('/guilds', (req, res) => {
   const guilds = client.guilds.cache.map(guild => ({
     id: guild.id,
-    name: guild.name
+    name: guild.name,
+    icon: guild.icon
   }));
   res.json(guilds);
+});
+
+apiApp.get('/guilds/:guildId/channels', (req, res) => {
+  const guild = client.guilds.cache.get(req.params.guildId);
+  if (!guild) {
+    return res.status(404).json({ error: 'Guild not found' });
+  }
+  
+  const channels = guild.channels.cache.map(channel => ({
+    id: channel.id,
+    name: channel.name,
+    type: channel.type
+  }));
+  res.json(channels);
 });
 
 apiApp.listen(API_PORT, () => {

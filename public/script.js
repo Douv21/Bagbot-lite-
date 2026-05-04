@@ -24,19 +24,32 @@ async function checkAuth() {
       const guildData = await guildResponse.json();
       
       if (guildData.guildId) {
+        // Show dashboard sections and server selector
+        document.getElementById('sidebarNav').style.display = 'block';
+        document.getElementById('serverSelector').style.display = 'block';
         document.getElementById('configContent').style.display = 'block';
         document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('guildSelector').style.display = 'none';
+        
+        // Update current server display
+        updateCurrentServer(guildData.guildId);
+        
         loadConfig();
         loadChannels();
       } else {
-        document.getElementById('guildSelector').style.display = 'block';
+        // Hide dashboard sections, show guild selector
+        document.getElementById('sidebarNav').style.display = 'none';
+        document.getElementById('serverSelector').style.display = 'none';
         document.getElementById('configContent').style.display = 'none';
         document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('guildSelector').style.display = 'block';
       }
     } else {
-      // Show login button
+      // Show login button, hide everything else
       document.getElementById('userInfo').style.display = 'none';
       document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('sidebarNav').style.display = 'none';
+      document.getElementById('serverSelector').style.display = 'none';
       document.getElementById('guildSelector').style.display = 'none';
       document.getElementById('configContent').style.display = 'none';
       document.getElementById('mainContent').style.display = 'block';
@@ -44,6 +57,38 @@ async function checkAuth() {
   } catch (error) {
     console.error('Error checking auth:', error);
   }
+}
+
+// Update current server display in sidebar
+async function updateCurrentServer(guildId) {
+  try {
+    const response = await fetch('/api/user');
+    const data = await response.json();
+    if (data.authenticated && data.user.guilds) {
+      const guild = data.user.guilds.find(g => g.id === guildId);
+      if (guild) {
+        document.getElementById('currentServerName').textContent = guild.name;
+        const iconElement = document.getElementById('currentServerIcon');
+        if (guild.icon) {
+          iconElement.style.backgroundImage = `url(https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png)`;
+        } else {
+          iconElement.style.backgroundImage = 'none';
+          iconElement.textContent = guild.name.charAt(0).toUpperCase();
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error updating current server:', error);
+  }
+}
+
+// Change server function
+function changeServer() {
+  document.getElementById('serverSelector').style.display = 'none';
+  document.getElementById('sidebarNav').style.display = 'none';
+  document.getElementById('configContent').style.display = 'none';
+  document.getElementById('guildSelector').style.display = 'block';
+  document.getElementById('mainContent').style.display = 'none';
 }
 
 // Load guilds from API (filtered)
@@ -123,9 +168,16 @@ async function selectGuild(guildId) {
     });
     
     if (response.ok) {
+      // Show dashboard sections and server selector
+      document.getElementById('sidebarNav').style.display = 'block';
+      document.getElementById('serverSelector').style.display = 'block';
       document.getElementById('configContent').style.display = 'block';
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('guildSelector').style.display = 'none';
+      
+      // Update current server display
+      updateCurrentServer(guildId);
+      
       loadConfig();
       loadChannels();
     }
