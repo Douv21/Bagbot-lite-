@@ -390,6 +390,19 @@ body {
     opacity: 1;
 }
 
+.embed-guild-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary-red);
+    background-size: cover;
+    background-position: center;
+    z-index: 10;
+}
+
 .embed-author {
     display: flex;
     align-items: center;
