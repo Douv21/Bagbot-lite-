@@ -473,8 +473,15 @@ function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.style.display = 'flex';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
     modal.style.zIndex = '10000';
-    console.log('Modal display set to flex');
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    console.log('Modal display set to flex with inline styles');
   } else {
     console.error('Modal not found:', modalId);
   }
