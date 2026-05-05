@@ -312,12 +312,9 @@ app.get('/api/channels', async (req, res) => {
     }
 
     const channels = await response.json();
-    // Filtrer seulement les channels textuels
-    const textChannels = channels.filter(ch => ch.type === 0).map(ch => ({
-      id: ch.id,
-      name: ch.name
-    }));
-    res.json(textChannels);
+    console.log('Channels fetched from bot API:', channels);
+    // Renvoyer tous les channels avec leur type pour permettre le filtrage côté frontend
+    res.json(channels);
   } catch (error) {
     console.error('Erreur chargement channels:', error);
     res.json([]);
