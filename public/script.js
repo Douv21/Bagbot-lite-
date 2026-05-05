@@ -763,6 +763,19 @@ async function loadConfig() {
       document.getElementById('departChannel').value = config.depart.channel || '';
       updateDepartEmbed();
     }
+
+    if (config.forum) {
+      document.getElementById('forumEnabled').checked = config.forum.enabled;
+      // Load selected forum channels after the select is populated
+      setTimeout(() => {
+        const forumChannelsSelect = document.getElementById('forumChannelsSelect');
+        if (config.forum.channels && Array.isArray(config.forum.channels)) {
+          Array.from(forumChannelsSelect.options).forEach(option => {
+            option.selected = config.forum.channels.includes(option.value);
+          });
+        }
+      }, 500);
+    }
   } catch (error) {
     console.error('Error loading config:', error);
   }
@@ -770,6 +783,10 @@ async function loadConfig() {
 
 // Save configuration
 async function saveConfig() {
+  // Get selected forum channels
+  const forumChannelsSelect = document.getElementById('forumChannelsSelect');
+  const selectedForumChannels = Array.from(forumChannelsSelect.selectedOptions).map(option => option.value);
+
   const config = {
     welcome: {
       enabled: document.getElementById('welcomeEnabled').checked,
@@ -796,6 +813,10 @@ async function saveConfig() {
       footerText: document.getElementById('departFooterText').value,
       footerIcon: document.getElementById('departFooterIcon').value,
       channel: document.getElementById('departChannel').value
+    },
+    forum: {
+      enabled: document.getElementById('forumEnabled').checked,
+      channels: selectedForumChannels
     }
   };
   

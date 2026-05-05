@@ -9,7 +9,8 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages
-  ]
+  ],
+  partials: ['CHANNEL', 'MESSAGE', 'THREAD']
 });
 
 // API server pour exposer les guilds du bot
@@ -51,11 +52,6 @@ apiApp.get('/guilds/:guildId/channels', async (req, res) => {
 
 apiApp.listen(API_PORT, () => {
   console.log(`✓ Bot API running on port ${API_PORT}`);
-});
-
-client.once('ready', () => {
-  console.log(`✓ Bot connecté en tant que ${client.user.tag}`);
-  console.log(`✓ Prêt sur ${client.guilds.cache.size} serveur(s)`);
 });
 
 // Charger la configuration d'un serveur
@@ -145,6 +141,56 @@ client.on('guildMemberRemove', async (member) => {
     }
   } catch (error) {
     console.error('Erreur message départ:', error);
+  }
+});
+
+// Forum illimité : réouvrir automatiquement les threads archivés
+client.on('threadUpdate', async (oldThread, newThread) => {
+  try {
+    const config = loadGuildConfig(newThread.guildId);
+    
+    if (config && config.forum && config.forum.enabled && config.forum.channels) {
+      // Vérifier si le thread est dans un salon forum illimité
+      if (config.forum.channels.includes(newThread.parentId)) {
+        // Si le thread est archivé, le réouvrir
+        if (newThread.archived && !oldThread?.archived) {
+          console.log(`Réouverture du thread ${newThread.name} dans le salon forum illimité`);
+          await newThread.setArchived(false, 'Forum illimité - réouverture automatique');
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erreur gestion forum illimité:', error);
+  }
+});
+
+// Au démarrage, réouvrir tous les threads archivés dans les salons forum illimités
+client.once('ready', async () => {
+  console.log(`✓ Bot connecté en tant que ${client.user.tag}`);
+  console.log(`✓ Prêt sur ${client.guilds.cache.size} serveur(s)`);
+  
+  // Réouvrir les threads archivés dans les salons forum illimités
+  for (const guild of client.guilds.cache.values()) {
+    try {
+      const config = loadGuildConfig(guild.id);
+      
+      if (config && config.forum && config.forum.enabled && config.forum.channels) {
+        for (const channelId of config.forum.channels) {
+          const channel = await guild.channels.fetch(channelId).catch(() => null);
+          if (channel && channel.isThreadOnly()) {
+            // Récupérer tous les threads archivés
+            const archivedThreads = await channel.threads.fetchArchived({ fetchAll: true });
+            
+            for (const thread of archivedThreads.threads.values()) {
+              console.log(`Réouverture du thread ${thread.name} au démarrage`);
+              await thread.setArchived(false, 'Forum illimité - réouverture au démarrage');
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Erreur réouverture threads pour guild ${guild.id}:`, error);
+    }
   }
 });
 
