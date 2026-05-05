@@ -8,7 +8,8 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessages
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
   ],
   partials: ['CHANNEL', 'MESSAGE', 'THREAD']
 });
@@ -147,15 +148,20 @@ client.on('guildMemberRemove', async (member) => {
 // Forum illimité : réouvrir automatiquement les threads archivés
 client.on('threadUpdate', async (oldThread, newThread) => {
   try {
+    console.log(`Thread update: ${newThread.name}, archived: ${newThread.archived}, old archived: ${oldThread?.archived}, parentId: ${newThread.parentId}`);
     const config = loadGuildConfig(newThread.guildId);
+    console.log(`Config for guild ${newThread.guildId}:`, config?.forum);
     
     if (config && config.forum && config.forum.enabled && config.forum.channels) {
+      console.log(`Forum channels in config:`, config.forum.channels);
       // Vérifier si le thread est dans un salon forum illimité
       if (config.forum.channels.includes(newThread.parentId)) {
+        console.log(`Thread is in forum unlimited channel`);
         // Si le thread est archivé, le réouvrir
-        if (newThread.archived && !oldThread?.archived) {
-          console.log(`Réouverture du thread ${newThread.name} dans le salon forum illimité`);
+        if (newThread.archived) {
+          console.log(`Attempting to reopen thread ${newThread.name}`);
           await newThread.setArchived(false, 'Forum illimité - réouverture automatique');
+          console.log(`Thread ${newThread.name} reopened successfully`);
         }
       }
     }
@@ -168,25 +174,41 @@ client.on('threadUpdate', async (oldThread, newThread) => {
 client.once('ready', async () => {
   console.log(`✓ Bot connecté en tant que ${client.user.tag}`);
   console.log(`✓ Prêt sur ${client.guilds.cache.size} serveur(s)`);
-  
+
   // Réouvrir les threads archivés dans les salons forum illimités
   for (const guild of client.guilds.cache.values()) {
     try {
+      console.log(`Checking guild ${guild.name} (${guild.id})`);
       const config = loadGuildConfig(guild.id);
-      
+      console.log(`Config for guild ${guild.id}:`, config?.forum);
+
       if (config && config.forum && config.forum.enabled && config.forum.channels) {
+        console.log(`Forum unlimited enabled for guild ${guild.id}, channels:`, config.forum.channels);
         for (const channelId of config.forum.channels) {
+          console.log(`Fetching channel ${channelId}`);
           const channel = await guild.channels.fetch(channelId).catch(() => null);
-          if (channel && channel.isThreadOnly()) {
-            // Récupérer tous les threads archivés
-            const archivedThreads = await channel.threads.fetchArchived({ fetchAll: true });
-            
-            for (const thread of archivedThreads.threads.values()) {
-              console.log(`Réouverture du thread ${thread.name} au démarrage`);
-              await thread.setArchived(false, 'Forum illimité - réouverture au démarrage');
+          if (channel) {
+            console.log(`Channel found: ${channel.name}, type: ${channel.type}, isThreadOnly: ${channel.isThreadOnly()}`);
+            if (channel.isThreadOnly()) {
+              // Récupérer tous les threads archivés
+              console.log(`Fetching archived threads for channel ${channel.name}`);
+              const archivedThreads = await channel.threads.fetchArchived({ fetchAll: true });
+              console.log(`Found ${archivedThreads.threads.size} archived threads`);
+
+              for (const thread of archivedThreads.threads.values()) {
+                console.log(`Reopening thread ${thread.name} at startup`);
+                await thread.setArchived(false, 'Forum illimité - réouverture au démarrage');
+                console.log(`Thread ${thread.name} reopened successfully`);
+              }
+            } else {
+              console.log(`Channel ${channel.name} is not thread-only`);
             }
+          } else {
+            console.log(`Channel ${channelId} not found`);
           }
         }
+      } else {
+        console.log(`Forum unlimited not enabled for guild ${guild.id}`);
       }
     } catch (error) {
       console.error(`Erreur réouverture threads pour guild ${guild.id}:`, error);
