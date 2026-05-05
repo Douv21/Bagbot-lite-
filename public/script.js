@@ -654,8 +654,9 @@ async function loadForumChannels() {
     const channels = await response.json();
     
     console.log('All channels:', channels);
+    console.log('Channel types:', channels.map(ch => ({ name: ch.name, type: ch.type, type_name: getChannelTypeName(ch.type) })));
     
-    // Filter only forum channels (type 15)
+    // Filter only forum channels (type 15 in Discord API)
     const forumChannels = channels.filter(ch => ch.type === 15);
     
     console.log('Forum channels found:', forumChannels);
@@ -663,7 +664,7 @@ async function loadForumChannels() {
     const forumChannelsDiv = document.getElementById('forumChannels');
     
     if (forumChannels.length === 0) {
-      forumChannelsDiv.innerHTML = '<p style="color: var(--text-secondary);">Aucun salon forum trouvé sur ce serveur.</p>';
+      forumChannelsDiv.innerHTML = '<p style="color: var(--text-secondary);">Aucun salon forum trouvé sur ce serveur (type 15).</p>';
       return;
     }
     
@@ -681,6 +682,25 @@ async function loadForumChannels() {
     console.error('Error loading forum channels:', error);
     document.getElementById('forumChannels').innerHTML = '<p style="color: var(--text-secondary);">Erreur lors du chargement des salons.</p>';
   }
+}
+
+function getChannelTypeName(type) {
+  const types = {
+    0: 'GUILD_TEXT',
+    1: 'DM',
+    2: 'GUILD_VOICE',
+    3: 'GROUP_DM',
+    4: 'CATEGORY',
+    5: 'GUILD_ANNOUNCEMENT',
+    10: 'ANNOUNCEMENT_THREAD',
+    11: 'PUBLIC_THREAD',
+    12: 'PRIVATE_THREAD',
+    13: 'GUILD_STAGE_VOICE',
+    14: 'GUILD_DIRECTORY',
+    15: 'GUILD_FORUM',
+    16: 'GUILD_MEDIA'
+  };
+  return types[type] || 'UNKNOWN';
 }
 
 // Load configuration on page load

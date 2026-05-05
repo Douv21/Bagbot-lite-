@@ -723,7 +723,7 @@ flex-direction: column;
 }
 
 .embed-thumbnail:empty::before {
-    content: '🖼️';
+    content: '�';
     font-size: 2rem;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -743,7 +743,7 @@ flex-direction: column;
 }
 
 .embed-image[src=""]::before {
-    content: '🖼️';
+    content: '�';
     font-size: 2rem;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -791,7 +791,7 @@ flex-direction: column;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 10000;
 }
 
 .modal-content {
@@ -973,17 +973,58 @@ input[type="color"]:focus {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
     .sidebar {
         width: 100%;
         position: relative;
         height: auto;
+        padding: 20px;
     }
     
     .main-content {
         margin-left: 0;
+        padding: 20px;
+    }
+    
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
     }
     
     .header h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+    }
+    
+    .embed-preview {
+        max-width: 100%;
+    }
+    
+    .embed-thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .embed-thumbnail img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .guild-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .modal-content {
+        width: 95%;
+        max-width: 400px;
+        margin: 20px auto;
     }
 }
