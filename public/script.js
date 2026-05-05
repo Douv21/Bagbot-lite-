@@ -280,17 +280,25 @@ async function updateWelcomeEmbed() {
   if (imageUrl) {
     imageElement.src = imageUrl;
     imageElement.style.display = 'block';
+    imageElement.style.background = 'none';
+    imageElement.style.border = 'none';
   } else {
-    imageElement.style.display = 'none';
+    imageElement.style.display = 'flex';
+    imageElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    imageElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
+    imageElement.innerHTML = '🖼️';
+    imageElement.style.color = 'rgba(255, 255, 255, 0.3)';
+    imageElement.style.fontSize = '2rem';
   }
   
   // Thumbnail
   const thumbnailElement = document.getElementById('welcomeEmbedThumbnail');
   if (thumbnailUrl) {
     thumbnailElement.querySelector('img').src = thumbnailUrl;
-    thumbnailElement.style.display = 'block';
+    thumbnailElement.style.display = 'flex';
   } else {
-    thumbnailElement.style.display = 'none';
+    thumbnailElement.style.display = 'flex';
+    thumbnailElement.querySelector('img').style.display = 'none';
   }
   
   // Author
@@ -315,8 +323,14 @@ async function updateWelcomeEmbed() {
       footerIconImg.style.display = 'none';
     }
     footerElement.style.display = 'flex';
+    footerElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    footerElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
   } else {
-    footerElement.style.display = 'none';
+    footerElement.style.display = 'flex';
+    footerElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    footerElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
+    document.getElementById('welcomeEmbedFooterText').textContent = '🔧 Cliquez pour configurer le footer';
+    document.getElementById('welcomeEmbedFooterIcon').style.display = 'none';
   }
 }
 
@@ -353,17 +367,25 @@ async function updateDepartEmbed() {
   if (imageUrl) {
     imageElement.src = imageUrl;
     imageElement.style.display = 'block';
+    imageElement.style.background = 'none';
+    imageElement.style.border = 'none';
   } else {
-    imageElement.style.display = 'none';
+    imageElement.style.display = 'flex';
+    imageElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    imageElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
+    imageElement.innerHTML = '🖼️';
+    imageElement.style.color = 'rgba(255, 255, 255, 0.3)';
+    imageElement.style.fontSize = '2rem';
   }
   
   // Thumbnail
   const thumbnailElement = document.getElementById('departEmbedThumbnail');
   if (thumbnailUrl) {
     thumbnailElement.querySelector('img').src = thumbnailUrl;
-    thumbnailElement.style.display = 'block';
+    thumbnailElement.style.display = 'flex';
   } else {
-    thumbnailElement.style.display = 'none';
+    thumbnailElement.style.display = 'flex';
+    thumbnailElement.querySelector('img').style.display = 'none';
   }
   
   // Author
@@ -388,8 +410,14 @@ async function updateDepartEmbed() {
       footerIconImg.style.display = 'none';
     }
     footerElement.style.display = 'flex';
+    footerElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    footerElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
   } else {
-    footerElement.style.display = 'none';
+    footerElement.style.display = 'flex';
+    footerElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    footerElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
+    document.getElementById('departEmbedFooterText').textContent = '🔧 Cliquez pour configurer le footer';
+    document.getElementById('departEmbedFooterIcon').style.display = 'none';
   }
 }
 
