@@ -472,6 +472,7 @@ function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.style.display = 'flex';
+    modal.style.zIndex = '10000';
     console.log('Modal display set to flex');
   } else {
     console.error('Modal not found:', modalId);
@@ -484,6 +485,12 @@ function closeModal(modalId) {
   if (modal) {
     modal.style.display = 'none';
   }
+}
+
+// Toggle sidebar for mobile
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  sidebar.classList.toggle('sidebar-open');
 }
 
 // Title modal
@@ -665,7 +672,7 @@ async function loadForumChannels() {
     const channels = await response.json();
     
     console.log('All channels:', channels);
-    console.log('Channel types:', channels.map(ch => ({ name: ch.name, type: ch.type, type_name: getChannelTypeName(ch.type) })));
+    console.log('Channel types:', channels.map(ch => ({ name: ch.name || 'undefined', type: ch.type, type_name: getChannelTypeName(ch.type) })));
     
     // Filter only forum channels (type 15 in Discord API) - also try type 16 for media channels
     const forumChannels = channels.filter(ch => ch.type === 15 || ch.type === 16);
@@ -676,7 +683,7 @@ async function loadForumChannels() {
     
     if (forumChannels.length === 0) {
       // Show all channels for debugging
-      const allChannelsList = channels.map(ch => `${ch.name} (type: ${ch.type})`).join(', ');
+      const allChannelsList = channels.map(ch => `${ch.name || 'undefined'} (type: ${ch.type})`).join(', ');
       forumChannelsDiv.innerHTML = `
         <p style="color: var(--text-secondary);">Aucun salon forum trouvé sur ce serveur (types 15 ou 16).</p>
         <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 10px;">Salons détectés: ${allChannelsList}</p>
@@ -690,7 +697,7 @@ async function loadForumChannels() {
       item.className = 'forum-channel-item';
       item.innerHTML = `
         <input type="checkbox" id="forum-${channel.id}" value="${channel.id}">
-        <label for="forum-${channel.id}" class="forum-channel-name">${channel.name}</label>
+        <label for="forum-${channel.id}" class="forum-channel-name">${channel.name || 'Sans nom'}</label>
       `;
       forumChannelsDiv.appendChild(item);
     });

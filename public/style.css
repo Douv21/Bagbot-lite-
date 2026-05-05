@@ -43,6 +43,8 @@ body {
     height: 100vh;
     overflow-y: auto;
     box-shadow: 5px 0 30px rgba(196, 30, 58, 0.2);
+    transition: transform 0.3s ease;
+    z-index: 999;
 }
 
 .sidebar-header {
@@ -223,6 +225,29 @@ body {
     text-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
     letter-spacing: 2px;
     font-weight: 600;
+    flex: 1;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+}
+
+.hamburger-menu span {
+    width: 30px;
+    height: 3px;
+    background: var(--text-gold);
+    border-radius: 3px;
+    transition: all 0.3s ease;
 }
 
 /* User Profile in Header */
@@ -978,30 +1003,42 @@ input[type="color"]:focus {
     }
     
     .sidebar {
-        width: 100%;
-        position: relative;
-        height: auto;
+        width: 280px;
+        position: fixed;
+        left: -280px;
+        height: 100vh;
         padding: 20px;
+        transform: translateX(0);
+    }
+    
+    .sidebar.sidebar-open {
+        transform: translateX(280px);
     }
     
     .main-content {
         margin-left: 0;
         padding: 20px;
+        width: 100%;
     }
     
     .header {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
         gap: 15px;
     }
     
+    .hamburger-menu {
+        display: flex;
+    }
+    
     .header-right {
-        width: 100%;
+        width: auto;
         justify-content: space-between;
     }
     
     .header h1 {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
+        flex: 1;
     }
     
     .embed-preview {
@@ -1026,5 +1063,9 @@ input[type="color"]:focus {
         width: 95%;
         max-width: 400px;
         margin: 20px auto;
+    }
+    
+    .current-server-header {
+        display: none !important;
     }
 }
