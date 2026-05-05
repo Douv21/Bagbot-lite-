@@ -25,18 +25,28 @@ apiApp.get('/guilds', (req, res) => {
   res.json(guilds);
 });
 
-apiApp.get('/guilds/:guildId/channels', (req, res) => {
-  const guild = client.guilds.cache.get(req.params.guildId);
-  if (!guild) {
-    return res.status(404).json({ error: 'Guild not found' });
+apiApp.get('/guilds/:guildId/channels', async (req, res) => {
+  try {
+    const guild = client.guilds.cache.get(req.params.guildId);
+    if (!guild) {
+      return res.status(404).json({ error: 'Guild not found' });
+    }
+    
+    // Fetch channels if not in cache
+    await guild.channels.fetch();
+    
+    const channels = guild.channels.cache.map(channel => ({
+      id: channel.id,
+      name: channel.name || 'Unknown',
+      type: channel.type
+    }));
+    
+    console.log(`Channels for guild ${req.params.guildId}:`, channels);
+    res.json(channels);
+  } catch (error) {
+    console.error('Error fetching channels:', error);
+    res.status(500).json({ error: 'Error fetching channels' });
   }
-  
-  const channels = guild.channels.cache.map(channel => ({
-    id: channel.id,
-    name: channel.name,
-    type: channel.type
-  }));
-  res.json(channels);
 });
 
 apiApp.listen(API_PORT, () => {

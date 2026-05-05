@@ -284,15 +284,20 @@ async function updateWelcomeEmbed() {
   const authorIcon = document.getElementById('welcomeAuthorIcon').value;
   const footerText = document.getElementById('welcomeFooterText').value;
   const footerIcon = document.getElementById('welcomeFooterIcon').value;
-  
+
   const user = await getCurrentUser();
   const guild = await getCurrentGuild();
-  
+
   document.getElementById('welcomeEmbedTitle').textContent = replaceVariables(title, user, guild);
   document.getElementById('welcomeEmbedSubtitle').textContent = replaceVariables(subtitle, user, guild);
   document.getElementById('welcomeEmbedDescription').textContent = replaceVariables(description, user, guild);
   document.getElementById('welcomeEmbedPreview').style.borderLeftColor = color;
-  
+
+  // Timestamp
+  const timestampElement = document.getElementById('welcomeEmbedTimestamp');
+  const now = new Date();
+  timestampElement.textContent = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
   // Subtitle display
   const subtitleElement = document.getElementById('welcomeEmbedSubtitle');
   if (subtitle) {
@@ -300,66 +305,57 @@ async function updateWelcomeEmbed() {
   } else {
     subtitleElement.style.display = 'none';
   }
-  
-  // Guild icon
-  const guildIconElement = document.getElementById('welcomeGuildIcon');
-  if (guild && guild.icon) {
-    guildIconElement.style.backgroundImage = `url(https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png)`;
-    guildIconElement.style.display = 'block';
+
+  // Thumbnail
+  const thumbnailImg = document.getElementById('welcomeEmbedThumbnail').querySelector('img');
+  if (thumbnailUrl) {
+    thumbnailImg.src = thumbnailUrl;
+    thumbnailImg.style.display = 'block';
   } else {
-    guildIconElement.style.display = 'none';
+    thumbnailImg.style.display = 'none';
   }
-  
+
   // Image
   const imageElement = document.getElementById('welcomeEmbedImage');
   if (imageUrl) {
     imageElement.src = imageUrl;
     imageElement.style.display = 'block';
-    imageElement.style.background = 'none';
-    imageElement.style.border = 'none';
   } else {
-    imageElement.style.display = 'flex';
-    imageElement.style.background = 'rgba(255, 255, 255, 0.05)';
-    imageElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
-    imageElement.innerHTML = '🖼️';
-    imageElement.style.color = 'rgba(255, 255, 255, 0.3)';
-    imageElement.style.fontSize = '2rem';
+    imageElement.style.display = 'none';
   }
-  
-  // Thumbnail
-  const thumbnailElement = document.getElementById('welcomeEmbedThumbnail');
-  if (thumbnailUrl) {
-    thumbnailElement.querySelector('img').src = thumbnailUrl;
-    thumbnailElement.style.display = 'flex';
-  } else {
-    thumbnailElement.style.display = 'flex';
-    thumbnailElement.querySelector('img').style.display = 'none';
-  }
-  
+
   // Author
   const authorElement = document.getElementById('welcomeEmbedAuthor');
-  if (authorName || authorIcon) {
-    document.getElementById('welcomeEmbedAuthorName').textContent = replaceVariables(authorName, user, guild);
-    document.getElementById('welcomeEmbedAuthorIcon').src = authorIcon;
+  const authorNameElement = document.getElementById('welcomeEmbedAuthorName');
+  const authorIconElement = document.getElementById('welcomeEmbedAuthorIcon');
+  if (authorName) {
+    authorNameElement.textContent = replaceVariables(authorName, user, guild);
     authorElement.style.display = 'flex';
+    if (authorIcon) {
+      authorIconElement.src = authorIcon;
+      authorIconElement.style.display = 'block';
+    } else {
+      authorIconElement.style.display = 'none';
+    }
   } else {
     authorElement.style.display = 'none';
   }
-  
+
   // Footer
   const footerElement = document.getElementById('welcomeEmbedFooter');
-  if (footerText || footerIcon) {
-    document.getElementById('welcomeEmbedFooterText').textContent = replaceVariables(footerText, user, guild);
-    const footerIconImg = document.getElementById('welcomeEmbedFooterIcon');
+  const footerTextElement = document.getElementById('welcomeEmbedFooterText');
+  const footerIconImg = document.getElementById('welcomeEmbedFooterIcon');
+  if (footerText) {
+    footerTextElement.textContent = replaceVariables(footerText, user, guild);
+    footerElement.style.display = 'flex';
+    footerElement.style.background = 'transparent';
+    footerElement.style.border = 'none';
     if (footerIcon) {
       footerIconImg.src = footerIcon;
       footerIconImg.style.display = 'inline';
     } else {
       footerIconImg.style.display = 'none';
     }
-    footerElement.style.display = 'flex';
-    footerElement.style.background = 'rgba(255, 255, 255, 0.05)';
-    footerElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
   } else {
     footerElement.style.display = 'flex';
     footerElement.style.background = 'rgba(255, 255, 255, 0.05)';
@@ -389,7 +385,12 @@ async function updateDepartEmbed() {
   document.getElementById('departEmbedSubtitle').textContent = replaceVariables(subtitle, user, guild);
   document.getElementById('departEmbedDescription').textContent = replaceVariables(description, user, guild);
   document.getElementById('departEmbedPreview').style.borderLeftColor = color;
-  
+
+  // Timestamp
+  const timestampElement = document.getElementById('departEmbedTimestamp');
+  const now = new Date();
+  timestampElement.textContent = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
   // Subtitle display
   const subtitleElement = document.getElementById('departEmbedSubtitle');
   if (subtitle) {
@@ -679,31 +680,25 @@ async function loadForumChannels() {
     
     console.log('Forum channels found:', forumChannels);
     
-    const forumChannelsDiv = document.getElementById('forumChannels');
+    const forumChannelsSelect = document.getElementById('forumChannelsSelect');
     
     if (forumChannels.length === 0) {
       // Show all channels for debugging
       const allChannelsList = channels.map(ch => `${ch.name || 'undefined'} (type: ${ch.type})`).join(', ');
-      forumChannelsDiv.innerHTML = `
-        <p style="color: var(--text-secondary);">Aucun salon forum trouvé sur ce serveur (types 15 ou 16).</p>
-        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 10px;">Salons détectés: ${allChannelsList}</p>
-      `;
+      forumChannelsSelect.innerHTML = `<option value="">Aucun salon forum trouvé (types 15 ou 16). Salons: ${allChannelsList}</option>`;
       return;
     }
     
-    forumChannelsDiv.innerHTML = '';
+    forumChannelsSelect.innerHTML = '';
     forumChannels.forEach(channel => {
-      const item = document.createElement('div');
-      item.className = 'forum-channel-item';
-      item.innerHTML = `
-        <input type="checkbox" id="forum-${channel.id}" value="${channel.id}">
-        <label for="forum-${channel.id}" class="forum-channel-name">${channel.name || 'Sans nom'}</label>
-      `;
-      forumChannelsDiv.appendChild(item);
+      const option = document.createElement('option');
+      option.value = channel.id;
+      option.textContent = channel.name || 'Sans nom';
+      forumChannelsSelect.appendChild(option);
     });
   } catch (error) {
     console.error('Error loading forum channels:', error);
-    document.getElementById('forumChannels').innerHTML = '<p style="color: var(--text-secondary);">Erreur lors du chargement des salons.</p>';
+    document.getElementById('forumChannelsSelect').innerHTML = '<option value="">Erreur lors du chargement des salons.</option>';
   }
 }
 

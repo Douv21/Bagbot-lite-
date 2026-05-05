@@ -94,6 +94,7 @@
                             <div class="embed-footer" id="welcomeEmbedFooter" onclick="openFooterModal('welcome')">
                                 <img src="" alt="Footer Icon" id="welcomeEmbedFooterIcon" style="display: none;">
                                 <span id="welcomeEmbedFooterText"></span>
+                                <span class="embed-timestamp" id="welcomeEmbedTimestamp"></span>
                             </div>
                         </div>
 
@@ -158,6 +159,7 @@
                             <div class="embed-footer" id="departEmbedFooter" onclick="openFooterModal('depart')">
                                 <img src="" alt="Footer Icon" id="departEmbedFooterIcon" style="display: none;">
                                 <span id="departEmbedFooterText"></span>
+                                <span class="embed-timestamp" id="departEmbedTimestamp"></span>
                             </div>
                         </div>
 
@@ -211,9 +213,10 @@
                         </div>
                         <div class="form-group">
                             <label>Salons forum illimités</label>
-                            <div class="forum-channels" id="forumChannels">
-                                <p style="color: var(--text-secondary);">Chargement des salons...</p>
-                            </div>
+                            <select id="forumChannelsSelect" multiple style="height: 200px;">
+                                <option value="">Chargement des salons...</option>
+                            </select>
+                            <small style="color: var(--text-secondary);">Maintenez Ctrl/Cmd pour sélectionner plusieurs salons</small>
                         </div>
                     </div>
                 </div>
