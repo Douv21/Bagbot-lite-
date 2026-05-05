@@ -320,16 +320,27 @@ async function updateWelcomeEmbed() {
   if (imageUrl) {
     imageElement.src = imageUrl;
     imageElement.style.display = 'block';
+    imageElement.style.background = 'none';
+    imageElement.style.border = 'none';
   } else {
-    imageElement.style.display = 'none';
+    imageElement.style.display = 'flex';
+    imageElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    imageElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
+    imageElement.innerHTML = '🖼️';
+    imageElement.style.color = 'rgba(255, 255, 255, 0.3)';
+    imageElement.style.fontSize = '2rem';
   }
 
   // Author
   const authorElement = document.getElementById('welcomeEmbedAuthor');
   const authorNameElement = document.getElementById('welcomeEmbedAuthorName');
   const authorIconElement = document.getElementById('welcomeEmbedAuthorIcon');
-  if (authorName) {
-    authorNameElement.textContent = replaceVariables(authorName, user, guild);
+  if (authorName || authorIcon) {
+    if (authorName) {
+      authorNameElement.textContent = replaceVariables(authorName, user, guild);
+    } else {
+      authorNameElement.textContent = '🔧 Cliquez pour configurer l\'auteur';
+    }
     authorElement.style.display = 'flex';
     if (authorIcon) {
       authorIconElement.src = authorIcon;
@@ -338,7 +349,11 @@ async function updateWelcomeEmbed() {
       authorIconElement.style.display = 'none';
     }
   } else {
-    authorElement.style.display = 'none';
+    authorElement.style.display = 'flex';
+    authorElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    authorElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
+    authorNameElement.textContent = '🔧 Cliquez pour configurer l\'auteur';
+    authorIconElement.style.display = 'none';
   }
 
   // Footer
@@ -436,12 +451,27 @@ async function updateDepartEmbed() {
   
   // Author
   const authorElement = document.getElementById('departEmbedAuthor');
+  const authorNameElement = document.getElementById('departEmbedAuthorName');
+  const authorIconElement = document.getElementById('departEmbedAuthorIcon');
   if (authorName || authorIcon) {
-    document.getElementById('departEmbedAuthorName').textContent = replaceVariables(authorName, user, guild);
-    document.getElementById('departEmbedAuthorIcon').src = authorIcon;
+    if (authorName) {
+      authorNameElement.textContent = replaceVariables(authorName, user, guild);
+    } else {
+      authorNameElement.textContent = '🔧 Cliquez pour configurer l\'auteur';
+    }
     authorElement.style.display = 'flex';
+    if (authorIcon) {
+      authorIconElement.src = authorIcon;
+      authorIconElement.style.display = 'block';
+    } else {
+      authorIconElement.style.display = 'none';
+    }
   } else {
-    authorElement.style.display = 'none';
+    authorElement.style.display = 'flex';
+    authorElement.style.background = 'rgba(255, 255, 255, 0.05)';
+    authorElement.style.border = '2px dashed rgba(255, 255, 255, 0.2)';
+    authorNameElement.textContent = '🔧 Cliquez pour configurer l\'auteur';
+    authorIconElement.style.display = 'none';
   }
   
   // Footer
