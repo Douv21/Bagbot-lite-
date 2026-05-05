@@ -468,11 +468,22 @@ async function updateDepartEmbed() {
 
 // Modal functions
 function openModal(modalId) {
-  document.getElementById(modalId).style.display = 'flex';
+  console.log('Opening modal:', modalId);
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    console.log('Modal display set to flex');
+  } else {
+    console.error('Modal not found:', modalId);
+  }
 }
 
 function closeModal(modalId) {
-  document.getElementById(modalId).style.display = 'none';
+  console.log('Closing modal:', modalId);
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'none';
+  }
 }
 
 // Title modal
@@ -656,15 +667,20 @@ async function loadForumChannels() {
     console.log('All channels:', channels);
     console.log('Channel types:', channels.map(ch => ({ name: ch.name, type: ch.type, type_name: getChannelTypeName(ch.type) })));
     
-    // Filter only forum channels (type 15 in Discord API)
-    const forumChannels = channels.filter(ch => ch.type === 15);
+    // Filter only forum channels (type 15 in Discord API) - also try type 16 for media channels
+    const forumChannels = channels.filter(ch => ch.type === 15 || ch.type === 16);
     
     console.log('Forum channels found:', forumChannels);
     
     const forumChannelsDiv = document.getElementById('forumChannels');
     
     if (forumChannels.length === 0) {
-      forumChannelsDiv.innerHTML = '<p style="color: var(--text-secondary);">Aucun salon forum trouvé sur ce serveur (type 15).</p>';
+      // Show all channels for debugging
+      const allChannelsList = channels.map(ch => `${ch.name} (type: ${ch.type})`).join(', ');
+      forumChannelsDiv.innerHTML = `
+        <p style="color: var(--text-secondary);">Aucun salon forum trouvé sur ce serveur (types 15 ou 16).</p>
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 10px;">Salons détectés: ${allChannelsList}</p>
+      `;
       return;
     }
     
