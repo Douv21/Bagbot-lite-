@@ -166,18 +166,18 @@ async function selectGuild(guildId) {
     });
     
     if (response.ok) {
-      // Show dashboard sections and server selector
+      // Show dashboard sections
       document.getElementById('sidebarNav').style.display = 'block';
-      document.getElementById('serverSelector').style.display = 'block';
       document.getElementById('configContent').style.display = 'block';
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('guildSelector').style.display = 'none';
       
-      // Update current server display
+      // Update current server display in header
       updateCurrentServer(guildId);
       
       loadConfig();
       loadChannels();
+      loadForumChannels();
     }
   } catch (error) {
     console.error('Error selecting guild:', error);
