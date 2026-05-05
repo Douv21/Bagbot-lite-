@@ -653,8 +653,12 @@ async function loadForumChannels() {
     const response = await fetch('/api/channels');
     const channels = await response.json();
     
+    console.log('All channels:', channels);
+    
     // Filter only forum channels (type 15)
     const forumChannels = channels.filter(ch => ch.type === 15);
+    
+    console.log('Forum channels found:', forumChannels);
     
     const forumChannelsDiv = document.getElementById('forumChannels');
     
