@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAG Bot - Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -24,14 +24,6 @@
                     <span>💬</span> Forum Illimité
                 </a>
             </nav>
-            <div class="server-selector" id="serverSelector" style="display: none;">
-                <h3>Serveur actif</h3>
-                <div class="current-server" id="currentServer">
-                    <div class="current-server-icon" id="currentServerIcon"></div>
-                    <div class="current-server-name" id="currentServerName"></div>
-                </div>
-                <button class="btn btn-secondary" onclick="changeServer()">Changer de serveur</button>
-            </div>
             <div class="login-section" id="loginSection">
                 <a href="/login" class="btn btn-login">Connexion Discord</a>
             </div>
@@ -41,12 +33,18 @@
         <main class="main-content">
             <header class="header">
                 <h1 id="headerTitle">Bienvenue/Depart</h1>
-                <div class="user-profile" id="userProfile" style="display: none;">
-                    <div class="user-avatar" id="userAvatar"></div>
-                    <div class="user-dropdown">
-                        <span class="user-name" id="userName"></span>
-                        <div class="dropdown-menu">
-                            <a href="/logout" class="dropdown-item">Déconnexion</a>
+                <div class="header-right">
+                    <div class="current-server-header" id="currentServerHeader" style="display: none;">
+                        <div class="current-server-icon" id="currentServerIcon"></div>
+                        <div class="current-server-name" id="currentServerName"></div>
+                    </div>
+                    <div class="user-profile" id="userProfile" style="display: none;">
+                        <div class="user-avatar" id="userAvatar"></div>
+                        <div class="user-dropdown">
+                            <span class="user-name" id="userName"></span>
+                            <div class="dropdown-menu">
+                                <a href="/logout" class="dropdown-item">Déconnexion</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -66,12 +64,6 @@
             </div>
 
             <div class="content" id="configContent" style="display: none;">
-                <!-- Tabs -->
-                <div class="tabs">
-                    <div class="tab active" data-tab="welcome">Bienvenue</div>
-                    <div class="tab" data-tab="depart">Départ</div>
-                </div>
-
                 <!-- Welcome Tab Content -->
                 <div class="tab-content active" id="tab-welcome">
                     <div class="section">
@@ -86,6 +78,7 @@
                                 <div class="embed-author-name" id="welcomeEmbedAuthorName"></div>
                             </div>
                             <div class="embed-title" id="welcomeEmbedTitle" onclick="openTitleModal('welcome')">👋 Bienvenue</div>
+                            <div class="embed-subtitle" id="welcomeEmbedSubtitle" onclick="openSubtitleModal('welcome')" style="display: none;"></div>
                             <div class="embed-description" id="welcomeEmbedDescription" onclick="openDescriptionModal('welcome')">Bienvenue {user} sur le serveur !</div>
                             <div class="embed-fields" id="welcomeEmbedFields" style="display: none;"></div>
                             <div class="embed-thumbnail" id="welcomeEmbedThumbnail" onclick="openThumbnailModal('welcome')">
@@ -124,6 +117,7 @@
                         
                         <!-- Hidden fields for modals -->
                         <input type="hidden" id="welcomeTitle" value="👋 Bienvenue">
+                        <input type="hidden" id="welcomeSubtitle" value="">
                         <input type="hidden" id="welcomeMessage" value="Bienvenue {user} sur le serveur !">
                         <input type="hidden" id="welcomeAuthorName" value="">
                         <input type="hidden" id="welcomeAuthorIcon" value="">
@@ -148,6 +142,7 @@
                                 <div class="embed-author-name" id="departEmbedAuthorName"></div>
                             </div>
                             <div class="embed-title" id="departEmbedTitle" onclick="openTitleModal('depart')">👋 Au revoir</div>
+                            <div class="embed-subtitle" id="departEmbedSubtitle" onclick="openSubtitleModal('depart')" style="display: none;"></div>
                             <div class="embed-description" id="departEmbedDescription" onclick="openDescriptionModal('depart')">Au revoir {user} !</div>
                             <div class="embed-fields" id="departEmbedFields" style="display: none;"></div>
                             <div class="embed-thumbnail" id="departEmbedThumbnail" onclick="openThumbnailModal('depart')">
@@ -185,6 +180,7 @@
                         
                         <!-- Hidden fields for modals -->
                         <input type="hidden" id="departTitle" value="👋 Au revoir">
+                        <input type="hidden" id="departSubtitle" value="">
                         <input type="hidden" id="departMessage" value="Au revoir {user} !">
                         <input type="hidden" id="departAuthorName" value="">
                         <input type="hidden" id="departAuthorIcon" value="">
@@ -233,12 +229,31 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Titre de l'embed</label>
-                    <input type="text" id="modalTitle" placeholder="Titre...">
+                    <label>Titre</label>
+                    <input type="text" id="modalTitle" placeholder="Entrez le titre...">
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" onclick="saveTitleModal()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtitle Modal -->
+    <div class="modal" id="subtitleModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier le sous-titre</h2>
+                <button class="modal-close" onclick="closeModal('subtitleModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Sous-titre</label>
+                    <input type="text" id="modalSubtitle" placeholder="Entrez le sous-titre...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveSubtitleModal()">Appliquer</button>
             </div>
         </div>
     </div>

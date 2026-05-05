@@ -5,31 +5,27 @@
 }
 
 :root {
-    --primary-red: #C41E3A;
-    --primary-red-dark: #8B0000;
-    --gold: #D4AF37;
-    --gold-light: #F4D03F;
-    --gold-dark: #B8860B;
-    --bg-black: #0A0A0A;
-    --bg-dark: #1A1A1A;
-    --bg-darker: #0D0D0D;
-    --bg-card: #151515;
-    --text-primary: #FFFFFF;
-    --text-secondary: #B8B8B8;
-    --text-gold: #D4AF37;
+    --primary-red: #8B0000;
+    --accent-red: #DC143C;
+    --gold: #FFD700;
+    --bg-black: #050505;
+    --bg-card: #0f0f0f;
+    --text-primary: #f5f5f5;
+    --text-secondary: #a0a0a0;
+    --text-gold: #FFD700;
+    --border-red: #5a0000;
     --sidebar-width: 280px;
-    --border-gold: rgba(212, 175, 55, 0.3);
-    --border-red: rgba(196, 30, 58, 0.5);
+    --border-gold: rgba(255, 215, 0, 0.3);
 }
 
 body {
-    font-family: 'Playfair Display', 'Georgia', serif;
+    font-family: 'Montserrat', 'Helvetica', sans-serif;
     background: var(--bg-black);
     color: var(--text-primary);
     min-height: 100vh;
     background-image: 
-        radial-gradient(circle at 20% 50%, rgba(196, 30, 58, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(139, 0, 0, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(220, 20, 60, 0.1) 0%, transparent 50%);
 }
 
 .container {
@@ -79,30 +75,30 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 20px;
+    padding: 14px 20px;
     color: var(--text-secondary);
     text-decoration: none;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    cursor: pointer;
+    border-radius: 8px;
     transition: all 0.3s ease;
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    border: 1px solid transparent;
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.5px;
 }
 
 .nav-item:hover {
-    background: rgba(196, 30, 58, 0.1);
-    border-color: var(--border-red);
+    background: rgba(139, 0, 0, 0.3);
     color: var(--text-primary);
     transform: translateX(5px);
+    border: 1px solid rgba(255, 215, 0, 0.2);
 }
 
 .nav-item.active {
-    background: linear-gradient(135deg, var(--primary-red), var(--primary-red-dark));
-    color: #FFFFFF;
-    border-color: var(--primary-red);
-    box-shadow: 0 5px 20px rgba(196, 30, 58, 0.4);
+    background: linear-gradient(135deg, var(--primary-red), var(--accent-red));
+    color: var(--text-gold);
+    box-shadow: 0 4px 20px rgba(139, 0, 0, 0.5);
+    border: 1px solid rgba(255, 215, 0, 0.3);
     transform: translateX(5px);
 }
 
@@ -188,12 +184,45 @@ body {
     align-items: center;
 }
 
-.header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.current-server-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-red);
+    border-radius: 8px;
+}
+
+.current-server-header .current-server-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary-red);
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.current-server-header .current-server-name {
     color: var(--text-primary);
-    text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-    letter-spacing: 1px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: var(--text-gold);
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    letter-spacing: 2px;
+    font-weight: 600;
 }
 
 /* User Profile in Header */
@@ -512,23 +541,39 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-red);
     border-radius: 16px;
-    padding: 35px;
-    margin-bottom: 30px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
 .section h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Cinzel', serif;
     color: var(--text-gold);
     margin-bottom: 25px;
     font-size: 1.8rem;
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-    letter-spacing: 1px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    letter-spacing: 2px;
+    font-weight: 500;
+}
+
+.sidebar-header h2 {
+font-family: 'Cinzel', serif;
+color: var(--text-gold);
+font-size: 1.8rem;
+text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+letter-spacing: 3px;
+font-weight: 600;
 }
 
 /* Discord Embed Preview */
 .embed-preview {
-    background: #313338;
+background: #313338;
+border-radius: 4px;
+padding: 16px;
+margin-bottom: 30px;
+border-left: 4px solid var(--primary-red);
+position: relative;
+max-width: 520px;
+overflow: hidden;
+display: flex;
+flex-direction: column;
     border-radius: 4px;
     padding: 16px;
     margin-bottom: 30px;
@@ -614,6 +659,23 @@ body {
 }
 
 .embed-title:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.embed-subtitle {
+    color: #dcddde;
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    margin-left: 32px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    font-style: italic;
+}
+
+.embed-subtitle:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -886,15 +948,24 @@ input[type="color"]:focus {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-red-dark) 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--primary-red), var(--accent-red));
+    color: var(--text-gold);
     border: 1px solid var(--gold);
-    box-shadow: 0 5px 20px rgba(196, 30, 58, 0.4);
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(196, 30, 58, 0.6);
+    box-shadow: 0 8px 30px rgba(139, 0, 0, 0.5);
+    border-color: rgba(255, 215, 0, 0.5);
 }
 
 /* Responsive */

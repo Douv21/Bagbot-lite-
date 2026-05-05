@@ -23,14 +23,13 @@ async function checkAuth() {
       const guildData = await guildResponse.json();
       
       if (guildData.guildId) {
-        // Show dashboard sections and server selector
+        // Show dashboard sections
         document.getElementById('sidebarNav').style.display = 'block';
-        document.getElementById('serverSelector').style.display = 'block';
         document.getElementById('configContent').style.display = 'block';
         document.getElementById('mainContent').style.display = 'none';
         document.getElementById('guildSelector').style.display = 'none';
         
-        // Update current server display
+        // Update current server display in header
         updateCurrentServer(guildData.guildId);
         
         loadConfig();
@@ -39,7 +38,6 @@ async function checkAuth() {
       } else {
         // Hide dashboard sections, show guild selector
         document.getElementById('sidebarNav').style.display = 'none';
-        document.getElementById('serverSelector').style.display = 'none';
         document.getElementById('configContent').style.display = 'none';
         document.getElementById('mainContent').style.display = 'none';
         document.getElementById('guildSelector').style.display = 'block';
@@ -49,7 +47,6 @@ async function checkAuth() {
       document.getElementById('userProfile').style.display = 'none';
       document.getElementById('loginSection').style.display = 'block';
       document.getElementById('sidebarNav').style.display = 'none';
-      document.getElementById('serverSelector').style.display = 'none';
       document.getElementById('guildSelector').style.display = 'none';
       document.getElementById('configContent').style.display = 'none';
       document.getElementById('mainContent').style.display = 'block';
@@ -59,7 +56,7 @@ async function checkAuth() {
   }
 }
 
-// Update current server display in sidebar
+// Update current server display in header
 async function updateCurrentServer(guildId) {
   try {
     const response = await fetch('/api/user');
@@ -75,6 +72,7 @@ async function updateCurrentServer(guildId) {
           iconElement.style.backgroundImage = 'none';
           iconElement.textContent = guild.name.charAt(0).toUpperCase();
         }
+        document.getElementById('currentServerHeader').style.display = 'flex';
       }
     }
   } catch (error) {
@@ -84,11 +82,11 @@ async function updateCurrentServer(guildId) {
 
 // Change server function
 function changeServer() {
-  document.getElementById('serverSelector').style.display = 'none';
   document.getElementById('sidebarNav').style.display = 'none';
   document.getElementById('configContent').style.display = 'none';
   document.getElementById('guildSelector').style.display = 'block';
   document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('currentServerHeader').style.display = 'none';
 }
 
 // Load guilds from API (filtered)
@@ -277,6 +275,7 @@ function replaceVariables(text, user, guild) {
 // Update welcome embed preview
 async function updateWelcomeEmbed() {
   const title = document.getElementById('welcomeTitle').value;
+  const subtitle = document.getElementById('welcomeSubtitle').value;
   const description = document.getElementById('welcomeMessage').value;
   const color = document.getElementById('welcomeColor').value;
   const imageUrl = document.getElementById('welcomeImage').value;
@@ -290,8 +289,17 @@ async function updateWelcomeEmbed() {
   const guild = await getCurrentGuild();
   
   document.getElementById('welcomeEmbedTitle').textContent = replaceVariables(title, user, guild);
+  document.getElementById('welcomeEmbedSubtitle').textContent = replaceVariables(subtitle, user, guild);
   document.getElementById('welcomeEmbedDescription').textContent = replaceVariables(description, user, guild);
   document.getElementById('welcomeEmbedPreview').style.borderLeftColor = color;
+  
+  // Subtitle display
+  const subtitleElement = document.getElementById('welcomeEmbedSubtitle');
+  if (subtitle) {
+    subtitleElement.style.display = 'block';
+  } else {
+    subtitleElement.style.display = 'none';
+  }
   
   // Guild icon
   const guildIconElement = document.getElementById('welcomeGuildIcon');
@@ -364,6 +372,7 @@ async function updateWelcomeEmbed() {
 // Update depart embed preview
 async function updateDepartEmbed() {
   const title = document.getElementById('departTitle').value;
+  const subtitle = document.getElementById('departSubtitle').value;
   const description = document.getElementById('departMessage').value;
   const color = document.getElementById('departColor').value;
   const imageUrl = document.getElementById('departImage').value;
@@ -377,8 +386,17 @@ async function updateDepartEmbed() {
   const guild = await getCurrentGuild();
   
   document.getElementById('departEmbedTitle').textContent = replaceVariables(title, user, guild);
+  document.getElementById('departEmbedSubtitle').textContent = replaceVariables(subtitle, user, guild);
   document.getElementById('departEmbedDescription').textContent = replaceVariables(description, user, guild);
   document.getElementById('departEmbedPreview').style.borderLeftColor = color;
+  
+  // Subtitle display
+  const subtitleElement = document.getElementById('departEmbedSubtitle');
+  if (subtitle) {
+    subtitleElement.style.display = 'block';
+  } else {
+    subtitleElement.style.display = 'none';
+  }
   
   // Guild icon
   const guildIconElement = document.getElementById('departGuildIcon');
@@ -475,6 +493,26 @@ function saveTitleModal() {
     updateDepartEmbed();
   }
   closeModal('titleModal');
+}
+
+// Subtitle modal
+function openSubtitleModal(type) {
+  currentModalType = type;
+  document.getElementById('modalSubtitle').value = type === 'welcome' 
+    ? document.getElementById('welcomeSubtitle').value 
+    : document.getElementById('departSubtitle').value;
+  openModal('subtitleModal');
+}
+
+function saveSubtitleModal() {
+  if (currentModalType === 'welcome') {
+    document.getElementById('welcomeSubtitle').value = document.getElementById('modalSubtitle').value;
+    updateWelcomeEmbed();
+  } else {
+    document.getElementById('departSubtitle').value = document.getElementById('modalSubtitle').value;
+    updateDepartEmbed();
+  }
+  closeModal('subtitleModal');
 }
 
 // Description modal
