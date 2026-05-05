@@ -196,6 +196,103 @@ body {
     letter-spacing: 1px;
 }
 
+/* User Profile in Header */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+}
+
+.user-profile .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-red);
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--text-gold);
+}
+
+.user-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.user-dropdown .user-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-red);
+    border-radius: 8px;
+    padding: 8px 0;
+    margin-top: 8px;
+    display: none;
+    min-width: 150px;
+    z-index: 1000;
+}
+
+.user-profile:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(196, 30, 58, 0.2);
+}
+
+/* Forum Channels */
+.forum-channels {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.forum-channel-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-red);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.forum-channel-item:hover {
+    background: rgba(196, 30, 58, 0.1);
+}
+
+.forum-channel-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-red);
+}
+
+.forum-channel-name {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
 /* Guild Selector */
 .guild-selector {
     margin-bottom: 40px;

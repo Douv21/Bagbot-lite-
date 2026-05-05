@@ -7,9 +7,8 @@ async function checkAuth() {
     const data = await response.json();
     
     if (data.authenticated) {
-      // Show user info
-      document.getElementById('userInfo').style.display = 'flex';
-      document.getElementById('loginSection').style.display = 'none';
+      // Show user profile in header
+      document.getElementById('userProfile').style.display = 'flex';
       document.getElementById('userName').textContent = data.user.username;
       
       if (data.user.avatar) {
@@ -36,6 +35,7 @@ async function checkAuth() {
         
         loadConfig();
         loadChannels();
+        loadForumChannels();
       } else {
         // Hide dashboard sections, show guild selector
         document.getElementById('sidebarNav').style.display = 'none';
@@ -46,7 +46,7 @@ async function checkAuth() {
       }
     } else {
       // Show login button, hide everything else
-      document.getElementById('userInfo').style.display = 'none';
+      document.getElementById('userProfile').style.display = 'none';
       document.getElementById('loginSection').style.display = 'block';
       document.getElementById('sidebarNav').style.display = 'none';
       document.getElementById('serverSelector').style.display = 'none';
@@ -195,6 +195,33 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     const tabId = tab.getAttribute('data-tab');
     document.getElementById(`tab-${tabId}`).classList.add('active');
+  });
+});
+
+// Sidebar navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    
+    const section = item.getAttribute('data-section');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    const tab = document.querySelector(`.tab[data-tab="${section}"]`);
+    const tabContent = document.getElementById(`tab-${section}`);
+    
+    if (tab) tab.classList.add('active');
+    if (tabContent) tabContent.classList.add('active');
+    
+    // Update header title
+    const titles = {
+      'welcome': 'Configuration Bienvenue',
+      'depart': 'Configuration Départ',
+      'forum': 'Forum Illimité'
+    };
+    document.getElementById('headerTitle').textContent = titles[section] || 'Dashboard';
   });
 });
 
@@ -539,8 +566,8 @@ function saveImageModal() {
 function openFooterModal(type) {
   currentModalType = type;
   document.getElementById('modalFooterText').value = type === 'welcome' 
-    ? document.getElementById('welcomeFooterText').value 
-    : document.getElementById('departFooterText').value;
+    ? document.getElementById('welcomeFooterText').textContent 
+    : document.getElementById('departFooterText').textContent;
   document.getElementById('modalFooterIcon').value = type === 'welcome' 
     ? document.getElementById('welcomeFooterIcon').value 
     : document.getElementById('departFooterIcon').value;
@@ -549,11 +576,11 @@ function openFooterModal(type) {
 
 function saveFooterModal() {
   if (currentModalType === 'welcome') {
-    document.getElementById('welcomeFooterText').value = document.getElementById('modalFooterText').value;
+    document.getElementById('welcomeFooterText').textContent = document.getElementById('modalFooterText').value;
     document.getElementById('welcomeFooterIcon').value = document.getElementById('modalFooterIcon').value;
     updateWelcomeEmbed();
   } else {
-    document.getElementById('departFooterText').value = document.getElementById('modalFooterText').value;
+    document.getElementById('departFooterText').textContent = document.getElementById('modalFooterText').value;
     document.getElementById('departFooterIcon').value = document.getElementById('modalFooterIcon').value;
     updateDepartEmbed();
   }
@@ -569,19 +596,48 @@ async function loadChannels() {
     const welcomeSelect = document.getElementById('welcomeChannel');
     const departSelect = document.getElementById('departChannel');
     
+    welcomeSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
+    departSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
+    
     channels.forEach(channel => {
-      const option1 = document.createElement('option');
-      option1.value = channel.id;
-      option1.textContent = channel.name;
-      welcomeSelect.appendChild(option1);
-      
-      const option2 = document.createElement('option');
-      option2.value = channel.id;
-      option2.textContent = channel.name;
-      departSelect.appendChild(option2);
+      const option = `<option value="${channel.id}">${channel.name}</option>`;
+      welcomeSelect.innerHTML += option;
+      departSelect.innerHTML += option;
     });
   } catch (error) {
     console.error('Error loading channels:', error);
+  }
+}
+
+// Load forum channels
+async function loadForumChannels() {
+  try {
+    const response = await fetch('/api/channels');
+    const channels = await response.json();
+    
+    // Filter only forum channels (type 15)
+    const forumChannels = channels.filter(ch => ch.type === 15);
+    
+    const forumChannelsDiv = document.getElementById('forumChannels');
+    
+    if (forumChannels.length === 0) {
+      forumChannelsDiv.innerHTML = '<p style="color: var(--text-secondary);">Aucun salon forum trouvé sur ce serveur.</p>';
+      return;
+    }
+    
+    forumChannelsDiv.innerHTML = '';
+    forumChannels.forEach(channel => {
+      const item = document.createElement('div');
+      item.className = 'forum-channel-item';
+      item.innerHTML = `
+        <input type="checkbox" id="forum-${channel.id}" value="${channel.id}">
+        <label for="forum-${channel.id}" class="forum-channel-name">${channel.name}</label>
+      `;
+      forumChannelsDiv.appendChild(item);
+    });
+  } catch (error) {
+    console.error('Error loading forum channels:', error);
+    document.getElementById('forumChannels').innerHTML = '<p style="color: var(--text-secondary);">Erreur lors du chargement des salons.</p>';
   }
 }
 
