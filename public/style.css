@@ -657,11 +657,14 @@ flex-direction: column;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
-    transition: background 0.2s ease;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 215, 0, 0.3);
 }
 
 .embed-author:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.6);
 }
 
 .embed-author img {
@@ -736,9 +739,10 @@ flex-direction: column;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border: 2px dashed rgba(255, 215, 0, 0.3);
     border-radius: 4px;
     flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
 .embed-thumbnail img {
@@ -754,9 +758,14 @@ flex-direction: column;
 }
 
 .embed-thumbnail:empty::before {
-    content: '�';
+    content: '🖼️';
     font-size: 2rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 215, 0, 0.5);
+}
+
+.embed-thumbnail:hover {
+    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 215, 0, 0.1);
 }
 
 .embed-image {
@@ -770,17 +779,19 @@ flex-direction: column;
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border: 2px dashed rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
 .embed-image[src=""]::before {
-    content: '�';
-    font-size: 2rem;
-    color: rgba(255, 255, 255, 0.3);
+    content: '🖼️';
+    font-size: 2.5rem;
+    color: rgba(255, 215, 0, 0.5);
 }
 
 .embed-image:hover {
-    opacity: 0.8;
+    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 215, 0, 0.1);
 }
 
 .embed-footer {
@@ -795,14 +806,15 @@ flex-direction: column;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
-    transition: background 0.2s ease;
+    transition: all 0.3s ease;
     min-height: 24px;
     background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border: 2px dashed rgba(255, 215, 0, 0.3);
 }
 
 .embed-footer:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.6);
 }
 
 .embed-footer img {
