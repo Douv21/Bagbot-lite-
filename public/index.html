@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BAG Bot - Dashboard</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -77,20 +77,20 @@
                         <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
                         
                         <!-- Embed Preview -->
-                        <div class="embed-preview" id="welcomeEmbedPreview" style="border-left-color: #C41E3A;">
-                            <div class="embed-author" id="welcomeEmbedAuthor" style="display: none;" onclick="openAuthorModal('welcome')">
+                        <div class="embed-preview" id="welcomeEmbedPreview">
+                            <div class="embed-author" id="welcomeEmbedAuthor" onclick="openAuthorModal('welcome')">
                                 <img src="" alt="Author" id="welcomeEmbedAuthorIcon">
                                 <div class="embed-author-name" id="welcomeEmbedAuthorName"></div>
                             </div>
                             <div class="embed-title" id="welcomeEmbedTitle" onclick="openTitleModal('welcome')">👋 Bienvenue</div>
                             <div class="embed-description" id="welcomeEmbedDescription" onclick="openDescriptionModal('welcome')">Bienvenue {user} sur le serveur !</div>
-                            <div class="embed-fields" id="welcomeEmbedFields" style="display: none;"></div>
+                            <div class="embed-fields" id="welcomeEmbedFields"></div>
                             <div class="embed-thumbnail" id="welcomeEmbedThumbnail" onclick="openThumbnailModal('welcome')">
                                 <img src="" alt="Thumbnail">
                             </div>
-                            <img class="embed-image" id="welcomeEmbedImage" src="" alt="" style="display: none;" onclick="openImageModal('welcome')">
+                            <img class="embed-image" id="welcomeEmbedImage" src="" alt="" onclick="openImageModal('welcome')">
                             <div class="embed-footer" id="welcomeEmbedFooter" onclick="openFooterModal('welcome')">
-                                <img src="" alt="Footer Icon" id="welcomeEmbedFooterIcon" style="display: none;">
+                                <img src="" alt="Footer Icon" id="welcomeEmbedFooterIcon">
                                 <span id="welcomeEmbedFooterText"></span>
                                 <span class="embed-timestamp" id="welcomeEmbedTimestamp"></span>
                             </div>
@@ -140,20 +140,20 @@
                         <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
                         
                         <!-- Embed Preview -->
-                        <div class="embed-preview" id="departEmbedPreview" style="border-left-color: #C41E3A;">
-                            <div class="embed-author" id="departEmbedAuthor" style="display: none;" onclick="openAuthorModal('depart')">
+                        <div class="embed-preview" id="departEmbedPreview">
+                            <div class="embed-author" id="departEmbedAuthor" onclick="openAuthorModal('depart')">
                                 <img src="" alt="Author" id="departEmbedAuthorIcon">
                                 <div class="embed-author-name" id="departEmbedAuthorName"></div>
                             </div>
                             <div class="embed-title" id="departEmbedTitle" onclick="openTitleModal('depart')">👋 Au revoir</div>
                             <div class="embed-description" id="departEmbedDescription" onclick="openDescriptionModal('depart')">Au revoir {user} !</div>
-                            <div class="embed-fields" id="departEmbedFields" style="display: none;"></div>
+                            <div class="embed-fields" id="departEmbedFields"></div>
                             <div class="embed-thumbnail" id="departEmbedThumbnail" onclick="openThumbnailModal('depart')">
                                 <img src="" alt="Thumbnail">
                             </div>
-                            <img class="embed-image" id="departEmbedImage" src="" alt="" style="display: none;" onclick="openImageModal('depart')">
+                            <img class="embed-image" id="departEmbedImage" src="" alt="" onclick="openImageModal('depart')">
                             <div class="embed-footer" id="departEmbedFooter" onclick="openFooterModal('depart')">
-                                <img src="" alt="Footer Icon" id="departEmbedFooterIcon" style="display: none;">
+                                <img src="" alt="Footer Icon" id="departEmbedFooterIcon">
                                 <span id="departEmbedFooterText"></span>
                                 <span class="embed-timestamp" id="departEmbedTimestamp"></span>
                             </div>

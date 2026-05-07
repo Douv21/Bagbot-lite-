@@ -594,20 +594,11 @@ font-weight: 600;
 
 /* Discord Embed Preview */
 .embed-preview {
-background: #313338;
-border-radius: 4px;
-padding: 16px;
-margin-bottom: 30px;
-border-left: 4px solid var(--primary-red);
-position: relative;
-max-width: 520px;
-overflow: hidden;
-display: flex;
-flex-direction: column;
+    background: #2b2d31;
     border-radius: 4px;
     padding: 16px;
     margin-bottom: 30px;
-    border-left: 4px solid var(--primary-red);
+    border-left: 4px solid #5865F2;
     position: relative;
     max-width: 520px;
     overflow: hidden;
@@ -635,36 +626,19 @@ flex-direction: column;
     opacity: 1;
 }
 
-.embed-guild-icon {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--primary-red);
-    background-size: cover;
-    background-position: center;
-    z-index: 10;
-}
-
 .embed-author {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
-    margin-left: 32px;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed rgba(255, 215, 0, 0.3);
 }
 
 .embed-author:hover {
-    background: rgba(255, 215, 0, 0.1);
-    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .embed-author img {
@@ -684,7 +658,6 @@ flex-direction: column;
     font-weight: 600;
     font-size: 1rem;
     margin-bottom: 8px;
-    margin-left: 32px;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
@@ -700,7 +673,6 @@ flex-direction: column;
     font-weight: 500;
     font-size: 0.85rem;
     margin-bottom: 8px;
-    margin-left: 32px;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
@@ -717,7 +689,6 @@ flex-direction: column;
     font-size: 0.9rem;
     line-height: 1.4;
     margin-bottom: 8px;
-    margin-left: 32px;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
@@ -739,7 +710,7 @@ flex-direction: column;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed rgba(255, 215, 0, 0.3);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     flex-shrink: 0;
     transition: all 0.3s ease;
@@ -760,12 +731,12 @@ flex-direction: column;
 .embed-thumbnail:empty::before {
     content: '🖼️';
     font-size: 2rem;
-    color: rgba(255, 215, 0, 0.5);
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .embed-thumbnail:hover {
-    border-color: rgba(255, 215, 0, 0.6);
-    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .embed-image {
@@ -779,19 +750,19 @@ flex-direction: column;
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed rgba(255, 215, 0, 0.3);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
 .embed-image[src=""]::before {
     content: '🖼️';
     font-size: 2.5rem;
-    color: rgba(255, 215, 0, 0.5);
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .embed-image:hover {
-    border-color: rgba(255, 215, 0, 0.6);
-    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .embed-footer {
@@ -809,12 +780,12 @@ flex-direction: column;
     transition: all 0.3s ease;
     min-height: 24px;
     background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed rgba(255, 215, 0, 0.3);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
 }
 
 .embed-footer:hover {
-    background: rgba(255, 215, 0, 0.1);
-    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .embed-footer img {
