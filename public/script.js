@@ -334,8 +334,9 @@ async function updateWelcomeEmbed() {
     }
   } else {
     authorElement.style.display = 'flex';
-    authorNameElement.textContent = '� Auteur';
-    authorIconElement.style.display = 'none';
+    authorNameElement.textContent = '🤖 BagBot';
+    authorIconElement.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
+    authorIconElement.style.display = 'block';
   }
 
   // Footer
@@ -424,8 +425,9 @@ async function updateDepartEmbed() {
     }
   } else {
     authorElement.style.display = 'flex';
-    authorNameElement.textContent = '� Auteur';
-    authorIconElement.style.display = 'none';
+    authorNameElement.textContent = '🤖 BagBot';
+    authorIconElement.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
+    authorIconElement.style.display = 'block';
   }
 
   // Footer
@@ -608,6 +610,28 @@ function handleThumbnailUpload(input) {
     const reader = new FileReader();
     reader.onload = function(e) {
       document.getElementById('modalThumbnail').value = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Handle author icon upload
+function handleAuthorIconUpload(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('modalAuthorIcon').value = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Handle footer icon upload
+function handleFooterIconUpload(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('modalFooterIcon').value = e.target.result;
     };
     reader.readAsDataURL(input.files[0]);
   }
