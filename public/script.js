@@ -171,12 +171,13 @@ async function selectGuild(guildId) {
       document.getElementById('configContent').style.display = 'block';
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('guildSelector').style.display = 'none';
-      
+
       // Update current server display in header
       updateCurrentServer(guildId);
-      
+
       loadConfig();
       loadChannels();
+      loadRoles();
       loadForumChannels();
     }
   } catch (error) {
@@ -217,7 +218,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
     const titles = {
       'welcome': 'Configuration Bienvenue',
       'depart': 'Configuration Départ',
-      'forum': 'Forum Illimité'
+      'forum': 'Forum Illimité',
+      'shop': 'Boutique'
     };
     document.getElementById('headerTitle').textContent = titles[section] || 'Dashboard';
   });
@@ -486,6 +488,118 @@ function closeModal(modalId) {
 function toggleSidebar() {
   const sidebar = document.querySelector('.sidebar');
   sidebar.classList.toggle('sidebar-open');
+
+  // Close sidebar when clicking outside on mobile
+  if (sidebar.classList.contains('sidebar-open')) {
+    setTimeout(() => {
+      document.addEventListener('click', closeSidebarOnClickOutside);
+    }, 100);
+  } else {
+    document.removeEventListener('click', closeSidebarOnClickOutside);
+  }
+}
+
+function closeSidebarOnClickOutside(e) {
+  const sidebar = document.querySelector('.sidebar');
+  const hamburger = document.getElementById('hamburgerMenu');
+  if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+    sidebar.classList.remove('sidebar-open');
+    document.removeEventListener('click', closeSidebarOnClickOutside);
+  }
+}
+
+// Shop type change handler
+document.getElementById('shopItemType')?.addEventListener('change', function() {
+  const type = this.value;
+  const roleGroup = document.getElementById('roleSelectGroup');
+  const xpGroup = document.getElementById('xpAmountGroup');
+
+  if (type === 'role' || type === 'temp_role') {
+    roleGroup.style.display = 'block';
+    xpGroup.style.display = 'none';
+  } else if (type === 'xp') {
+    roleGroup.style.display = 'none';
+    xpGroup.style.display = 'block';
+  } else {
+    roleGroup.style.display = 'none';
+    xpGroup.style.display = 'none';
+  }
+});
+
+// Add shop item
+function addShopItem() {
+  const name = document.getElementById('shopItemName').value;
+  const description = document.getElementById('shopItemDescription').value;
+  const price = document.getElementById('shopItemPrice').value;
+  const type = document.getElementById('shopItemType').value;
+  const role = document.getElementById('shopItemRole').value;
+  const xp = document.getElementById('shopItemXP').value;
+
+  if (!name || !price) {
+    alert('Veuillez remplir le nom et le prix de l\'item');
+    return;
+  }
+
+  const item = {
+    id: Date.now().toString(),
+    name,
+    description,
+    price: parseInt(price),
+    type,
+    role: type === 'role' || type === 'temp_role' ? role : null,
+    xp: type === 'xp' ? parseInt(xp) : null
+  };
+
+  // Get existing items
+  let shopItems = JSON.parse(localStorage.getItem('shopItems') || '[]');
+  shopItems.push(item);
+  localStorage.setItem('shopItems', JSON.stringify(shopItems));
+
+  // Clear form
+  document.getElementById('shopItemName').value = '';
+  document.getElementById('shopItemDescription').value = '';
+  document.getElementById('shopItemPrice').value = '';
+  document.getElementById('shopItemRole').value = '';
+  document.getElementById('shopItemXP').value = '';
+
+  // Reload items list
+  loadShopItems();
+}
+
+// Load shop items
+function loadShopItems() {
+  const shopItems = JSON.parse(localStorage.getItem('shopItems') || '[]');
+  const itemsList = document.getElementById('shopItemsList');
+
+  if (shopItems.length === 0) {
+    itemsList.innerHTML = '<p>Aucun item pour le moment.</p>';
+    return;
+  }
+
+  itemsList.innerHTML = '';
+  shopItems.forEach(item => {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'shop-item';
+    itemDiv.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 10px;">
+        <div>
+          <strong>${item.name}</strong> (${item.price} pts)
+          <br><small>${item.description || 'Pas de description'}</small>
+          <br><small>Type: ${item.type} ${item.role ? '| Rôle: ' + item.role : ''} ${item.xp ? '| XP: ' + item.xp : ''}</small>
+        </div>
+        <button class="btn btn-danger" onclick="deleteShopItem('${item.id}')">Supprimer</button>
+      </div>
+    `;
+    itemsList.appendChild(itemDiv);
+  });
+}
+
+// Delete shop item
+function deleteShopItem(itemId) {
+  let shopItems = JSON.parse(localStorage.getItem('shopItems') || '[]');
+  shopItems = shopItems.filter(item => item.id !== itemId);
+  localStorage.setItem('shopItems', JSON.stringify(shopItems));
+  loadShopItems();
 }
 
 // Title modal
@@ -598,7 +712,13 @@ function handleImageUpload(input) {
   if (input.files && input.files[0]) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      document.getElementById('modalImage').value = e.target.result;
+      const base64 = e.target.result;
+      // Limit size to avoid issues with save
+      if (base64.length > 500000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 500KB).');
+        return;
+      }
+      document.getElementById('modalImage').value = base64;
     };
     reader.readAsDataURL(input.files[0]);
   }
@@ -609,7 +729,13 @@ function handleThumbnailUpload(input) {
   if (input.files && input.files[0]) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      document.getElementById('modalThumbnail').value = e.target.result;
+      const base64 = e.target.result;
+      // Limit size to avoid issues with save
+      if (base64.length > 200000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 200KB).');
+        return;
+      }
+      document.getElementById('modalThumbnail').value = base64;
     };
     reader.readAsDataURL(input.files[0]);
   }
@@ -620,7 +746,13 @@ function handleAuthorIconUpload(input) {
   if (input.files && input.files[0]) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      document.getElementById('modalAuthorIcon').value = e.target.result;
+      const base64 = e.target.result;
+      // Limit size to avoid issues with save
+      if (base64.length > 200000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 200KB).');
+        return;
+      }
+      document.getElementById('modalAuthorIcon').value = base64;
     };
     reader.readAsDataURL(input.files[0]);
   }
@@ -631,7 +763,13 @@ function handleFooterIconUpload(input) {
   if (input.files && input.files[0]) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      document.getElementById('modalFooterIcon').value = e.target.result;
+      const base64 = e.target.result;
+      // Limit size to avoid issues with save
+      if (base64.length > 200000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 200KB).');
+        return;
+      }
+      document.getElementById('modalFooterIcon').value = base64;
     };
     reader.readAsDataURL(input.files[0]);
   }
@@ -687,20 +825,45 @@ async function loadChannels() {
   try {
     const response = await fetch('/api/channels');
     const channels = await response.json();
-    
+
     const welcomeSelect = document.getElementById('welcomeChannel');
     const departSelect = document.getElementById('departChannel');
-    
+    const shopChannelSelect = document.getElementById('shopChannel');
+
     welcomeSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
     departSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
-    
+    shopChannelSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
+
     channels.forEach(channel => {
       const option = `<option value="${channel.id}">${channel.name}</option>`;
       welcomeSelect.innerHTML += option;
       departSelect.innerHTML += option;
+      shopChannelSelect.innerHTML += option;
     });
   } catch (error) {
     console.error('Error loading channels:', error);
+  }
+}
+
+// Load roles
+async function loadRoles() {
+  try {
+    const response = await fetch('/api/roles');
+    const roles = await response.json();
+
+    const welcomeRoleSelect = document.getElementById('welcomeRole');
+    const shopItemRoleSelect = document.getElementById('shopItemRole');
+
+    welcomeRoleSelect.innerHTML = '<option value="">Tous les membres</option>';
+    shopItemRoleSelect.innerHTML = '<option value="">Sélectionner un rôle...</option>';
+
+    roles.forEach(role => {
+      const option = `<option value="${role.id}">${role.name}</option>`;
+      welcomeRoleSelect.innerHTML += option;
+      shopItemRoleSelect.innerHTML += option;
+    });
+  } catch (error) {
+    console.error('Error loading roles:', error);
   }
 }
 
@@ -777,6 +940,7 @@ async function loadConfig() {
       document.getElementById('welcomeFooterText').value = config.welcome.footerText || '';
       document.getElementById('welcomeFooterIcon').value = config.welcome.footerIcon || '';
       document.getElementById('welcomeChannel').value = config.welcome.channel || '';
+      document.getElementById('welcomeRole').value = config.welcome.role || '';
       updateWelcomeEmbed();
     }
     
@@ -807,6 +971,15 @@ async function loadConfig() {
         }
       }, 500);
     }
+
+    if (config.shop) {
+      document.getElementById('shopEnabled').checked = config.shop.enabled;
+      document.getElementById('shopChannel').value = config.shop.channel || '';
+      if (config.shop.items && Array.isArray(config.shop.items)) {
+        localStorage.setItem('shopItems', JSON.stringify(config.shop.items));
+        loadShopItems();
+      }
+    }
   } catch (error) {
     console.error('Error loading config:', error);
   }
@@ -830,7 +1003,8 @@ async function saveConfig() {
       authorIcon: document.getElementById('welcomeAuthorIcon').value,
       footerText: document.getElementById('welcomeFooterText').value,
       footerIcon: document.getElementById('welcomeFooterIcon').value,
-      channel: document.getElementById('welcomeChannel').value
+      channel: document.getElementById('welcomeChannel').value,
+      role: document.getElementById('welcomeRole').value
     },
     depart: {
       enabled: document.getElementById('departEnabled').checked,
@@ -848,6 +1022,11 @@ async function saveConfig() {
     forum: {
       enabled: document.getElementById('forumEnabled').checked,
       channels: selectedForumChannels
+    },
+    shop: {
+      enabled: document.getElementById('shopEnabled').checked,
+      channel: document.getElementById('shopChannel').value,
+      items: JSON.parse(localStorage.getItem('shopItems') || '[]')
     }
   };
   
