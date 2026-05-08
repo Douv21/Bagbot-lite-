@@ -713,9 +713,9 @@ function handleImageUpload(input) {
     const reader = new FileReader();
     reader.onload = function(e) {
       const base64 = e.target.result;
-      // Limit size to avoid issues with save
-      if (base64.length > 500000) {
-        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 500KB).');
+      // Limit size to avoid issues with save (increased to 2MB)
+      if (base64.length > 2000000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 2MB).');
         return;
       }
       document.getElementById('modalImage').value = base64;
@@ -730,9 +730,9 @@ function handleThumbnailUpload(input) {
     const reader = new FileReader();
     reader.onload = function(e) {
       const base64 = e.target.result;
-      // Limit size to avoid issues with save
-      if (base64.length > 200000) {
-        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 200KB).');
+      // Limit size to avoid issues with save (increased to 1MB)
+      if (base64.length > 1000000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 1MB).');
         return;
       }
       document.getElementById('modalThumbnail').value = base64;
@@ -747,9 +747,9 @@ function handleAuthorIconUpload(input) {
     const reader = new FileReader();
     reader.onload = function(e) {
       const base64 = e.target.result;
-      // Limit size to avoid issues with save
-      if (base64.length > 200000) {
-        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 200KB).');
+      // Limit size to avoid issues with save (increased to 1MB)
+      if (base64.length > 1000000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 1MB).');
         return;
       }
       document.getElementById('modalAuthorIcon').value = base64;
@@ -764,9 +764,9 @@ function handleFooterIconUpload(input) {
     const reader = new FileReader();
     reader.onload = function(e) {
       const base64 = e.target.result;
-      // Limit size to avoid issues with save
-      if (base64.length > 200000) {
-        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 200KB).');
+      // Limit size to avoid issues with save (increased to 1MB)
+      if (base64.length > 1000000) {
+        alert('⚠️ L\'image est trop grande. Veuillez utiliser une image plus petite (max 1MB).');
         return;
       }
       document.getElementById('modalFooterIcon').value = base64;
@@ -975,6 +975,7 @@ async function loadConfig() {
     if (config.shop) {
       document.getElementById('shopEnabled').checked = config.shop.enabled;
       document.getElementById('shopChannel').value = config.shop.channel || '';
+      document.getElementById('shopCurrencyName').value = config.shop.currencyName || 'BAG';
       if (config.shop.items && Array.isArray(config.shop.items)) {
         localStorage.setItem('shopItems', JSON.stringify(config.shop.items));
         loadShopItems();
@@ -1026,6 +1027,7 @@ async function saveConfig() {
     shop: {
       enabled: document.getElementById('shopEnabled').checked,
       channel: document.getElementById('shopChannel').value,
+      currencyName: document.getElementById('shopCurrencyName').value || 'BAG',
       items: JSON.parse(localStorage.getItem('shopItems') || '[]')
     }
   };

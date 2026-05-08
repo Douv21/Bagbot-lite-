@@ -1,4 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,14 +9,23 @@ module.exports = {
 
   async execute(interaction) {
     try {
-      // Get shop configuration
-      const config = require('../config.json');
+      // Get shop configuration from guild config file
+      const configPath = path.join(__dirname, '../../configs', `${interaction.guildId}.json`);
+      
+      if (!fs.existsSync(configPath)) {
+        await interaction.reply({ content: '❌ La boutique n\'est pas configurée pour ce serveur.', ephemeral: true });
+        return;
+      }
+
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      
       if (!config.shop || !config.shop.enabled || !config.shop.items || config.shop.items.length === 0) {
         await interaction.reply({ content: '❌ La boutique est désactivée ou vide.', ephemeral: true });
         return;
       }
 
       const shopItems = config.shop.items;
+      const currencyName = config.shop.currencyName || 'BAG';
       const itemsPerPage = 5;
       let currentPage = 0;
 
@@ -27,14 +38,14 @@ module.exports = {
         const embed = new EmbedBuilder()
           .setColor('#5865F2')
           .setTitle('🛒 Boutique')
-          .setDescription('Achetez des items, rôles et XP avec vos points !')
+          .setDescription(`Achetez des items, rôles et XP avec vos ${currencyName} !`)
           .setTimestamp();
 
         if (pageItems.length === 0) {
           embed.addFields({ name: 'Aucun item', value: 'La boutique est vide.' });
         } else {
           pageItems.forEach((item, index) => {
-            let value = `${item.description || 'Pas de description'}\n💰 Prix: ${item.price} points`;
+            let value = `${item.description || 'Pas de description'}\n💰 Prix: ${item.price} ${currencyName}`;
             if (item.type === 'role' || item.type === 'temp_role') {
               value += `\n🎭 Rôle: <@&${item.role}>`;
             } else if (item.type === 'xp') {

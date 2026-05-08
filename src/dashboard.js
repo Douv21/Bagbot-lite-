@@ -321,6 +321,30 @@ app.get('/api/channels', async (req, res) => {
   }
 });
 
+// API pour récupérer les rôles (via API locale du bot)
+app.get('/api/roles', async (req, res) => {
+  try {
+    if (!req.session.user || !req.session.selectedGuild) {
+      return res.json([]);
+    }
+
+    const botApiPort = process.env.BOT_API_PORT || 49502;
+    const response = await fetch(`http://localhost:${botApiPort}/guilds/${req.session.selectedGuild}/roles`);
+
+    if (!response.ok) {
+      console.error('Error fetching roles:', response.status, response.statusText);
+      return res.json([]);
+    }
+
+    const roles = await response.json();
+    console.log('Roles fetched from bot API:', roles);
+    res.json(roles);
+  } catch (error) {
+    console.error('Erreur chargement roles:', error);
+    res.json([]);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`✓ Dashboard running on port ${PORT}`);
 });
