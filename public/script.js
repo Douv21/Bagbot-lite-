@@ -922,6 +922,118 @@ function getChannelTypeName(type) {
   return types[type] || 'UNKNOWN';
 }
 
+// Load actions configuration
+const actionsList = [
+  { id: 'calin', name: 'Câlin', emoji: '🤗' },
+  { id: 'embrasser', name: 'Embrasser', emoji: '💋' },
+  { id: '69', name: '69', emoji: '🔞' },
+  { id: 'branler', name: 'Branler', emoji: '🤫' },
+  { id: 'lecher', name: 'Lécher', emoji: '👅' },
+  { id: 'mordre', name: 'Mordre', emoji: '🦷' },
+  { id: 'caresser', name: 'Caresser', emoji: '✋' },
+  { id: 'attrape', name: 'Attraper', emoji: '🤲' },
+  { id: 'collier', name: 'Mettre un collier', emoji: '📿' },
+  { id: 'agenouiller', name: 'S\'agenouiller', emoji: '🙇' },
+  { id: 'batailleoreiller', name: 'Bataille d\'oreiller', emoji: '🛏️' },
+  { id: 'chatouiller', name: 'Chatouiller', emoji: '😂' },
+  { id: 'mouiller', name: 'Mouiller', emoji: '💧' },
+  { id: 'orgasme', name: 'Faire jouir', emoji: '🌊' },
+  { id: 'pecher', name: 'Pêcher', emoji: '🎣' },
+  { id: 'punir', name: 'Punir', emoji: '⚖️' },
+  { id: 'reanimer', name: 'Réanimer', emoji: '⚡' },
+  { id: 'reconforter', name: 'Réconforter', emoji: '🤗' },
+  { id: 'reveiller', name: 'Réveiller', emoji: '⏰' },
+  { id: 'rose', name: 'Offrir une rose', emoji: '🌹' },
+  { id: 'seduire', name: 'Séduire', emoji: '💋' },
+  { id: 'sodo', name: 'Sodo', emoji: '🍑' },
+  { id: 'sucer', name: 'Sucer', emoji: '👄' },
+  { id: 'tirercheveux', name: 'Tirer les cheveux', emoji: '💇' },
+  { id: 'touche', name: 'Toucher', emoji: '👋' },
+  { id: 'travailler', name: 'Travailler', emoji: '⚒️' },
+  { id: 'vin', name: 'Offrir du vin', emoji: '🍷' }
+];
+
+function loadActionsConfig() {
+  const actionsConfig = JSON.parse(localStorage.getItem('actionsConfig') || '{}');
+  const actionsGrid = document.getElementById('actionsGrid');
+  
+  if (!actionsGrid) return;
+  
+  actionsGrid.innerHTML = '';
+  
+  actionsList.forEach(action => {
+    const config = actionsConfig[action.id] || { enabled: true, rewardMin: 5, rewardMax: 15, messages: [] };
+    
+    const actionCard = document.createElement('div');
+    actionCard.className = 'action-card';
+    actionCard.innerHTML = `
+      <div class="action-header">
+        <span class="action-emoji">${action.emoji}</span>
+        <span class="action-name">${action.name}</span>
+        <label class="toggle-switch">
+          <input type="checkbox" class="action-enabled" data-action="${action.id}" ${config.enabled ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="action-config">
+        <div class="config-row">
+          <label>Récompense min:</label>
+          <input type="number" class="action-reward-min" data-action="${action.id}" value="${config.rewardMin || 5}" min="0">
+        </div>
+        <div class="config-row">
+          <label>Récompense max:</label>
+          <input type="number" class="action-reward-max" data-action="${action.id}" value="${config.rewardMax || 15}" min="0">
+        </div>
+        <div class="config-row">
+          <label>Messages:</label>
+          <textarea class="action-messages" data-action="${action.id}" rows="3" placeholder="Un message par ligne">${(config.messages || []).join('\n')}</textarea>
+        </div>
+      </div>
+    `;
+    
+    actionsGrid.appendChild(actionCard);
+  });
+  
+  // Add event listeners
+  document.querySelectorAll('.action-enabled').forEach(checkbox => {
+    checkbox.addEventListener('change', saveActionsConfig);
+  });
+  
+  document.querySelectorAll('.action-reward-min').forEach(input => {
+    input.addEventListener('change', saveActionsConfig);
+  });
+  
+  document.querySelectorAll('.action-reward-max').forEach(input => {
+    input.addEventListener('change', saveActionsConfig);
+  });
+  
+  document.querySelectorAll('.action-messages').forEach(textarea => {
+    textarea.addEventListener('change', saveActionsConfig);
+  });
+}
+
+function saveActionsConfig() {
+  const actionsConfig = {};
+  
+  actionsList.forEach(action => {
+    const enabled = document.querySelector(`.action-enabled[data-action="${action.id}"]`)?.checked || true;
+    const rewardMin = parseInt(document.querySelector(`.action-reward-min[data-action="${action.id}"]`)?.value) || 5;
+    const rewardMax = parseInt(document.querySelector(`.action-reward-max[data-action="${action.id}"]`)?.value) || 15;
+    const messagesText = document.querySelector(`.action-messages[data-action="${action.id}"]`)?.value || '';
+    const messages = messagesText.split('\n').filter(m => m.trim());
+    
+    actionsConfig[action.id] = {
+      enabled,
+      rewardMin,
+      rewardMax,
+      messages
+    };
+  });
+  
+  localStorage.setItem('actionsConfig', JSON.stringify(actionsConfig));
+}
+
+
 // Load configuration on page load
 async function loadConfig() {
   try {
@@ -981,6 +1093,14 @@ async function loadConfig() {
         loadShopItems();
       }
     }
+
+    if (config.actions) {
+      document.getElementById('actionsEnabled').checked = config.actions.enabled;
+      if (config.actions.commands) {
+        localStorage.setItem('actionsConfig', JSON.stringify(config.actions.commands));
+        loadActionsConfig();
+      }
+    }
   } catch (error) {
     console.error('Error loading config:', error);
   }
@@ -1029,6 +1149,10 @@ async function saveConfig() {
       channel: document.getElementById('shopChannel').value,
       currencyName: document.getElementById('shopCurrencyName').value || 'BAG',
       items: JSON.parse(localStorage.getItem('shopItems') || '[]')
+    },
+    actions: {
+      enabled: document.getElementById('actionsEnabled').checked,
+      commands: JSON.parse(localStorage.getItem('actionsConfig') || '{}')
     }
   };
   

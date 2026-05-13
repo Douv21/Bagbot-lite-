@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 // Route de connexion Discord
 app.get('/login', (req, res) => {
   const clientId = process.env.DISCORD_CLIENT_ID;
-  const redirectUri = encodeURIComponent(process.env.DISCORD_CALLBACK_URL || `http://localhost:${PORT}/callback`);
+  const redirectUri = encodeURIComponent(process.env.DISCORD_CALLBACK_URL || `http://192.168.1.133:49501/callback`);
   const scope = encodeURIComponent('identify guilds guilds.members.read');
   res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`);
 });
@@ -51,7 +51,7 @@ app.get('/callback', async (req, res) => {
         client_secret: process.env.DISCORD_CLIENT_SECRET,
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: process.env.DISCORD_CALLBACK_URL || `http://localhost:${PORT}/callback`,
+        redirect_uri: process.env.DISCORD_CALLBACK_URL || `http://192.168.1.133:49501/callback`,
       }),
     });
 
