@@ -8,19 +8,21 @@ module.exports = {
     .setDescription('Affiche la boutique du serveur'),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     try {
       // Get shop configuration from guild config file
       const configPath = path.join(__dirname, '../../configs', `${interaction.guildId}.json`);
       
       if (!fs.existsSync(configPath)) {
-        await interaction.reply({ content: '❌ La boutique n\'est pas configurée pour ce serveur.', ephemeral: true });
+        await interaction.editReply({ content: '❌ La boutique n\'est pas configurée pour ce serveur.' });
         return;
       }
 
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
       
       if (!config.shop || !config.shop.enabled || !config.shop.items || config.shop.items.length === 0) {
-        await interaction.reply({ content: '❌ La boutique est désactivée ou vide.', ephemeral: true });
+        await interaction.editReply({ content: '❌ La boutique est désactivée ou vide.' });
         return;
       }
 
@@ -82,10 +84,9 @@ module.exports = {
       };
 
       // Send initial message
-      const message = await interaction.reply({
+      const message = await interaction.editReply({
         embeds: [generateEmbed(currentPage)],
-        components: [generateButtons(currentPage)],
-        fetchReply: true
+        components: [generateButtons(currentPage)]
       });
 
       // Create collector for button interactions
@@ -109,13 +110,13 @@ module.exports = {
 
       collector.on('end', async (collected, reason) => {
         if (reason === 'time') {
-          await message.edit({ components: [] });
+          await message.edit({ components: [] }).catch(() => {});
         }
       });
 
     } catch (error) {
       console.error('Error executing boutique command:', error);
-      await interaction.reply({ content: '❌ Une erreur est survenue lors de l\'affichage de la boutique.', ephemeral: true });
+      await interaction.editReply({ content: '❌ Une erreur est survenue lors de l\'affichage de la boutique.' }).catch(() => {});
     }
   }
 };
