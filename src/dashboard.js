@@ -40,6 +40,8 @@ app.get('/login', (req, res) => {
 // Callback Discord OAuth2
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
+  console.log('Callback received, code:', code ? 'yes' : 'no');
+  
   if (!code) {
     return res.redirect('/?error=no_code');
   }
@@ -61,6 +63,7 @@ app.get('/callback', async (req, res) => {
     });
 
     const tokenData = await tokenResponse.json();
+    console.log('Token response:', tokenData.error ? 'error' : 'success');
     
     if (tokenData.error) {
       throw new Error(tokenData.error);
@@ -74,6 +77,7 @@ app.get('/callback', async (req, res) => {
     });
 
     const userData = await userResponse.json();
+    console.log('User data:', userData.username);
 
     // Récupérer les serveurs de l'utilisateur
     const guildsResponse = await fetch('https://discord.com/api/users/@me/guilds', {
@@ -83,6 +87,7 @@ app.get('/callback', async (req, res) => {
     });
 
     const guildsData = await guildsResponse.json();
+    console.log('Guilds count:', guildsData.length);
 
     // Sauvegarder en session
     req.session.user = {
@@ -95,11 +100,14 @@ app.get('/callback', async (req, res) => {
       guilds: guildsData
     };
 
+    console.log('Session before save:', req.sessionID);
+    
     req.session.save((err) => {
       if (err) {
         console.error('Erreur sauvegarde session:', err);
         return res.redirect('/?error=session_error');
       }
+      console.log('Session saved successfully:', req.sessionID);
       res.redirect('/');
     });
   } catch (error) {
@@ -116,6 +124,10 @@ app.get('/logout', (req, res) => {
 
 // API pour obtenir l'utilisateur connecté
 app.get('/api/user', (req, res) => {
+  console.log('Session ID:', req.sessionID);
+  console.log('Session user:', req.session.user);
+  console.log('Session:', req.session);
+  
   if (req.session.user) {
     res.json({ 
       authenticated: true, 
@@ -128,6 +140,7 @@ app.get('/api/user', (req, res) => {
       }
     });
   } else {
+    console.log('No user in session');
     res.json({ authenticated: false });
   }
 });
