@@ -90,7 +90,13 @@ app.get('/callback', async (req, res) => {
       guilds: guildsData
     };
 
-    res.redirect('/');
+    req.session.save((err) => {
+      if (err) {
+        console.error('Erreur sauvegarde session:', err);
+        return res.redirect('/?error=session_error');
+      }
+      res.redirect('/');
+    });
   } catch (error) {
     console.error('Erreur OAuth2:', error);
     res.redirect('/?error=oauth_failed');

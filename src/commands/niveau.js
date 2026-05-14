@@ -8,6 +8,8 @@ module.exports = {
     .setDescription('Affiche votre niveau et XP'),
 
   async execute(interaction) {
+    await interaction.deferReply();
+    
     try {
       const config = loadGuildConfig(interaction.guild.id);
       const userId = interaction.user.id;
@@ -34,13 +36,13 @@ module.exports = {
         .setImage('attachment://level.png')
         .setTimestamp();
 
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [embed],
         files: [{ attachment: card, name: 'level.png' }]
       });
     } catch (error) {
       console.error('Erreur commande niveau:', error);
-      await interaction.reply({ content: '❌ Une erreur est survenue.', ephemeral: true });
+      await interaction.editReply({ content: '❌ Une erreur est survenue.' }).catch(() => {});
     }
   }
 };
