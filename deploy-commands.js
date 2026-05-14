@@ -6,7 +6,7 @@ require('dotenv').config();
 const commands = [];
 const commandsPath = path.join(__dirname, 'src/commands');
 
-// Read all command files
+// Read all command files from src/commands and src/commands/actions
 if (fs.existsSync(commandsPath)) {
   const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
   
@@ -21,8 +21,26 @@ if (fs.existsSync(commandsPath)) {
       console.log(`⚠️ Attention: La commande dans ${file} manque les propriétés "data" ou "execute"`);
     }
   }
+}
+
+// Also load commands from actions subdirectory
+const actionsPath = path.join(__dirname, 'src/commands/actions');
+if (fs.existsSync(actionsPath)) {
+  const actionFiles = fs.readdirSync(actionsPath).filter(file => file.endsWith('.js'));
+  
+  for (const file of actionFiles) {
+    const filePath = path.join(actionsPath, file);
+    const command = require(filePath);
+    
+    if ('data' in command && 'execute' in command) {
+      commands.push(command.data.toJSON());
+      console.log(`✓ Action chargée: ${command.data.name}`);
+    } else {
+      console.log(`⚠️ Attention: L'action dans ${file} manque les propriétés "data" ou "execute"`);
+    }
+  }
 } else {
-  console.log('⚠️ Le dossier src/commands n\'existe pas');
+  console.log('⚠️ Le dossier src/commands/actions n\'existe pas');
 }
 
 // Deploy commands
