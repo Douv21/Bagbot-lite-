@@ -8,21 +8,34 @@ const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
     console.log('🗑️ Suppression de TOUTES les commandes Discord...');
     
     // Supprimer toutes les commandes globales
-    await rest.put(
-      Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
-      { body: [] }
-    );
-    
-    console.log('✅ Toutes les commandes globales supprimées');
-    
-    // Si GUILD_ID est défini, supprimer aussi les commandes du serveur spécifique
-    const GUILD_ID = process.env.GUILD_ID;
-    if (GUILD_ID) {
+    try {
       await rest.put(
-        Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, GUILD_ID),
+        Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
         { body: [] }
       );
-      console.log(`✅ Toutes les commandes du serveur ${GUILD_ID} supprimées`);
+      console.log('✅ Toutes les commandes globales supprimées');
+    } catch (error) {
+      console.log('⚠️ Erreur suppression commandes globales:', error.message);
+    }
+    
+    // Supprimer aussi les commandes de tous les serveurs
+    try {
+      const guilds = await rest.get(Routes.userGuilds(process.env.DISCORD_CLIENT_ID));
+      console.log(`📋 ${guilds.length} serveur(s) trouvé(s)`);
+      
+      for (const guild of guilds) {
+        try {
+          await rest.put(
+            Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, guild.id),
+            { body: [] }
+          );
+          console.log(`✅ Commandes supprimées pour le serveur ${guild.name} (${guild.id})`);
+        } catch (error) {
+          console.log(`⚠️ Erreur suppression commandes serveur ${guild.name}:`, error.message);
+        }
+      }
+    } catch (error) {
+      console.log('⚠️ Erreur récupération serveurs:', error.message);
     }
     
     console.log('\n✅ Toutes les commandes ont été supprimées avec succès');
