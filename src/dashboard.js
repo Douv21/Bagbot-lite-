@@ -43,11 +43,13 @@ app.get('/callback', async (req, res) => {
   console.log('Callback received, code:', code ? 'yes' : 'no');
   
   if (!code) {
+    console.log('No code in callback');
     return res.redirect('/?error=no_code');
   }
 
   try {
     // Échanger le code contre un token
+    console.log('Exchanging code for token...');
     const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
       method: 'POST',
       headers: {
@@ -63,23 +65,37 @@ app.get('/callback', async (req, res) => {
     });
 
     const tokenData = await tokenResponse.json();
-    console.log('Token response:', tokenData.error ? 'error' : 'success');
+    console.log('Token response status:', tokenResponse.status);
+    console.log('Token data:', JSON.stringify(tokenData, null, 2));
     
     if (tokenData.error) {
+      console.error('Token error:', tokenData.error);
       throw new Error(tokenData.error);
     }
 
+    console.log('Token obtained successfully');
+
     // Récupérer les infos utilisateur
+    console.log('Fetching user data...');
     const userResponse = await fetch('https://discord.com/api/users/@me', {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
       },
     });
 
+    console.log('User response status:', userResponse.status);
     const userData = await userResponse.json();
+    console.log('User data:', JSON.stringify(userData, null, 2));
+
+    if (!userData.id) {
+      console.error('No user ID in response');
+      throw new Error('Invalid user data');
+    }
+
     console.log('User data:', userData.username);
 
     // Récupérer les serveurs de l'utilisateur
+    console.log('Fetching guilds...');
     const guildsResponse = await fetch('https://discord.com/api/users/@me/guilds', {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
@@ -101,6 +117,7 @@ app.get('/callback', async (req, res) => {
     };
 
     console.log('Session before save:', req.sessionID);
+    console.log('Session user set:', req.session.user ? 'yes' : 'no');
     
     req.session.save((err) => {
       if (err) {
