@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
@@ -78,6 +78,68 @@ apiApp.get('/guilds/:guildId/roles', async (req, res) => {
 
 apiApp.listen(API_PORT, () => {
   console.log(`✓ Bot API running on port ${API_PORT}`);
+});
+
+// Charger les commandes
+const commandsPath = path.join(__dirname, 'commands');
+const commands = [];
+
+if (fs.existsSync(commandsPath)) {
+  const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+  
+  for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    
+    if ('data' in command && 'execute' in command) {
+      commands.push(command);
+      console.log(`✓ Commande chargée: ${command.data.name}`);
+    } else {
+      console.log(`⚠️ Attention: La commande dans ${file} manque les propriétés "data" ou "execute"`);
+    }
+  }
+}
+
+const actionsPath = path.join(__dirname, 'commands/actions');
+if (fs.existsSync(actionsPath)) {
+  const actionFiles = fs.readdirSync(actionsPath).filter(file => file.endsWith('.js'));
+  
+  for (const file of actionFiles) {
+    const filePath = path.join(actionsPath, file);
+    const command = require(filePath);
+    
+    if ('data' in command && 'execute' in command) {
+      commands.push(command);
+      console.log(`✓ Action chargée: ${command.data.name}`);
+    } else {
+      console.log(`⚠️ Attention: L'action dans ${file} manque les propriétés "data" ou "execute"`);
+    }
+  }
+}
+
+// Handler pour les interactions (commandes slash)
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+
+  const command = commands.find(cmd => cmd.data.name === interaction.commandName);
+
+  if (!command) {
+    console.error(`Commande non trouvée: ${interaction.commandName}`);
+    return;
+  }
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(`Erreur exécution commande ${interaction.commandName}:`, error);
+    const errorReply = { content: '❌ Une erreur est survenue lors de l\'exécution de cette commande.', ephemeral: true };
+    
+    if (interaction.replied || interaction.deferred) {
+      await interaction.editReply(errorReply).catch(() => {});
+    } else {
+      await interaction.reply(errorReply).catch(() => {});
+    }
+  }
 });
 
 // Charger la configuration d'un serveur
@@ -199,6 +261,24 @@ client.on('threadUpdate', async (oldThread, newThread) => {
 client.once('ready', async () => {
   console.log(`✓ Bot connecté en tant que ${client.user.tag}`);
   console.log(`✓ Prêt sur ${client.guilds.cache.size} serveur(s)`);
+
+  // Enregistrer les commandes slash
+  try {
+    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+    
+    console.log(`✓ Début de l'enregistrement des commandes slash globales.`);
+    
+    const commandData = commands.map(cmd => cmd.data.toJSON());
+    
+    await rest.put(
+      Routes.applicationCommands(client.user.id),
+      { body: commandData }
+    );
+    
+    console.log(`✓ ${commands.length} commandes slash enregistrées avec succès.`);
+  } catch (error) {
+    console.error('Erreur lors de l\'enregistrement des commandes slash:', error);
+  }
 
   // Réouvrir les threads archivés dans les salons forum illimités
   for (const guild of client.guilds.cache.values()) {
