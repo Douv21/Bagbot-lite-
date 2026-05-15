@@ -351,7 +351,7 @@ app.get('/api/channels', async (req, res) => {
     }
 
     const botApiPort = process.env.BOT_API_PORT || 49502;
-    const response = await fetch(`http://localhost:${botApiPort}/guilds/${req.session.selectedGuild}/channels`);
+    const response = await fetch(`http://127.0.0.1:${botApiPort}/guilds/${req.session.selectedGuild}/channels`);
 
     if (!response.ok) {
       console.error('Error fetching channels:', response.status, response.statusText);
@@ -376,7 +376,7 @@ app.get('/api/roles', async (req, res) => {
     }
 
     const botApiPort = process.env.BOT_API_PORT || 49502;
-    const response = await fetch(`http://localhost:${botApiPort}/guilds/${req.session.selectedGuild}/roles`);
+    const response = await fetch(`http://127.0.0.1:${botApiPort}/guilds/${req.session.selectedGuild}/roles`);
 
     if (!response.ok) {
       console.error('Error fetching roles:', response.status, response.statusText);
