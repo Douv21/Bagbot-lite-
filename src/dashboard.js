@@ -26,6 +26,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Route principale
 app.get('/', (req, res) => {
+  console.log('Main route accessed, session ID:', req.sessionID);
+  console.log('Session user on main route:', req.session.user ? 'yes' : 'no');
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
@@ -125,6 +127,7 @@ app.get('/callback', async (req, res) => {
         return res.redirect('/?error=session_error');
       }
       console.log('Session saved successfully:', req.sessionID);
+      console.log('Redirecting to /');
       res.redirect('/');
     });
   } catch (error) {
