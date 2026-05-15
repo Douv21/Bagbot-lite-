@@ -887,6 +887,11 @@ async function loadForumChannels() {
     
     const forumChannelsSelect = document.getElementById('forumChannelsSelect');
     
+    if (!forumChannelsSelect) {
+      console.error('forumChannelsSelect element not found');
+      return;
+    }
+    
     if (forumChannels.length === 0) {
       // Show all channels for debugging
       const allChannelsList = channels.map(ch => `${ch.name || 'undefined'} (type: ${ch.type})`).join(', ');
@@ -901,9 +906,14 @@ async function loadForumChannels() {
       option.textContent = channel.name || 'Sans nom';
       forumChannelsSelect.appendChild(option);
     });
+    
+    console.log('Forum channels loaded successfully');
   } catch (error) {
     console.error('Error loading forum channels:', error);
-    document.getElementById('forumChannelsSelect').innerHTML = '<option value="">Erreur lors du chargement des salons.</option>';
+    const forumChannelsSelect = document.getElementById('forumChannelsSelect');
+    if (forumChannelsSelect) {
+      forumChannelsSelect.innerHTML = '<option value="">Erreur lors du chargement des salons.</option>';
+    }
   }
 }
 
@@ -1103,7 +1113,23 @@ async function loadConfig() {
       if (config.actions.commands) {
         localStorage.setItem('actionsConfig', JSON.stringify(config.actions.commands));
         loadActionsConfig();
+      } else {
+        // Initialize with default enabled state
+        const defaultActionsConfig = {};
+        actionsList.forEach(action => {
+          defaultActionsConfig[action.id] = { enabled: true, rewardMin: 5, rewardMax: 15, messages: [] };
+        });
+        localStorage.setItem('actionsConfig', JSON.stringify(defaultActionsConfig));
+        loadActionsConfig();
       }
+    } else {
+      // Initialize with default enabled state
+      const defaultActionsConfig = {};
+      actionsList.forEach(action => {
+        defaultActionsConfig[action.id] = { enabled: true, rewardMin: 5, rewardMax: 15, messages: [] };
+      });
+      localStorage.setItem('actionsConfig', JSON.stringify(defaultActionsConfig));
+      loadActionsConfig();
     }
   } catch (error) {
     console.error('Error loading config:', error);

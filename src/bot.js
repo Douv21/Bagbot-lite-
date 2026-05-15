@@ -157,11 +157,14 @@ function loadGuildConfig(guildId) {
 
 client.on('guildMemberAdd', async (member) => {
   try {
+    console.log(`Member joined: ${member.user.tag} in guild ${member.guild.name}`);
     const config = loadGuildConfig(member.guild.id);
 
     if (config && config.welcome && config.welcome.enabled && config.welcome.channel) {
+      console.log(`Welcome config found, channel: ${config.welcome.channel}`);
       const channel = await member.guild.channels.fetch(config.welcome.channel);
       if (channel && channel.isTextBased()) {
+        console.log(`Channel found and is text-based, sending welcome message`);
         const embed = {
           title: config.welcome.title || '👋 Bienvenue',
           description: config.welcome.message
@@ -187,7 +190,12 @@ client.on('guildMemberAdd', async (member) => {
         }
 
         await channel.send({ embeds: [embed] });
+        console.log(`Welcome message sent successfully`);
+      } else {
+        console.log(`Channel not found or not text-based`);
       }
+    } else {
+      console.log(`Welcome config not found or disabled`);
     }
   } catch (error) {
     console.error('Erreur message bienvenue:', error);
