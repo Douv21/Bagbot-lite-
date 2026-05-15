@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { loadGuildConfig } = require('../../utils/leveling');
-const { addBalance } = require('../../utils/economy');
+const { addBalance, addXP, getLevel, getXPToNextLevel } = require('../../utils/economy');
 
 module.exports = {
   name: 'agenouiller',
@@ -31,6 +31,10 @@ module.exports = {
     const maxReward = actionConfig.rewardMax || 15;
     const reward = Math.floor(Math.random() * (maxReward - minReward + 1)) + minReward;
     const newBalance = addBalance(interaction.guild.id, author.id, reward);
+    const xpReward = Math.floor(reward / 2); // XP is half of the balance reward
+    const newXP = addXP(interaction.guild.id, author.id, xpReward);
+    const level = getLevel(interaction.guild.id, author.id);
+    const xpToNextLevel = getXPToNextLevel(interaction.guild.id, author.id);
 
     let message;
     if (actionConfig.messages && actionConfig.messages.length > 0) {
@@ -41,10 +45,10 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setTitle('🙇 Agenouiller')
-      .setDescription(`${message}\n\n💰 +${reward} BAG`)
+      .setDescription(`${message}\n\n💰 +${reward} BAG\n✨ +${xpReward} XP`)
       .setColor(0x8B0000)
       .setAuthor({ name: author.username, iconURL: author.displayAvatarURL() })
-      .setFooter({ text: `Nouveau solde: ${newBalance} BAG` })
+      .setFooter({ text: `Nouveau solde: ${newBalance} BAG | Niveau ${level} (${newXP}/${xpToNextLevel} XP)` })
       .setTimestamp();
 
     let targetChannel = interaction.channel;
