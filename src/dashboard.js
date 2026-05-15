@@ -43,6 +43,9 @@ app.get('/login', (req, res) => {
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
   console.log('Callback received, code:', code ? 'yes' : 'no');
+  console.log('DISCORD_CLIENT_ID:', process.env.DISCORD_CLIENT_ID);
+  console.log('DISCORD_CLIENT_SECRET:', process.env.DISCORD_CLIENT_SECRET ? 'set' : 'NOT SET');
+  console.log('DISCORD_CALLBACK_URL:', process.env.DISCORD_CALLBACK_URL);
   
   if (!code) {
     console.log('No code in callback');
