@@ -13,6 +13,10 @@ async function checkAuth() {
       
       if (data.user.avatar) {
         document.getElementById('userAvatar').style.backgroundImage = `url(https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.png)`;
+      } else {
+        // Use default avatar
+        const defaultAvatar = (parseInt(data.user.discriminator) % 5).toString();
+        document.getElementById('userAvatar').style.backgroundImage = `url(https://cdn.discordapp.com/embed/avatars/${defaultAvatar}.png)`;
       }
       
       // Load guilds (filtered)
