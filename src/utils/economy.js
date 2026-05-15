@@ -57,8 +57,50 @@ function setBalance(guildId, userId, amount) {
   return economy[key];
 }
 
+// Obtenir l'XP d'un utilisateur
+function getXP(guildId, userId) {
+  const economy = loadEconomy();
+  const key = `${guildId}_${userId}_xp`;
+  return economy[key] || 0;
+}
+
+// Ajouter de l'XP à un utilisateur
+function addXP(guildId, userId, amount) {
+  const economy = loadEconomy();
+  const key = `${guildId}_${userId}_xp`;
+  economy[key] = (economy[key] || 0) + amount;
+  saveEconomy(economy);
+  return economy[key];
+}
+
+// Définir l'XP d'un utilisateur
+function setXP(guildId, userId, amount) {
+  const economy = loadEconomy();
+  const key = `${guildId}_${userId}_xp`;
+  economy[key] = amount;
+  saveEconomy(economy);
+  return economy[key];
+}
+
+// Obtenir le niveau d'un utilisateur
+function getLevel(guildId, userId) {
+  const xp = getXP(guildId, userId);
+  return Math.floor(xp / 100) + 1; // 100 XP par niveau
+}
+
+// Obtenir l'XP nécessaire pour le prochain niveau
+function getXPToNextLevel(guildId, userId) {
+  const level = getLevel(guildId, userId);
+  return level * 100;
+}
+
 module.exports = {
   getBalance,
   addBalance,
-  setBalance
+  setBalance,
+  getXP,
+  addXP,
+  setXP,
+  getLevel,
+  getXPToNextLevel
 };
