@@ -180,7 +180,7 @@ app.get('/api/guilds', async (req, res) => {
 
     // Récupérer les serveurs où le bot est présent via l'API locale du bot
     const botApiPort = process.env.BOT_API_PORT || 49502;
-    const botGuildsResponse = await fetch(`http://localhost:${botApiPort}/guilds`);
+    const botGuildsResponse = await fetch(`http://127.0.0.1:${botApiPort}/guilds`);
 
     let botGuilds = [];
     if (botGuildsResponse.ok) {
