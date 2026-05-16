@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, REST, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes, Partials } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
@@ -11,7 +11,8 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildVoiceStates
   ],
   partials: ['CHANNEL', 'MESSAGE', 'THREAD']
 });
@@ -115,6 +116,23 @@ if (fs.existsSync(actionsPath)) {
       console.log(`✓ Action chargée: ${command.data.name}`);
     } else {
       console.log(`⚠️ Attention: L'action dans ${file} manque les propriétés "data" ou "execute"`);
+    }
+  }
+}
+
+const economyPath = path.join(__dirname, 'commands/economy');
+if (fs.existsSync(economyPath)) {
+  const economyFiles = fs.readdirSync(economyPath).filter(file => file.endsWith('.js'));
+  
+  for (const file of economyFiles) {
+    const filePath = path.join(economyPath, file);
+    const command = require(filePath);
+    
+    if ('data' in command && 'execute' in command) {
+      commands.push(command);
+      console.log(`✓ Commande économie chargée: ${command.data.name}`);
+    } else {
+      console.log(`⚠️ Attention: La commande économie dans ${file} manque les propriétés "data" ou "execute"`);
     }
   }
 }
@@ -226,6 +244,54 @@ client.on('guildMemberRemove', async (member) => {
     }
   } catch (error) {
     console.error('Erreur message départ:', error);
+  }
+});
+
+// Voice state tracking for rewards
+const voiceSessions = new Map();
+
+client.on('voiceStateUpdate', async (oldState, newState) => {
+  const userId = newState.member.id;
+  const guildId = newState.guild.id;
+
+  // User joined a voice channel
+  if (!oldState.channel && newState.channel) {
+    voiceSessions.set(`${guildId}-${userId}`, {
+      joinedAt: Date.now(),
+      channelId: newState.channel.id
+    });
+  }
+
+  // User left a voice channel
+  if (oldState.channel && !newState.channel) {
+    const session = voiceSessions.get(`${guildId}-${userId}`);
+    if (session) {
+      const duration = Date.now() - session.joinedAt;
+      const minutes = Math.floor(duration / 60000);
+
+      if (minutes > 0) {
+        try {
+          const config = loadGuildConfig(guildId);
+          const moneyPerMinute = config?.economy?.moneyPerVoiceMinute || 2;
+          const xpMinPerMinute = config?.economy?.xpMinPerVoiceMinute || 2;
+          const xpMaxPerMinute = config?.economy?.xpMaxPerVoiceMinute || 10;
+
+          if (moneyPerMinute > 0) {
+            const totalMoney = moneyPerMinute * minutes;
+            addBalance(guildId, userId, totalMoney);
+          }
+
+          if (xpMinPerMinute > 0 && xpMaxPerMinute > 0) {
+            const totalXP = minutes * Math.floor(Math.random() * (xpMaxPerMinute - xpMinPerMinute + 1)) + xpMinPerMinute;
+            addXP(guildId, userId, totalXP);
+          }
+        } catch (error) {
+          console.error('Erreur gain vocal:', error);
+        }
+      }
+
+      voiceSessions.delete(`${guildId}-${userId}`);
+    }
   }
 });
 

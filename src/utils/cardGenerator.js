@@ -261,7 +261,104 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   return canvas.toBuffer();
 }
 
+async function generateBalanceCard(user, balance, currencyName, guildIcon, themeName = null) {
+  const canvas = createCanvas(800, 250);
+  const ctx = canvas.getContext('2d');
+
+  // Select random theme or specified theme
+  const theme = themeName 
+    ? cardThemes.find(t => t.name === themeName) || cardThemes[0]
+    : cardThemes[Math.floor(Math.random() * (cardThemes.length - 1))];
+
+  // Background gradient
+  const gradient = ctx.createLinearGradient(0, 0, 800, 250);
+  gradient.addColorStop(0, theme.background[0]);
+  gradient.addColorStop(1, theme.background[theme.background.length - 1]);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 800, 250);
+
+  // Draw background pattern
+  drawBackgroundPattern(ctx, 800, 250, theme.backgroundPattern);
+
+  // Guild icon as background if provided
+  if (guildIcon) {
+    try {
+      const icon = await loadImage(guildIcon);
+      ctx.globalAlpha = 0.1;
+      ctx.drawImage(icon, 0, 0, 800, 250);
+      ctx.globalAlpha = 1.0;
+    } catch (error) {
+      console.error('Error loading guild icon:', error);
+    }
+  }
+
+  // User avatar
+  try {
+    const avatar = await loadImage(user.displayAvatarURL({ extension: 'png', size: 128 }));
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(100, 125, 70, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(avatar, 30, 55, 140, 140);
+    ctx.restore();
+  } catch (error) {
+    console.error('Error loading avatar:', error);
+  }
+
+  // Avatar border with glow effect
+  ctx.save();
+  ctx.shadowColor = theme.borderColor;
+  ctx.shadowBlur = 15;
+  ctx.beginPath();
+  ctx.arc(100, 125, 70, 0, Math.PI * 2);
+  ctx.strokeStyle = theme.borderColor;
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Username with shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle = theme.textColor;
+  ctx.font = 'bold 32px Arial';
+  ctx.fillText(user.username, 200, 70);
+  ctx.restore();
+
+  // Balance badge
+  ctx.fillStyle = theme.accent;
+  ctx.beginPath();
+  ctx.roundRect(200, 85, 200, 35, 8);
+  ctx.fill();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 20px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`💰 SOLDE`, 300, 108);
+  ctx.textAlign = 'left';
+
+  // Balance amount
+  ctx.fillStyle = theme.textColor;
+  ctx.font = 'bold 48px Arial';
+  ctx.fillText(`${balance.toLocaleString()} ${currencyName}`, 200, 150);
+
+  // Decorative coins
+  ctx.fillStyle = '#FFD700';
+  ctx.font = '36px Arial';
+  ctx.fillText('💰💰💰', 600, 150);
+
+  // Theme name watermark
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.font = '12px Arial';
+  ctx.fillText(theme.name.toUpperCase(), 750, 240);
+
+  return canvas.toBuffer();
+}
+
 module.exports = {
   generateLevelUpCard,
+  generateBalanceCard,
   cardThemes
 };

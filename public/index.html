@@ -303,7 +303,7 @@
                 <div class="tab-content" id="tab-economy">
                     <div class="section">
                         <h2>Configuration Économie</h2>
-                        <p class="help-text">Configurez les gains d'argent et XP par message</p>
+                        <p class="help-text">Configurez les gains d'argent et XP par message et vocal</p>
 
                         <div class="form-group">
                             <label>
@@ -322,6 +322,18 @@
                         <div class="form-group">
                             <label>XP maximum par message</label>
                             <input type="number" id="xpMaxPerMessage" value="5" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Argent par minute en vocal</label>
+                            <input type="number" id="moneyPerVoiceMinute" value="2" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>XP minimum par minute en vocal</label>
+                            <input type="number" id="xpMinPerVoiceMinute" value="2" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>XP maximum par minute en vocal</label>
+                            <input type="number" id="xpMaxPerVoiceMinute" value="10" min="0" max="100">
                         </div>
                     </div>
                 </div>

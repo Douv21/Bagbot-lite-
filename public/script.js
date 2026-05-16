@@ -1137,6 +1137,9 @@ async function loadConfig() {
       document.getElementById('moneyPerMessage').value = config.economy.moneyPerMessage || 1;
       document.getElementById('xpMinPerMessage').value = config.economy.xpMinPerMessage || 1;
       document.getElementById('xpMaxPerMessage').value = config.economy.xpMaxPerMessage || 5;
+      document.getElementById('moneyPerVoiceMinute').value = config.economy.moneyPerVoiceMinute || 2;
+      document.getElementById('xpMinPerVoiceMinute').value = config.economy.xpMinPerVoiceMinute || 2;
+      document.getElementById('xpMaxPerVoiceMinute').value = config.economy.xpMaxPerVoiceMinute || 10;
     }
   } catch (error) {
     console.error('Error loading config:', error);
@@ -1195,7 +1198,10 @@ async function saveConfig() {
       enabled: document.getElementById('economyEnabled').checked,
       moneyPerMessage: parseInt(document.getElementById('moneyPerMessage').value) || 1,
       xpMinPerMessage: parseInt(document.getElementById('xpMinPerMessage').value) || 1,
-      xpMaxPerMessage: parseInt(document.getElementById('xpMaxPerMessage').value) || 5
+      xpMaxPerMessage: parseInt(document.getElementById('xpMaxPerMessage').value) || 5,
+      moneyPerVoiceMinute: parseInt(document.getElementById('moneyPerVoiceMinute').value) || 2,
+      xpMinPerVoiceMinute: parseInt(document.getElementById('xpMinPerVoiceMinute').value) || 2,
+      xpMaxPerVoiceMinute: parseInt(document.getElementById('xpMaxPerVoiceMinute').value) || 10
     }
   };
   

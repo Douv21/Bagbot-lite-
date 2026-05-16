@@ -13,7 +13,7 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
     
-    const config = loadGuildConfig(interaction.guild.id);
+    const config = loadGuildConfig(interaction.guildId);
     
     if (!config?.actions?.enabled) return interaction.editReply({ content: '❌ Actions désactivées', ephemeral: true });
     const actionConfig = config.actions.commands?.['agenouiller'];
@@ -21,16 +21,24 @@ module.exports = {
 
     let target = interaction.options.getUser('cible');
     if (!target) {
-      const members = await interaction.guild.members.fetch({ limit: 100 });
-      const randomMember = members.filter(m => m.id !== interaction.user.id).random();
-      target = randomMember ? randomMember.user : interaction.user;
+      if (interaction.guild) {
+        const members = await interaction.guild.members.fetch({ limit: 100 });
+        const randomMember = members.filter(m => m.id !== interaction.user.id).random();
+        target = randomMember ? randomMember.user : interaction.user;
+      } else {
+        target = interaction.user;
+      }
     }
 
     const author = interaction.user;
     const minReward = actionConfig.rewardMin || 5;
     const maxReward = actionConfig.rewardMax || 15;
     const reward = Math.floor(Math.random() * (maxReward - minReward + 1)) + minReward;
-    const newBalance = addBalance(interaction.guild.id, author.id, reward);
+    
+    let newBalance = reward;
+    if (interaction.guild) {
+      newBalance = addBalance(interaction.guild.id, author.id, reward);
+    }
 
     let message;
     if (actionConfig.messages && actionConfig.messages.length > 0) {
@@ -47,12 +55,16 @@ module.exports = {
       .setFooter({ text: `Nouveau solde: ${newBalance} BAG` })
       .setTimestamp();
 
-    let targetChannel = interaction.channel;
-    if (actionConfig.channel) targetChannel = await interaction.guild.channels.fetch(actionConfig.channel).catch(() => interaction.channel);
+    if (interaction.guild) {
+      let targetChannel = interaction.channel;
+      if (actionConfig.channel) targetChannel = await interaction.guild.channels.fetch(actionConfig.channel).catch(() => interaction.channel);
 
-    if (targetChannel.id !== interaction.channel.id) {
-      await interaction.editReply({ content: '✅ Action envoyée !' });
-      await targetChannel.send({ embeds: [embed] });
+      if (targetChannel.id !== interaction.channel.id) {
+        await interaction.editReply({ content: '✅ Action envoyée !' });
+        await targetChannel.send({ embeds: [embed] });
+      } else {
+        await interaction.editReply({ embeds: [embed] });
+      }
     } else {
       await interaction.editReply({ embeds: [embed] });
     }

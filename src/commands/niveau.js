@@ -33,7 +33,6 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setColor(0xC41E3A)
         .setTitle(`📊 Niveau de ${interaction.user.username}`)
-        .setDescription(`Niveau: ${userLevel}\nXP: ${userXp}/${xpToNextLevel}`)
         .setImage('attachment://level.png')
         .setTimestamp();
 
