@@ -1131,6 +1131,12 @@ async function loadConfig() {
       localStorage.setItem('actionsConfig', JSON.stringify(defaultActionsConfig));
       loadActionsConfig();
     }
+
+    if (config.economy) {
+      document.getElementById('economyEnabled').checked = config.economy.enabled;
+      document.getElementById('moneyPerMessage').value = config.economy.moneyPerMessage || 1;
+      document.getElementById('xpPerMessage').value = config.economy.xpPerMessage || 1;
+    }
   } catch (error) {
     console.error('Error loading config:', error);
   }
@@ -1183,6 +1189,11 @@ async function saveConfig() {
     actions: {
       enabled: document.getElementById('actionsEnabled').checked,
       commands: JSON.parse(localStorage.getItem('actionsConfig') || '{}')
+    },
+    economy: {
+      enabled: document.getElementById('economyEnabled').checked,
+      moneyPerMessage: parseInt(document.getElementById('moneyPerMessage').value) || 1,
+      xpPerMessage: parseInt(document.getElementById('xpPerMessage').value) || 1
     }
   };
   

@@ -2,7 +2,7 @@ const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
-// Card themes
+// Card themes with background images
 const cardThemes = [
   {
     name: 'gaming',
@@ -10,7 +10,8 @@ const cardThemes = [
     accent: '#e94560',
     textColor: '#ffffff',
     barColor: '#e94560',
-    borderColor: '#e94560'
+    borderColor: '#e94560',
+    backgroundPattern: 'gaming'
   },
   {
     name: 'holographique',
@@ -18,7 +19,8 @@ const cardThemes = [
     accent: '#00d4ff',
     textColor: '#ffffff',
     barColor: '#00d4ff',
-    borderColor: '#00d4ff'
+    borderColor: '#00d4ff',
+    backgroundPattern: 'holographic'
   },
   {
     name: 'futuriste',
@@ -26,7 +28,8 @@ const cardThemes = [
     accent: '#00ff88',
     textColor: '#ffffff',
     barColor: '#00ff88',
-    borderColor: '#00ff88'
+    borderColor: '#00ff88',
+    backgroundPattern: 'futuristic'
   },
   {
     name: 'sensuelle',
@@ -34,7 +37,8 @@ const cardThemes = [
     accent: '#ff69b4',
     textColor: '#ffffff',
     barColor: '#ff69b4',
-    borderColor: '#ff69b4'
+    borderColor: '#ff69b4',
+    backgroundPattern: 'sensual'
   },
   {
     name: 'love',
@@ -42,7 +46,8 @@ const cardThemes = [
     accent: '#ffffff',
     textColor: '#ffffff',
     barColor: '#ffffff',
-    borderColor: '#ffffff'
+    borderColor: '#ffffff',
+    backgroundPattern: 'love'
   },
   {
     name: 'default',
@@ -50,9 +55,96 @@ const cardThemes = [
     accent: '#C41E3A',
     textColor: '#ffffff',
     barColor: '#C41E3A',
-    borderColor: '#C41E3A'
+    borderColor: '#C41E3A',
+    backgroundPattern: 'default'
   }
 ];
+
+// Draw background pattern based on theme
+function drawBackgroundPattern(ctx, width, height, pattern) {
+  ctx.save();
+  
+  switch(pattern) {
+    case 'gaming':
+      // Draw pixelated grid pattern
+      ctx.strokeStyle = 'rgba(233, 69, 96, 0.1)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      break;
+      
+    case 'holographic':
+      // Draw gradient lines
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = `rgba(0, 212, 255, ${0.1 - i * 0.02})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, height * (i + 1) / 6);
+        ctx.lineTo(width, height * (i + 2) / 6);
+        ctx.stroke();
+      }
+      break;
+      
+    case 'futuristic':
+      // Draw circuit-like pattern
+      ctx.strokeStyle = 'rgba(0, 255, 136, 0.1)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 10; i++) {
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * width, Math.random() * height);
+        ctx.lineTo(Math.random() * width, Math.random() * height);
+        ctx.stroke();
+      }
+      break;
+      
+    case 'sensual':
+      // Draw soft curves
+      ctx.strokeStyle = 'rgba(255, 105, 180, 0.1)';
+      ctx.lineWidth = 3;
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, height * (i + 1) / 6);
+        ctx.bezierCurveTo(width / 3, height * (i + 2) / 6, width * 2 / 3, height * i / 6, width, height * (i + 1) / 6);
+        ctx.stroke();
+      }
+      break;
+      
+    case 'love':
+      // Draw heart pattern
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+      for (let i = 0; i < 10; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        const size = 10 + Math.random() * 20;
+        ctx.beginPath();
+        ctx.moveTo(x, y + size / 4);
+        ctx.quadraticCurveTo(x, y, x + size / 4, y);
+        ctx.quadraticCurveTo(x + size / 2, y, x + size / 2, y + size / 4);
+        ctx.quadraticCurveTo(x + size / 2, y, x + size * 3 / 4, y);
+        ctx.quadraticCurveTo(x + size, y, x + size, y + size / 4);
+        ctx.quadraticCurveTo(x + size, y + size / 2, x + size / 2, y + size);
+        ctx.quadraticCurveTo(x, y + size / 2, x, y + size / 4);
+        ctx.fill();
+      }
+      break;
+      
+    default:
+      // No pattern for default
+      break;
+  }
+  
+  ctx.restore();
+}
 
 async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, themeName = null) {
   const canvas = createCanvas(800, 200);
@@ -69,6 +161,9 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   gradient.addColorStop(1, theme.background[theme.background.length - 1]);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 800, 200);
+
+  // Draw background pattern
+  drawBackgroundPattern(ctx, 800, 200, theme.backgroundPattern);
 
   // Guild icon as background if provided
   if (guildIcon) {

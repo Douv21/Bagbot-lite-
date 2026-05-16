@@ -29,6 +29,9 @@
                 <a href="#" class="nav-item" data-section="actions">
                     <span>⚔️</span> Actions
                 </a>
+                <a href="#" class="nav-item" data-section="economy">
+                    <span>💰</span> Économie
+                </a>
             </nav>
             <div class="login-section" id="loginSection">
                 <a href="/login" class="btn btn-login">Connexion Discord</a>
@@ -292,6 +295,29 @@
                         <h3>Items de la boutique</h3>
                         <div id="shopItemsList" style="margin-top: 20px;">
                             <p>Aucun item pour le moment.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economy Tab Content -->
+                <div class="tab-content" id="tab-economy">
+                    <div class="section">
+                        <h2>Configuration Économie</h2>
+                        <p class="help-text">Configurez les gains d'argent et XP par message</p>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="economyEnabled" checked>
+                                Activer l'économie
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Argent par message</label>
+                            <input type="number" id="moneyPerMessage" value="1" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>XP par message</label>
+                            <input type="number" id="xpPerMessage" value="1" min="0" max="100">
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { generateLevelUpCard } = require('../utils/cardGenerator');
 const { loadGuildConfig } = require('../utils/leveling');
+const { getXP, getLevel, getXPToNextLevel } = require('../utils/economy');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -15,10 +16,10 @@ module.exports = {
       const userId = interaction.user.id;
       const guildId = interaction.guild.id;
 
-      // Récupérer le niveau et XP depuis la config
-      const userLevel = config?.leveling?.users?.[userId]?.level || 1;
-      const userXp = config?.leveling?.users?.[userId]?.xp || 0;
-      const xpToNextLevel = userLevel * 100;
+      // Récupérer le niveau et XP depuis economy.json
+      const userLevel = getLevel(guildId, userId);
+      const userXp = getXP(guildId, userId);
+      const xpToNextLevel = getXPToNextLevel(guildId, userId);
 
       // Générer la carte
       const card = await generateLevelUpCard(

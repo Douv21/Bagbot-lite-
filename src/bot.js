@@ -3,6 +3,8 @@ const { Client, GatewayIntentBits, REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const { loadGuildConfig } = require('./utils/leveling');
+const { addBalance, addXP } = require('./utils/economy');
 
 const client = new Client({
   intents: [
@@ -237,6 +239,30 @@ client.on('guildMemberRemove', async (member) => {
     }
   } catch (error) {
     console.error('Erreur message départ:', error);
+  }
+});
+
+// Gain d'argent et XP par message
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+  if (!message.guild) return;
+
+  try {
+    const config = loadGuildConfig(message.guild.id);
+    
+    // Vérifier si le gain d'argent est activé
+    const moneyPerMessage = config?.economy?.moneyPerMessage || 1;
+    const xpPerMessage = config?.economy?.xpPerMessage || 1;
+    
+    if (moneyPerMessage > 0) {
+      addBalance(message.guild.id, message.author.id, moneyPerMessage);
+    }
+    
+    if (xpPerMessage > 0) {
+      addXP(message.guild.id, message.author.id, xpPerMessage);
+    }
+  } catch (error) {
+    console.error('Erreur gain message:', error);
   }
 });
 
