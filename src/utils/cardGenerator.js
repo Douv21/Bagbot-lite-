@@ -260,7 +260,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
 
   // Username
   const maxW = 1200;
-  let y = 210;
+  let y = 180;
   ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 70);
   ctx.font = 'bold 78px Arial';
   ctx.fillText(user.username, 800, y);
@@ -274,7 +274,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
 
   ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 50);
   ctx.fillText(`XP : ${xp} / ${xpToNextLevel}`, 800, y);
-  y += 24;
+  y += 50;
 
   // Central logo with circular progress
   const logoSize = 210;
@@ -391,7 +391,7 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   ctx.shadowBlur = 0;
 
   // Username
-  let y = 210;
+  let y = 180;
   ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 70);
   ctx.font = 'bold 78px Arial';
   ctx.fillText(user.username, 800, y);
@@ -401,7 +401,7 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 50);
   ctx.font = 'bold 58px Arial';
   ctx.fillText(`Solde : ${balance} ${currencyName}`, 800, y);
-  y += 24;
+  y += 50;
 
   // Central logo
   const logoSize = 210;
