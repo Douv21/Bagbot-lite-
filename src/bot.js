@@ -144,19 +144,6 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// Charger la configuration d'un serveur
-function loadGuildConfig(guildId) {
-  try {
-    const configPath = path.join(__dirname, '../configs', `${guildId}.json`);
-    if (fs.existsSync(configPath)) {
-      return JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    }
-  } catch (error) {
-    console.error(`Erreur chargement config pour ${guildId}:`, error);
-  }
-  return null;
-}
-
 client.on('guildMemberAdd', async (member) => {
   try {
     console.log(`Member joined: ${member.user.tag} in guild ${member.guild.name}`);
