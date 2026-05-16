@@ -147,7 +147,7 @@ function drawBackgroundPattern(ctx, width, height, pattern) {
 }
 
 async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, themeName = null) {
-  const canvas = createCanvas(800, 200);
+  const canvas = createCanvas(800, 250);
   const ctx = canvas.getContext('2d');
 
   // Select random theme or specified theme
@@ -156,21 +156,21 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     : cardThemes[Math.floor(Math.random() * (cardThemes.length - 1))];
 
   // Background gradient
-  const gradient = ctx.createLinearGradient(0, 0, 800, 200);
+  const gradient = ctx.createLinearGradient(0, 0, 800, 250);
   gradient.addColorStop(0, theme.background[0]);
   gradient.addColorStop(1, theme.background[theme.background.length - 1]);
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 800, 200);
+  ctx.fillRect(0, 0, 800, 250);
 
   // Draw background pattern
-  drawBackgroundPattern(ctx, 800, 200, theme.backgroundPattern);
+  drawBackgroundPattern(ctx, 800, 250, theme.backgroundPattern);
 
   // Guild icon as background if provided
   if (guildIcon) {
     try {
       const icon = await loadImage(guildIcon);
       ctx.globalAlpha = 0.1;
-      ctx.drawImage(icon, 0, 0, 800, 200);
+      ctx.drawImage(icon, 0, 0, 800, 250);
       ctx.globalAlpha = 1.0;
     } catch (error) {
       console.error('Error loading guild icon:', error);
@@ -182,50 +182,81 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     const avatar = await loadImage(user.displayAvatarURL({ extension: 'png', size: 128 }));
     ctx.save();
     ctx.beginPath();
-    ctx.arc(100, 100, 64, 0, Math.PI * 2);
+    ctx.arc(100, 125, 70, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, 36, 36, 128, 128);
+    ctx.drawImage(avatar, 30, 55, 140, 140);
     ctx.restore();
   } catch (error) {
     console.error('Error loading avatar:', error);
   }
 
-  // Avatar border
+  // Avatar border with glow effect
+  ctx.save();
+  ctx.shadowColor = theme.borderColor;
+  ctx.shadowBlur = 15;
   ctx.beginPath();
-  ctx.arc(100, 100, 64, 0, Math.PI * 2);
+  ctx.arc(100, 125, 70, 0, Math.PI * 2);
   ctx.strokeStyle = theme.borderColor;
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 5;
   ctx.stroke();
+  ctx.restore();
 
-  // Username
+  // Username with shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 2;
   ctx.fillStyle = theme.textColor;
-  ctx.font = 'bold 36px Arial';
-  ctx.fillText(user.username, 200, 80);
+  ctx.font = 'bold 32px Arial';
+  ctx.fillText(user.username, 200, 70);
+  ctx.restore();
 
-  // Level
+  // Level badge
   ctx.fillStyle = theme.accent;
-  ctx.font = 'bold 28px Arial';
-  ctx.fillText(`Niveau ${level}`, 200, 120);
-
-  // XP bar background
-  ctx.fillStyle = '#333333';
-  ctx.fillRect(200, 140, 500, 20);
-
-  // XP bar fill
-  const xpPercentage = xp / xpToNextLevel;
-  ctx.fillStyle = theme.barColor;
-  ctx.fillRect(200, 140, 500 * xpPercentage, 20);
+  ctx.beginPath();
+  ctx.roundRect(200, 85, 120, 35, 8);
+  ctx.fill();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 20px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`NIVEAU ${level}`, 260, 108);
+  ctx.textAlign = 'left';
 
   // XP text
   ctx.fillStyle = theme.textColor;
-  ctx.font = '16px Arial';
-  ctx.fillText(`${xp} / ${xpToNextLevel} XP`, 200, 175);
+  ctx.font = '18px Arial';
+  ctx.fillText(`${xp} / ${xpToNextLevel} XP`, 200, 145);
+
+  // XP bar background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.beginPath();
+  ctx.roundRect(200, 160, 500, 25, 12);
+  ctx.fill();
+
+  // XP bar fill with gradient
+  const xpPercentage = xp / xpToNextLevel;
+  const xpBarGradient = ctx.createLinearGradient(200, 160, 700, 160);
+  xpBarGradient.addColorStop(0, theme.barColor);
+  xpBarGradient.addColorStop(1, theme.accent);
+  
+  ctx.fillStyle = xpBarGradient;
+  ctx.beginPath();
+  ctx.roundRect(200, 160, 500 * xpPercentage, 25, 12);
+  ctx.fill();
+
+  // XP percentage text
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${Math.floor(xpPercentage * 100)}%`, 450, 177);
+  ctx.textAlign = 'left';
 
   // Theme name watermark
   ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.font = '12px Arial';
-  ctx.fillText(theme.name.toUpperCase(), 750, 190);
+  ctx.fillText(theme.name.toUpperCase(), 750, 240);
 
   return canvas.toBuffer();
 }

@@ -1135,7 +1135,8 @@ async function loadConfig() {
     if (config.economy) {
       document.getElementById('economyEnabled').checked = config.economy.enabled;
       document.getElementById('moneyPerMessage').value = config.economy.moneyPerMessage || 1;
-      document.getElementById('xpPerMessage').value = config.economy.xpPerMessage || 1;
+      document.getElementById('xpMinPerMessage').value = config.economy.xpMinPerMessage || 1;
+      document.getElementById('xpMaxPerMessage').value = config.economy.xpMaxPerMessage || 5;
     }
   } catch (error) {
     console.error('Error loading config:', error);
@@ -1193,7 +1194,8 @@ async function saveConfig() {
     economy: {
       enabled: document.getElementById('economyEnabled').checked,
       moneyPerMessage: parseInt(document.getElementById('moneyPerMessage').value) || 1,
-      xpPerMessage: parseInt(document.getElementById('xpPerMessage').value) || 1
+      xpMinPerMessage: parseInt(document.getElementById('xpMinPerMessage').value) || 1,
+      xpMaxPerMessage: parseInt(document.getElementById('xpMaxPerMessage').value) || 5
     }
   };
   

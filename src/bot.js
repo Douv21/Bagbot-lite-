@@ -239,14 +239,16 @@ client.on('messageCreate', async (message) => {
     
     // Vérifier si le gain d'argent est activé
     const moneyPerMessage = config?.economy?.moneyPerMessage || 1;
-    const xpPerMessage = config?.economy?.xpPerMessage || 1;
+    const xpMinPerMessage = config?.economy?.xpMinPerMessage || 1;
+    const xpMaxPerMessage = config?.economy?.xpMaxPerMessage || 5;
     
     if (moneyPerMessage > 0) {
       addBalance(message.guild.id, message.author.id, moneyPerMessage);
     }
     
-    if (xpPerMessage > 0) {
-      addXP(message.guild.id, message.author.id, xpPerMessage);
+    if (xpMinPerMessage > 0 && xpMaxPerMessage > 0) {
+      const xpReward = Math.floor(Math.random() * (xpMaxPerMessage - xpMinPerMessage + 1)) + xpMinPerMessage;
+      addXP(message.guild.id, message.author.id, xpReward);
     }
   } catch (error) {
     console.error('Erreur gain message:', error);
