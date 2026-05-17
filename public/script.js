@@ -1195,7 +1195,9 @@ async function loadRoleThemes() {
     'holographic': 'Holographique',
     'futuristic': 'Futuriste',
     'love': 'Amour',
-    'sensual': 'Sensuel'
+    'sensual': 'Sensuel',
+    'rose': 'Rose',
+    'gold': 'Or'
   };
 
   themesList.innerHTML = '';

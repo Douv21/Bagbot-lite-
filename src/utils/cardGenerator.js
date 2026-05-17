@@ -28,6 +28,16 @@ function getThemeGradient(ctx, theme, x, y, w, h) {
       g.addColorStop(0, '#1a0a0a');
       g.addColorStop(1, '#2d0a0a');
       break;
+    case 'rose':
+      g.addColorStop(0, '#ff9a9e');
+      g.addColorStop(0.5, '#fecfef');
+      g.addColorStop(1, '#ff6b95');
+      break;
+    case 'gold':
+      g.addColorStop(0, '#f5af19');
+      g.addColorStop(0.5, '#f12711');
+      g.addColorStop(1, '#f5af19');
+      break;
     case 'blue':
     default:
       g.addColorStop(0.00, '#b3d4ff');
@@ -53,6 +63,10 @@ function getThemeColors(theme) {
       return { text: '#ff69b4', accent: '#ff1493', bar: '#ff1493', border: '#ff69b4' };
     case 'sensual':
       return { text: '#ff6b6b', accent: '#ff4757', bar: '#ff4757', border: '#ff6b6b' };
+    case 'rose':
+      return { text: '#ff9a9e', accent: '#ff6b95', bar: '#ff6b95', border: '#ff9a9e' };
+    case 'gold':
+      return { text: '#f5af19', accent: '#f12711', bar: '#f5af19', border: '#f5af19' };
     case 'blue':
     default:
       return { text: '#b3d4ff', accent: '#2f6bd6', bar: '#6aa6ff', border: '#6aa6ff' };
@@ -264,7 +278,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   const ctx = canvas.getContext('2d');
 
   // Select theme (random if not specified)
-  const availableThemes = ['blue', 'gaming', 'holographic', 'futuristic', 'love', 'sensual'];
+  const availableThemes = ['blue', 'gaming', 'holographic', 'futuristic', 'love', 'sensual', 'rose', 'gold'];
   const theme = themeName 
     ? (themeName === 'random' ? availableThemes[Math.floor(Math.random() * availableThemes.length)] : themeName)
     : availableThemes[Math.floor(Math.random() * availableThemes.length)];
@@ -272,7 +286,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   const colors = getThemeColors(theme);
 
   // Background gradient
-  const bg = getThemeGradient(ctx, theme, 0, 0, 0, 900);
+  const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, 1600, 900);
 
