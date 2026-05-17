@@ -2,16 +2,66 @@ const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
-// Blue gradient function
-function blueGradient(ctx, x, y, w, h) {
+// Theme gradient functions
+function getThemeGradient(ctx, theme, x, y, w, h) {
   const g = ctx.createLinearGradient(x, y, x + w, y + h);
-  g.addColorStop(0.00, '#b3d4ff');
-  g.addColorStop(0.18, '#6aa6ff');
-  g.addColorStop(0.38, '#8bbcff');
-  g.addColorStop(0.60, '#2f6bd6');
-  g.addColorStop(0.80, '#7fb2ff');
-  g.addColorStop(1.00, '#1b4ea3');
+  
+  switch(theme) {
+    case 'gaming':
+      g.addColorStop(0, '#1a1a2e');
+      g.addColorStop(1, '#16213e');
+      break;
+    case 'holographic':
+      g.addColorStop(0, '#0f0c29');
+      g.addColorStop(0.5, '#302b63');
+      g.addColorStop(1, '#24243e');
+      break;
+    case 'futuristic':
+      g.addColorStop(0, '#000000');
+      g.addColorStop(1, '#1a1a2e');
+      break;
+    case 'love':
+      g.addColorStop(0, '#2d1b2e');
+      g.addColorStop(1, '#1a0a1e');
+      break;
+    case 'sensual':
+      g.addColorStop(0, '#1a0a0a');
+      g.addColorStop(1, '#2d0a0a');
+      break;
+    case 'blue':
+    default:
+      g.addColorStop(0.00, '#b3d4ff');
+      g.addColorStop(0.18, '#6aa6ff');
+      g.addColorStop(0.38, '#8bbcff');
+      g.addColorStop(0.60, '#2f6bd6');
+      g.addColorStop(0.80, '#7fb2ff');
+      g.addColorStop(1.00, '#1b4ea3');
+      break;
+  }
   return g;
+}
+
+function getThemeColors(theme) {
+  switch(theme) {
+    case 'gaming':
+      return { text: '#00ff88', accent: '#e94560', bar: '#e94560', border: '#e94560' };
+    case 'holographic':
+      return { text: '#00ffff', accent: '#ff00ff', bar: '#ff00ff', border: '#00ffff' };
+    case 'futuristic':
+      return { text: '#00ff00', accent: '#00ffff', bar: '#00ff00', border: '#00ff00' };
+    case 'love':
+      return { text: '#ff69b4', accent: '#ff1493', bar: '#ff1493', border: '#ff69b4' };
+    case 'sensual':
+      return { text: '#ff6b6b', accent: '#ff4757', bar: '#ff4757', border: '#ff6b6b' };
+    case 'blue':
+    default:
+      return { text: '#b3d4ff', accent: '#2f6bd6', bar: '#6aa6ff', border: '#6aa6ff' };
+  }
+}
+
+// Blue gradient function (for backward compatibility)
+function blueGradient(ctx, x, y, w, h) {
+  return getThemeGradient(ctx, 'blue', x, y, w, h);
 }
 
 // Rounded rectangle function
@@ -26,12 +76,14 @@ function roundedRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// Circular progress bar function
-function drawCircularProgressBlue(ctx, centerX, centerY, radius, progress, strokeWidth = 8) {
+// Circular progress bar function with theme support
+function drawCircularProgress(ctx, centerX, centerY, radius, progress, strokeWidth = 8, theme = 'blue') {
+  const colors = getThemeColors(theme);
+  
   // Background circle
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-  ctx.strokeStyle = 'rgba(179,212,255,0.2)';
+  ctx.strokeStyle = `${colors.bar}33`;
   ctx.lineWidth = strokeWidth;
   ctx.lineCap = 'round';
   ctx.stroke();
@@ -47,15 +99,20 @@ function drawCircularProgressBlue(ctx, centerX, centerY, radius, progress, strok
       centerX - radius, centerY - radius,
       centerX + radius, centerY + radius
     );
-    progressGradient.addColorStop(0, '#b3d4ff');
-    progressGradient.addColorStop(0.5, '#6aa6ff');
-    progressGradient.addColorStop(1, '#2f6bd6');
+    progressGradient.addColorStop(0, colors.text);
+    progressGradient.addColorStop(0.5, colors.bar);
+    progressGradient.addColorStop(1, colors.accent);
 
     ctx.strokeStyle = progressGradient;
     ctx.lineWidth = strokeWidth;
     ctx.lineCap = 'round';
     ctx.stroke();
   }
+}
+
+// Circular progress bar function (for backward compatibility)
+function drawCircularProgressBlue(ctx, centerX, centerY, radius, progress, strokeWidth = 8) {
+  return drawCircularProgress(ctx, centerX, centerY, radius, progress, strokeWidth, 'blue');
 }
 
 // Card themes with background images
@@ -206,15 +263,16 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   const canvas = createCanvas(1600, 900);
   const ctx = canvas.getContext('2d');
 
-  // Select random theme or specified theme
+  // Select theme (random if not specified)
+  const availableThemes = ['blue', 'gaming', 'holographic', 'futuristic', 'love', 'sensual'];
   const theme = themeName 
-    ? cardThemes.find(t => t.name === themeName) || cardThemes[0]
-    : cardThemes[Math.floor(Math.random() * (cardThemes.length - 1))];
+    ? (themeName === 'random' ? availableThemes[Math.floor(Math.random() * availableThemes.length)] : themeName)
+    : availableThemes[Math.floor(Math.random() * availableThemes.length)];
+  
+  const colors = getThemeColors(theme);
 
-  // Background gradient (dark blue like prestige-blue)
-  const bg = ctx.createLinearGradient(0, 0, 0, 900);
-  bg.addColorStop(0, '#0b0f14');
-  bg.addColorStop(1, '#070a0f');
+  // Background gradient
+  const bg = getThemeGradient(ctx, theme, 0, 0, 0, 900);
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, 1600, 900);
 
@@ -244,14 +302,14 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   // Border + corners
   const m = 22;
   ctx.lineWidth = 3;
-  ctx.strokeStyle = blueGradient(ctx, m, m, 1600-2*m, 900-2*m);
+  ctx.strokeStyle = getThemeGradient(ctx, theme, m, m, 1600-2*m, 900-2*m);
   roundedRect(ctx, m, m, 1600 - 2*m, 900 - 2*m, 18);
   ctx.stroke();
 
   // Title
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillStyle = blueGradient(ctx, 0, 0, 1600, 140);
+  ctx.fillStyle = getThemeGradient(ctx, theme, 0, 0, 1600, 140);
   ctx.font = 'bold 72px Arial';
   ctx.shadowColor = '#00000080';
   ctx.shadowBlur = 10;
@@ -260,24 +318,24 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
 
   // Username
   const maxW = 1200;
-  let y = 180;
-  ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 70);
+  let y = 160;
+  ctx.fillStyle = getThemeGradient(ctx, theme, 0, y, 1600, 70);
   ctx.font = 'bold 78px Arial';
   ctx.fillText(user.username, 800, y);
-  y += 94;
+  y += 90;
 
   // Level info
-  ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 50);
+  ctx.fillStyle = getThemeGradient(ctx, theme, 0, y, 1600, 50);
   ctx.font = 'bold 58px Arial';
   ctx.fillText(`Niveau atteint : ${level}`, 800, y);
-  y += 72;
+  y += 70;
 
-  ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 50);
+  ctx.fillStyle = getThemeGradient(ctx, theme, 0, y, 1600, 50);
   ctx.fillText(`XP : ${xp} / ${xpToNextLevel}`, 800, y);
-  y += 50;
+  y += 60;
 
   // Central logo with circular progress
-  const logoSize = 210;
+  const logoSize = 200;
   const logoY = y;
   const centerX = 800;
   const centerY = logoY + logoSize / 2;
@@ -285,7 +343,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
 
   const progress = xpToNextLevel > 0 ? Math.min(1, Math.max(0, xp / xpToNextLevel)) : 0;
 
-  drawCircularProgressBlue(ctx, centerX, centerY, progressRadius, progress, 12);
+  drawCircularProgress(ctx, centerX, centerY, progressRadius, progress, 12, theme);
 
   // User avatar as central logo
   try {
@@ -293,7 +351,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     
     ctx.beginPath();
     ctx.arc(centerX, centerY, logoSize/2 + 6, 0, Math.PI*2);
-    ctx.strokeStyle = blueGradient(ctx, 800 - logoSize/2, logoY, logoSize, logoSize);
+    ctx.strokeStyle = getThemeGradient(ctx, theme, 800 - logoSize/2, logoY, logoSize, logoSize);
     ctx.lineWidth = 4;
     ctx.stroke();
 
@@ -308,7 +366,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     console.error('Error loading avatar:', error);
     ctx.beginPath();
     ctx.arc(centerX, centerY, logoSize/2, 0, Math.PI*2);
-    ctx.fillStyle = blueGradient(ctx, 800 - logoSize/2, logoY, logoSize, logoSize);
+    ctx.fillStyle = getThemeGradient(ctx, theme, 800 - logoSize/2, logoY, logoSize, logoSize);
     ctx.fill();
     ctx.fillStyle = '#0a0a0a';
     ctx.font = 'bold 72px Arial';
@@ -318,7 +376,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   }
 
   // Progress percentage
-  ctx.fillStyle = blueGradient(ctx, centerX - 50, centerY + logoSize/2 + 35, 100, 30);
+  ctx.fillStyle = getThemeGradient(ctx, theme, centerX - 50, centerY + logoSize/2 + 35, 100, 30);
   ctx.font = 'bold 28px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
@@ -326,13 +384,13 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
 
   // Congratulations
   const congratsY = logoY + logoSize + 22;
-  ctx.fillStyle = blueGradient(ctx, 0, congratsY, 1600, 40);
+  ctx.fillStyle = getThemeGradient(ctx, theme, 0, congratsY, 1600, 40);
   ctx.font = 'bold 80px Arial';
   ctx.fillText('Félicitations !', 800, congratsY);
 
   // Baseline
   const baseY = congratsY + 86;
-  ctx.fillStyle = blueGradient(ctx, 0, baseY, 1600, 30);
+  ctx.fillStyle = getThemeGradient(ctx, theme, 0, baseY, 1600, 30);
   ctx.font = 'bold 42px Arial';
   ctx.fillText('💎 CONTINUE TON ASCENSION 💎', 800, baseY);
 

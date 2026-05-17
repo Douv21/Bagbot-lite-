@@ -24,6 +24,12 @@ module.exports = {
     await interaction.deferReply();
     
     try {
+      // Check if in DM
+      if (!interaction.guild) {
+        await interaction.editReply({ content: '❌ Cette commande ne peut être utilisée que dans un serveur.' });
+        return;
+      }
+
       const config = loadGuildConfig(interaction.guild.id);
       const targetUser = interaction.options.getUser('membre') || interaction.user;
       const member = await fetchMember(interaction.guild, targetUser.id);
@@ -44,6 +50,18 @@ module.exports = {
       // Nom d'affichage
       const name = memberDisplayName(interaction.guild, member, targetUser.id);
 
+      // Déterminer le thème en fonction des rôles
+      let cardTheme = config.cardTheme || null;
+      if (config.roleThemes && member) {
+        const memberRoleIds = member.roles.cache.map(r => r.id);
+        for (const roleId of memberRoleIds) {
+          if (config.roleThemes[roleId]) {
+            cardTheme = config.roleThemes[roleId];
+            break;
+          }
+        }
+      }
+
       // Générer la carte
       const card = await generateLevelUpCard(
         { username: name, displayAvatarURL: (ext, size) => targetUser.displayAvatarURL({ extension: ext, size }) },
@@ -51,7 +69,7 @@ module.exports = {
         xpSinceLevel,
         xpRequired,
         interaction.guild.iconURL(),
-        config.cardTheme || null
+        cardTheme
       );
 
       const embed = new EmbedBuilder()

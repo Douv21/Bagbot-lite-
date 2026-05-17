@@ -869,11 +869,15 @@ async function loadRoles() {
     const welcomeRoleSelect = document.getElementById('welcomeRole');
     const shopItemRoleSelect = document.getElementById('shopItemRole');
     const rewardRoleSelect = document.getElementById('rewardRole');
+    const themeRoleSelect = document.getElementById('themeRole');
 
     welcomeRoleSelect.innerHTML = '<option value="">Tous les membres</option>';
     shopItemRoleSelect.innerHTML = '<option value="">Sélectionner un rôle...</option>';
     if (rewardRoleSelect) {
       rewardRoleSelect.innerHTML = '<option value="">Sélectionner un rôle...</option>';
+    }
+    if (themeRoleSelect) {
+      themeRoleSelect.innerHTML = '<option value="">Sélectionner un rôle...</option>';
     }
 
     roles.forEach(role => {
@@ -882,6 +886,9 @@ async function loadRoles() {
       shopItemRoleSelect.innerHTML += option;
       if (rewardRoleSelect) {
         rewardRoleSelect.innerHTML += option;
+      }
+      if (themeRoleSelect) {
+        themeRoleSelect.innerHTML += option;
       }
     });
   } catch (error) {
@@ -1087,7 +1094,7 @@ function addLevelReward() {
 }
 
 // Load level rewards
-function loadLevelRewards() {
+async function loadLevelRewards() {
   const levelRewards = JSON.parse(localStorage.getItem('levelRewards') || '{}');
   const rewardsList = document.getElementById('levelRewardsList');
 
@@ -1099,15 +1106,28 @@ function loadLevelRewards() {
     return;
   }
 
+  // Fetch roles to get role names
+  let roles = [];
+  try {
+    const response = await fetch('/api/roles');
+    const rolesData = await response.json();
+    roles = rolesData;
+  } catch (error) {
+    console.error('Error loading roles:', error);
+  }
+
   rewardsList.innerHTML = '';
   entries.sort((a, b) => parseInt(a[0]) - parseInt(b[0])).forEach(([level, roleId]) => {
+    const role = roles.find(r => r.id === roleId);
+    const roleName = role ? role.name : roleId;
+    
     const rewardDiv = document.createElement('div');
     rewardDiv.className = 'reward-item';
     rewardDiv.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 10px;">
         <div>
           <strong>Niveau ${level}</strong>
-          <br><small>Rôle ID: ${roleId}</small>
+          <br><small>Rôle: ${roleName}</small>
         </div>
         <button class="btn btn-danger" onclick="deleteLevelReward('${level}')">Supprimer</button>
       </div>
@@ -1122,6 +1142,89 @@ function deleteLevelReward(level) {
   delete levelRewards[level];
   localStorage.setItem('levelRewards', JSON.stringify(levelRewards));
   loadLevelRewards();
+}
+
+// Add role theme
+function addRoleTheme() {
+  const roleId = document.getElementById('themeRole').value;
+  const theme = document.getElementById('themeSelect').value;
+
+  if (!roleId) {
+    alert('Veuillez sélectionner un rôle.');
+    return;
+  }
+
+  let roleThemes = JSON.parse(localStorage.getItem('roleThemes') || '{}');
+  roleThemes[roleId] = theme || 'random';
+  localStorage.setItem('roleThemes', JSON.stringify(roleThemes));
+
+  // Clear form
+  document.getElementById('themeRole').value = '';
+  document.getElementById('themeSelect').value = '';
+
+  loadRoleThemes();
+}
+
+// Load role themes
+async function loadRoleThemes() {
+  const roleThemes = JSON.parse(localStorage.getItem('roleThemes') || '{}');
+  const themesList = document.getElementById('roleThemesList');
+
+  if (!themesList) return;
+
+  const entries = Object.entries(roleThemes);
+  if (entries.length === 0) {
+    themesList.innerHTML = '<p>Aucun thème configuré.</p>';
+    return;
+  }
+
+  // Fetch roles to get role names
+  let roles = [];
+  try {
+    const response = await fetch('/api/roles');
+    const rolesData = await response.json();
+    roles = rolesData;
+  } catch (error) {
+    console.error('Error loading roles:', error);
+  }
+
+  const themeNames = {
+    'random': 'Aléatoire',
+    'blue': 'Bleu',
+    'gaming': 'Gaming',
+    'holographic': 'Holographique',
+    'futuristic': 'Futuriste',
+    'love': 'Amour',
+    'sensual': 'Sensuel'
+  };
+
+  themesList.innerHTML = '';
+  entries.forEach(([roleId, theme]) => {
+    const role = roles.find(r => r.id === roleId);
+    const roleName = role ? role.name : roleId;
+    const themeName = themeNames[theme] || theme;
+    
+    const themeDiv = document.createElement('div');
+    themeDiv.className = 'theme-item';
+    themeDiv.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 10px;">
+        <div>
+          <strong>${roleName}</strong>
+          <br><small>Thème: ${themeName}</small>
+        </div>
+        <button class="btn btn-danger" onclick="deleteRoleTheme('${roleId}')">Supprimer</button>
+      </div>
+    `;
+    themesList.appendChild(themeDiv);
+  });
+}
+
+// Delete role theme
+function deleteRoleTheme(roleId) {
+  let roleThemes = JSON.parse(localStorage.getItem('roleThemes') || '{}');
+  delete roleThemes[roleId];
+  localStorage.setItem('roleThemes', JSON.stringify(roleThemes));
+  loadRoleThemes();
 }
 
 
@@ -1232,6 +1335,11 @@ async function loadConfig() {
       localStorage.setItem('levelRewards', JSON.stringify(config.rewards));
       loadLevelRewards();
     }
+
+    if (config.roleThemes) {
+      localStorage.setItem('roleThemes', JSON.stringify(config.roleThemes));
+      loadRoleThemes();
+    }
   } catch (error) {
     console.error('Error loading config:', error);
   }
@@ -1299,7 +1407,8 @@ async function saveConfig() {
       factor: parseFloat(document.getElementById('levelCurveFactor').value) || 1.2
     },
     levelUpChannel: document.getElementById('levelUpChannel').value || '',
-    rewards: JSON.parse(localStorage.getItem('levelRewards') || '{}')
+    rewards: JSON.parse(localStorage.getItem('levelRewards') || '{}'),
+    roleThemes: JSON.parse(localStorage.getItem('roleThemes') || '{}')
   };
   
   try {
