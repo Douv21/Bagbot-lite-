@@ -75,9 +75,12 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setColor(0x2f6bd6)
         .setTitle(`📊 Niveau de ${name}`)
-        .setDescription(roleName ? `🎖️ Rôle actuel: ${roleName}` : '')
         .setImage('attachment://level.png')
         .setTimestamp();
+
+      if (roleName) {
+        embed.setDescription(`🎖️ Rôle actuel: ${roleName}`);
+      }
 
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : '';
       await interaction.editReply({
