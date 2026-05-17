@@ -223,7 +223,10 @@ document.querySelectorAll('.nav-item').forEach(item => {
       'welcome': 'Configuration Bienvenue',
       'depart': 'Configuration Départ',
       'forum': 'Forum Illimité',
-      'shop': 'Boutique'
+      'shop': 'Boutique',
+      'actions': 'Actions',
+      'economy': 'Économie',
+      'levels': 'Niveaux'
     };
     document.getElementById('headerTitle').textContent = titles[section] || 'Dashboard';
   });
@@ -829,21 +832,29 @@ async function loadChannels() {
   try {
     const response = await fetch('/api/channels');
     const channels = await response.json();
-
-    const welcomeSelect = document.getElementById('welcomeChannel');
-    const departSelect = document.getElementById('departChannel');
+    
+    const welcomeChannelSelect = document.getElementById('welcomeChannel');
+    const departChannelSelect = document.getElementById('departChannel');
     const shopChannelSelect = document.getElementById('shopChannel');
+    const levelUpChannelSelect = document.getElementById('levelUpChannel');
 
-    welcomeSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
-    departSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
-    shopChannelSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
+    const textChannels = channels.filter(ch => ch.type === 0 || ch.type === 5); // GUILD_TEXT or GUILD_ANNOUNCEMENT
+    
+    const populateSelect = (select) => {
+      if (!select) return;
+      select.innerHTML = '<option value="">Sélectionner un salon...</option>';
+      textChannels.forEach(channel => {
+        const option = document.createElement('option');
+        option.value = channel.id;
+        option.textContent = channel.name || 'Sans nom';
+        select.appendChild(option);
+      });
+    };
 
-    channels.forEach(channel => {
-      const option = `<option value="${channel.id}">${channel.name}</option>`;
-      welcomeSelect.innerHTML += option;
-      departSelect.innerHTML += option;
-      shopChannelSelect.innerHTML += option;
-    });
+    populateSelect(welcomeChannelSelect);
+    populateSelect(departChannelSelect);
+    populateSelect(shopChannelSelect);
+    populateSelect(levelUpChannelSelect);
   } catch (error) {
     console.error('Error loading channels:', error);
   }
@@ -857,14 +868,21 @@ async function loadRoles() {
 
     const welcomeRoleSelect = document.getElementById('welcomeRole');
     const shopItemRoleSelect = document.getElementById('shopItemRole');
+    const rewardRoleSelect = document.getElementById('rewardRole');
 
     welcomeRoleSelect.innerHTML = '<option value="">Tous les membres</option>';
     shopItemRoleSelect.innerHTML = '<option value="">Sélectionner un rôle...</option>';
+    if (rewardRoleSelect) {
+      rewardRoleSelect.innerHTML = '<option value="">Sélectionner un rôle...</option>';
+    }
 
     roles.forEach(role => {
       const option = `<option value="${role.id}">${role.name}</option>`;
       welcomeRoleSelect.innerHTML += option;
       shopItemRoleSelect.innerHTML += option;
+      if (rewardRoleSelect) {
+        rewardRoleSelect.innerHTML += option;
+      }
     });
   } catch (error) {
     console.error('Error loading roles:', error);
@@ -1047,6 +1065,65 @@ function saveActionsConfig() {
   localStorage.setItem('actionsConfig', JSON.stringify(actionsConfig));
 }
 
+// Add level reward
+function addLevelReward() {
+  const level = document.getElementById('rewardLevel').value;
+  const role = document.getElementById('rewardRole').value;
+
+  if (!level || !role) {
+    alert('Veuillez remplir le niveau et sélectionner un rôle.');
+    return;
+  }
+
+  let levelRewards = JSON.parse(localStorage.getItem('levelRewards') || '{}');
+  levelRewards[level] = role;
+  localStorage.setItem('levelRewards', JSON.stringify(levelRewards));
+
+  // Clear form
+  document.getElementById('rewardLevel').value = '';
+  document.getElementById('rewardRole').value = '';
+
+  loadLevelRewards();
+}
+
+// Load level rewards
+function loadLevelRewards() {
+  const levelRewards = JSON.parse(localStorage.getItem('levelRewards') || '{}');
+  const rewardsList = document.getElementById('levelRewardsList');
+
+  if (!rewardsList) return;
+
+  const entries = Object.entries(levelRewards);
+  if (entries.length === 0) {
+    rewardsList.innerHTML = '<p>Aucune récompense configurée.</p>';
+    return;
+  }
+
+  rewardsList.innerHTML = '';
+  entries.sort((a, b) => parseInt(a[0]) - parseInt(b[0])).forEach(([level, roleId]) => {
+    const rewardDiv = document.createElement('div');
+    rewardDiv.className = 'reward-item';
+    rewardDiv.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 10px;">
+        <div>
+          <strong>Niveau ${level}</strong>
+          <br><small>Rôle ID: ${roleId}</small>
+        </div>
+        <button class="btn btn-danger" onclick="deleteLevelReward('${level}')">Supprimer</button>
+      </div>
+    `;
+    rewardsList.appendChild(rewardDiv);
+  });
+}
+
+// Delete level reward
+function deleteLevelReward(level) {
+  let levelRewards = JSON.parse(localStorage.getItem('levelRewards') || '{}');
+  delete levelRewards[level];
+  localStorage.setItem('levelRewards', JSON.stringify(levelRewards));
+  loadLevelRewards();
+}
+
 
 // Load configuration on page load
 async function loadConfig() {
@@ -1141,6 +1218,20 @@ async function loadConfig() {
       document.getElementById('xpMinPerVoiceMinute').value = config.economy.xpMinPerVoiceMinute || 2;
       document.getElementById('xpMaxPerVoiceMinute').value = config.economy.xpMaxPerVoiceMinute || 10;
     }
+
+    if (config.levelCurve) {
+      document.getElementById('levelCurveBase').value = config.levelCurve.base || 100;
+      document.getElementById('levelCurveFactor').value = config.levelCurve.factor || 1.2;
+    }
+
+    if (config.levelUpChannel) {
+      document.getElementById('levelUpChannel').value = config.levelUpChannel || '';
+    }
+
+    if (config.rewards) {
+      localStorage.setItem('levelRewards', JSON.stringify(config.rewards));
+      loadLevelRewards();
+    }
   } catch (error) {
     console.error('Error loading config:', error);
   }
@@ -1202,7 +1293,13 @@ async function saveConfig() {
       moneyPerVoiceMinute: parseInt(document.getElementById('moneyPerVoiceMinute').value) || 2,
       xpMinPerVoiceMinute: parseInt(document.getElementById('xpMinPerVoiceMinute').value) || 2,
       xpMaxPerVoiceMinute: parseInt(document.getElementById('xpMaxPerVoiceMinute').value) || 10
-    }
+    },
+    levelCurve: {
+      base: parseInt(document.getElementById('levelCurveBase').value) || 100,
+      factor: parseFloat(document.getElementById('levelCurveFactor').value) || 1.2
+    },
+    levelUpChannel: document.getElementById('levelUpChannel').value || '',
+    rewards: JSON.parse(localStorage.getItem('levelRewards') || '{}')
   };
   
   try {

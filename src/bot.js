@@ -4,7 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const { loadGuildConfig } = require('./utils/leveling');
-const { addBalance, addXP } = require('./utils/economy');
+const { addBalance, addXP, getXP } = require('./utils/economy');
+const { xpToLevel, getLastRewardForLevel, getNextRewardForLevel } = require('./utils/levelHelpers');
 
 const client = new Client({
   intents: [
@@ -247,6 +248,40 @@ client.on('guildMemberRemove', async (member) => {
   }
 });
 
+// Helper function to handle level ups
+async function handleLevelUp(guild, userId, newLevel) {
+  try {
+    const config = loadGuildConfig(guild.id);
+    if (!config) return;
+
+    // Check if there's a role reward for this level
+    const reward = config.rewards && config.rewards[newLevel];
+    if (reward) {
+      const role = await guild.roles.fetch(reward).catch(() => null);
+      if (role) {
+        const member = await guild.members.fetch(userId).catch(() => null);
+        if (member) {
+          await member.roles.add(role);
+          console.log(`User ${userId} reached level ${newLevel}, added role ${role.name}`);
+        }
+      }
+    }
+
+    // Announce level up if configured
+    if (config.levelUpChannel) {
+      const channel = await guild.channels.fetch(config.levelUpChannel).catch(() => null);
+      if (channel && channel.isTextBased()) {
+        const member = await guild.members.fetch(userId).catch(() => null);
+        if (member) {
+          await channel.send(`🎉 ${member} a atteint le niveau **${newLevel}** !`);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erreur handleLevelUp:', error);
+  }
+}
+
 // Voice state tracking for rewards
 const voiceSessions = new Map();
 
@@ -283,7 +318,18 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
           if (xpMinPerMinute > 0 && xpMaxPerMinute > 0) {
             const totalXP = minutes * Math.floor(Math.random() * (xpMaxPerMinute - xpMinPerMinute + 1)) + xpMinPerMinute;
+            const oldXP = getXP(guildId, userId) || 0;
             addXP(guildId, userId, totalXP);
+            const newXP = getXP(guildId, userId);
+            
+            // Check for level up
+            const levelCurve = config?.levelCurve || { base: 100, factor: 1.2 };
+            const oldLevel = xpToLevel(oldXP, levelCurve).level;
+            const newLevel = xpToLevel(newXP, levelCurve).level;
+            
+            if (newLevel > oldLevel) {
+              await handleLevelUp(newState.guild, userId, newLevel);
+            }
           }
         } catch (error) {
           console.error('Erreur gain vocal:', error);
@@ -314,7 +360,18 @@ client.on('messageCreate', async (message) => {
     
     if (xpMinPerMessage > 0 && xpMaxPerMessage > 0) {
       const xpReward = Math.floor(Math.random() * (xpMaxPerMessage - xpMinPerMessage + 1)) + xpMinPerMessage;
+      const oldXP = getXP(message.guild.id, message.author.id) || 0;
       addXP(message.guild.id, message.author.id, xpReward);
+      const newXP = getXP(message.guild.id, message.author.id);
+      
+      // Check for level up
+      const levelCurve = config?.levelCurve || { base: 100, factor: 1.2 };
+      const oldLevel = xpToLevel(oldXP, levelCurve).level;
+      const newLevel = xpToLevel(newXP, levelCurve).level;
+      
+      if (newLevel > oldLevel) {
+        await handleLevelUp(message.guild, message.author.id, newLevel);
+      }
     }
   } catch (error) {
     console.error('Erreur gain message:', error);

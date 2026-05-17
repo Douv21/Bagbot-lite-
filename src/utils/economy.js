@@ -82,25 +82,11 @@ function setXP(guildId, userId, amount) {
   return economy[key];
 }
 
-// Obtenir le niveau d'un utilisateur
-function getLevel(guildId, userId) {
-  const xp = getXP(guildId, userId);
-  return Math.floor(xp / 100) + 1; // 100 XP par niveau
-}
-
-// Obtenir l'XP nécessaire pour le prochain niveau
-function getXPToNextLevel(guildId, userId) {
-  const level = getLevel(guildId, userId);
-  return level * 100;
-}
-
 module.exports = {
   getBalance,
   addBalance,
   setBalance,
   getXP,
   addXP,
-  setXP,
-  getLevel,
-  getXPToNextLevel
+  setXP
 };
