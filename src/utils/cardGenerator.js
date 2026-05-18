@@ -285,10 +285,31 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   
   const colors = getThemeColors(theme);
 
-  // Background gradient
-  const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, 1600, 900);
+  // Load background image from src/carte
+  const themeImageMap = {
+    'blue': 'Bleu.png',
+    'gaming': 'Gaming.png',
+    'holographic': 'Holographique.png',
+    'futuristic': 'Futuriste.png',
+    'love': 'Love.png',
+    'sensual': 'Sensuelle.png',
+    'rose': 'Rose.png',
+    'gold': 'Or.png'
+  };
+
+  const imageName = themeImageMap[theme] || 'Bleu.png';
+  const imagePath = path.join(__dirname, '../carte', imageName);
+
+  try {
+    const backgroundImage = await loadImage(imagePath);
+    ctx.drawImage(backgroundImage, 0, 0, 1600, 900);
+  } catch (error) {
+    console.error('Error loading background image:', error);
+    // Fallback to gradient if image fails
+    const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 1600, 900);
+  }
 
   // Vignette effect
   const vign = ctx.createRadialGradient(800, 450, 200, 800, 450, 900);
@@ -316,14 +337,14 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   // Border + corners
   const m = 22;
   ctx.lineWidth = 3;
-  ctx.strokeStyle = getThemeGradient(ctx, theme, m, m, 1600-2*m, 900-2*m);
+  ctx.strokeStyle = colors.border;
   roundedRect(ctx, m, m, 1600 - 2*m, 900 - 2*m, 18);
   ctx.stroke();
 
   // Title
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillStyle = getThemeGradient(ctx, theme, 0, 0, 1600, 140);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 72px Arial';
   ctx.shadowColor = '#00000080';
   ctx.shadowBlur = 10;
@@ -333,18 +354,18 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   // Username
   const maxW = 1200;
   let y = 160;
-  ctx.fillStyle = getThemeGradient(ctx, theme, 0, y, 1600, 70);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 78px Arial';
   ctx.fillText(user.username, 800, y);
   y += 90;
 
   // Level info
-  ctx.fillStyle = getThemeGradient(ctx, theme, 0, y, 1600, 50);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 58px Arial';
   ctx.fillText(`Niveau atteint : ${level}`, 800, y);
   y += 70;
 
-  ctx.fillStyle = getThemeGradient(ctx, theme, 0, y, 1600, 50);
+  ctx.fillStyle = colors.text;
   ctx.fillText(`XP : ${xp} / ${xpToNextLevel}`, 800, y);
   y += 60;
 
@@ -365,7 +386,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     
     ctx.beginPath();
     ctx.arc(centerX, centerY, logoSize/2 + 6, 0, Math.PI*2);
-    ctx.strokeStyle = getThemeGradient(ctx, theme, 800 - logoSize/2, logoY, logoSize, logoSize);
+    ctx.strokeStyle = colors.border;
     ctx.lineWidth = 4;
     ctx.stroke();
 
@@ -380,7 +401,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     console.error('Error loading avatar:', error);
     ctx.beginPath();
     ctx.arc(centerX, centerY, logoSize/2, 0, Math.PI*2);
-    ctx.fillStyle = getThemeGradient(ctx, theme, 800 - logoSize/2, logoY, logoSize, logoSize);
+    ctx.fillStyle = colors.border;
     ctx.fill();
     ctx.fillStyle = '#0a0a0a';
     ctx.font = 'bold 72px Arial';
@@ -390,7 +411,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   }
 
   // Progress percentage
-  ctx.fillStyle = getThemeGradient(ctx, theme, centerX - 50, centerY + logoSize/2 + 35, 100, 30);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 28px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
@@ -398,13 +419,13 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
 
   // Congratulations
   const congratsY = logoY + logoSize + 22;
-  ctx.fillStyle = getThemeGradient(ctx, theme, 0, congratsY, 1600, 40);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 80px Arial';
   ctx.fillText('Félicitations !', 800, congratsY);
 
   // Baseline
   const baseY = congratsY + 86;
-  ctx.fillStyle = getThemeGradient(ctx, theme, 0, baseY, 1600, 30);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 42px Arial';
   ctx.fillText('💎 CONTINUE TON ASCENSION 💎', 800, baseY);
 
@@ -415,12 +436,39 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   const canvas = createCanvas(1600, 900);
   const ctx = canvas.getContext('2d');
 
-  // Background gradient (dark blue like prestige-blue)
-  const bg = ctx.createLinearGradient(0, 0, 0, 900);
-  bg.addColorStop(0, '#0b0f14');
-  bg.addColorStop(1, '#070a0f');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, 1600, 900);
+  // Select theme (random if not specified)
+  const availableThemes = ['blue', 'gaming', 'holographic', 'futuristic', 'love', 'sensual', 'rose', 'gold'];
+  const theme = themeName 
+    ? (themeName === 'random' ? availableThemes[Math.floor(Math.random() * availableThemes.length)] : themeName)
+    : availableThemes[Math.floor(Math.random() * availableThemes.length)];
+  
+  const colors = getThemeColors(theme);
+
+  // Load background image from src/carte
+  const themeImageMap = {
+    'blue': 'Bleu.png',
+    'gaming': 'Gaming.png',
+    'holographic': 'Holographique.png',
+    'futuristic': 'Futuriste.png',
+    'love': 'Love.png',
+    'sensual': 'Sensuelle.png',
+    'rose': 'Rose.png',
+    'gold': 'Or.png'
+  };
+
+  const imageName = themeImageMap[theme] || 'Bleu.png';
+  const imagePath = path.join(__dirname, '../carte', imageName);
+
+  try {
+    const backgroundImage = await loadImage(imagePath);
+    ctx.drawImage(backgroundImage, 0, 0, 1600, 900);
+  } catch (error) {
+    console.error('Error loading background image:', error);
+    // Fallback to gradient if image fails
+    const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 1600, 900);
+  }
 
   // Vignette effect
   const vign = ctx.createRadialGradient(800, 450, 200, 800, 450, 900);
@@ -448,35 +496,35 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   // Border + corners
   const m = 22;
   ctx.lineWidth = 3;
-  ctx.strokeStyle = blueGradient(ctx, m, m, 1600-2*m, 900-2*m);
+  ctx.strokeStyle = colors.border;
   roundedRect(ctx, m, m, 1600 - 2*m, 900 - 2*m, 18);
   ctx.stroke();
 
   // Title
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillStyle = blueGradient(ctx, 0, 0, 1600, 140);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 72px Arial';
   ctx.shadowColor = '#00000080';
   ctx.shadowBlur = 10;
-  ctx.fillText('💰 SOLDE', 800, 72);
+  ctx.fillText('SOLDE', 800, 72);
   ctx.shadowBlur = 0;
 
   // Username
-  let y = 180;
-  ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 70);
+  let y = 160;
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 78px Arial';
   ctx.fillText(user.username, 800, y);
-  y += 94;
+  y += 90;
 
   // Balance info
-  ctx.fillStyle = blueGradient(ctx, 0, y, 1600, 50);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 58px Arial';
   ctx.fillText(`Solde : ${balance} ${currencyName}`, 800, y);
-  y += 50;
+  y += 70;
 
   // Central logo
-  const logoSize = 210;
+  const logoSize = 200;
   const logoY = y;
   const centerX = 800;
   const centerY = logoY + logoSize / 2;
@@ -487,7 +535,7 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
     
     ctx.beginPath();
     ctx.arc(centerX, centerY, logoSize/2 + 6, 0, Math.PI*2);
-    ctx.strokeStyle = blueGradient(ctx, 800 - logoSize/2, logoY, logoSize, logoSize);
+    ctx.strokeStyle = colors.border;
     ctx.lineWidth = 4;
     ctx.stroke();
 
@@ -502,7 +550,7 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
     console.error('Error loading avatar:', error);
     ctx.beginPath();
     ctx.arc(centerX, centerY, logoSize/2, 0, Math.PI*2);
-    ctx.fillStyle = blueGradient(ctx, 800 - logoSize/2, logoY, logoSize, logoSize);
+    ctx.fillStyle = colors.border;
     ctx.fill();
     ctx.fillStyle = '#0a0a0a';
     ctx.font = 'bold 72px Arial';
@@ -513,15 +561,15 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
 
   // Congratulations
   const congratsY = logoY + logoSize + 22;
-  ctx.fillStyle = blueGradient(ctx, 0, congratsY, 1600, 40);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 80px Arial';
-  ctx.fillText('Continue à accumuler !', 800, congratsY);
+  ctx.fillText('💰', 800, congratsY);
 
   // Baseline
   const baseY = congratsY + 86;
-  ctx.fillStyle = blueGradient(ctx, 0, baseY, 1600, 30);
+  ctx.fillStyle = colors.text;
   ctx.font = 'bold 42px Arial';
-  ctx.fillText('� DEVIENT RICHE 💎', 800, baseY);
+  ctx.fillText('💎 TON ARGENT EST EN SÉCURITÉ 💎', 800, baseY);
 
   return canvas.toBuffer();
 }
