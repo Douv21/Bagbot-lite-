@@ -311,11 +311,8 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     ctx.fillRect(0, 0, 1600, 900);
   }
 
-  // Vignette effect
-  const vign = ctx.createRadialGradient(800, 450, 200, 800, 450, 900);
-  vign.addColorStop(0, 'rgba(0,0,0,0)');
-  vign.addColorStop(1, 'rgba(0,0,0,0.60)');
-  ctx.fillStyle = vign;
+  // Semi-transparent dark overlay for better text readability
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
   ctx.fillRect(0, 0, 1600, 900);
 
   // Watermark (guild icon)
@@ -326,7 +323,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
       const x = (1600 - target) / 2;
       const y = (900 - target) / 2 + 20;
       ctx.save();
-      ctx.globalAlpha = 0.08;
+      ctx.globalAlpha = 0.1;
       ctx.drawImage(icon, x, y, target, target);
       ctx.restore();
     } catch (error) {
@@ -334,100 +331,114 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     }
   }
 
-  // Border + corners
-  const m = 22;
-  ctx.lineWidth = 3;
+  // Border
+  const m = 20;
+  ctx.lineWidth = 4;
   ctx.strokeStyle = colors.border;
-  roundedRect(ctx, m, m, 1600 - 2*m, 900 - 2*m, 18);
+  roundedRect(ctx, m, m, 1600 - 2*m, 900 - 2*m, 20);
   ctx.stroke();
 
-  // Title
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillStyle = colors.text;
-  ctx.font = 'bold 72px Arial';
-  ctx.shadowColor = '#00000080';
-  ctx.shadowBlur = 10;
-  ctx.fillText('NIVEAU SUPÉRIEUR', 800, 72);
-  ctx.shadowBlur = 0;
-
-  // Username
-  const maxW = 1200;
-  let y = 160;
-  ctx.fillStyle = colors.text;
-  ctx.font = 'bold 78px Arial';
-  ctx.fillText(user.username, 800, y);
-  y += 90;
-
-  // Level info
-  ctx.fillStyle = colors.text;
-  ctx.font = 'bold 58px Arial';
-  ctx.fillText(`Niveau atteint : ${level}`, 800, y);
-  y += 70;
-
-  ctx.fillStyle = colors.text;
-  ctx.fillText(`XP : ${xp} / ${xpToNextLevel}`, 800, y);
-  y += 60;
-
-  // Central logo with circular progress
-  const logoSize = 200;
-  const logoY = y;
-  const centerX = 800;
-  const centerY = logoY + logoSize / 2;
-  const progressRadius = logoSize / 2 + 20;
-
-  const progress = xpToNextLevel > 0 ? Math.min(1, Math.max(0, xp / xpToNextLevel)) : 0;
-
-  drawCircularProgress(ctx, centerX, centerY, progressRadius, progress, 12, theme);
-
-  // User avatar as central logo
+  // User info section - left side
+  const infoX = 100;
+  let infoY = 150;
+  
+  // Avatar
+  const avatarSize = 180;
   try {
     const avatar = await loadImage(user.displayAvatarURL({ extension: 'png', size: 256 }));
-    
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, logoSize/2 + 6, 0, Math.PI*2);
-    ctx.strokeStyle = colors.border;
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
     ctx.save();
     ctx.beginPath();
-    ctx.arc(centerX, centerY, logoSize/2, 0, Math.PI*2);
+    ctx.arc(infoX + avatarSize/2, infoY + avatarSize/2, avatarSize/2, 0, Math.PI*2);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, centerX - logoSize/2, logoY, logoSize, logoSize);
+    ctx.drawImage(avatar, infoX, infoY, avatarSize, avatarSize);
     ctx.restore();
+    
+    // Avatar border
+    ctx.beginPath();
+    ctx.arc(infoX + avatarSize/2, infoY + avatarSize/2, avatarSize/2, 0, Math.PI*2);
+    ctx.strokeStyle = colors.border;
+    ctx.lineWidth = 5;
+    ctx.stroke();
   } catch (error) {
     console.error('Error loading avatar:', error);
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, logoSize/2, 0, Math.PI*2);
-    ctx.fillStyle = colors.border;
-    ctx.fill();
-    ctx.fillStyle = '#0a0a0a';
-    ctx.font = 'bold 72px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(user.username.substring(0, 3).toUpperCase(), centerX, centerY);
   }
 
-  // Progress percentage
-  ctx.fillStyle = colors.text;
+  // Username
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = '#000000';
+  ctx.shadowBlur = 8;
+  ctx.font = 'bold 48px Arial';
+  ctx.fillText(user.username, infoX + avatarSize + 30, infoY + 20);
+  
+  // Discriminator
+  ctx.fillStyle = '#cccccc';
+  ctx.font = '32px Arial';
+  ctx.fillText(`#${user.discriminator}`, infoX + avatarSize + 30, infoY + 80);
+  ctx.shadowBlur = 0;
+
+  // Level badge
+  infoY += avatarSize + 40;
+  ctx.fillStyle = colors.accent;
+  ctx.font = 'bold 56px Arial';
+  ctx.fillText(`NIVEAU ${level}`, infoX, infoY);
+
+  // XP bar background
+  infoY += 80;
+  const barWidth = 500;
+  const barHeight = 30;
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  roundedRect(ctx, infoX, infoY, barWidth, barHeight, 15);
+  ctx.fill();
+
+  // XP bar fill
+  const progress = xpToNextLevel > 0 ? Math.min(1, Math.max(0, xp / xpToNextLevel)) : 0;
+  ctx.fillStyle = colors.bar;
+  roundedRect(ctx, infoX, infoY, barWidth * progress, barHeight, 15);
+  ctx.fill();
+
+  // XP text
+  ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 28px Arial';
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText(`${Math.round(progress * 100)}%`, centerX, centerY + logoSize/2 + 35);
+  ctx.fillText(`${xp} / ${xpToNextLevel} XP`, infoX + barWidth/2, infoY + 5);
+  ctx.textAlign = 'left';
 
-  // Congratulations
-  const congratsY = logoY + logoSize + 22;
+  // Right side - Stats
+  const statsX = 950;
+  let statsY = 150;
+  
+  // Title
   ctx.fillStyle = colors.text;
-  ctx.font = 'bold 80px Arial';
-  ctx.fillText('Félicitations !', 800, congratsY);
+  ctx.font = 'bold 52px Arial';
+  ctx.fillText('STATISTIQUES', statsX, statsY);
+  statsY += 80;
 
-  // Baseline
-  const baseY = congratsY + 86;
-  ctx.fillStyle = colors.text;
+  // XP stat
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '36px Arial';
+  ctx.fillText(`XP Total: ${xp}`, statsX, statsY);
+  statsY += 60;
+
+  // Next level
+  ctx.fillText(`Prochain niveau: ${xpToNextLevel - xp} XP`, statsX, statsY);
+  statsY += 60;
+
+  // Progress percentage
+  ctx.fillStyle = colors.accent;
   ctx.font = 'bold 42px Arial';
-  ctx.fillText('💎 CONTINUE TON ASCENSION 💎', 800, baseY);
+  ctx.fillText(`${Math.round(progress * 100)}%`, statsX, statsY);
+
+  // Bottom message
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 46px Arial';
+  ctx.shadowColor = '#000000';
+  ctx.shadowBlur = 10;
+  ctx.fillText('🎉 FÉLICITATIONS POUR CE NIVEAU ! 🎉', 800, 800);
+  ctx.shadowBlur = 0;
 
   return canvas.toBuffer();
 }
