@@ -311,8 +311,8 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     ctx.fillRect(0, 0, 1600, 900);
   }
 
-  // Semi-transparent dark overlay for better text readability and to cover existing text
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  // Dark overlay to completely cover existing text on background images
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.fillRect(0, 0, 1600, 900);
 
   // Server logo (top right corner, visible)
@@ -375,6 +375,11 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     console.error('Error loading avatar:', error);
   }
 
+  // Username background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, infoX + avatarSize + 20, infoY + 10, 500, 110, 15);
+  ctx.fill();
+
   // Username
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
@@ -390,8 +395,12 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   ctx.fillText(`#${user.discriminator}`, infoX + avatarSize + 30, infoY + 80);
   ctx.shadowBlur = 0;
 
-  // Level badge
+  // Level badge background
   infoY += avatarSize + 40;
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, infoX - 10, infoY - 10, 400, 80, 15);
+  ctx.fill();
+  
   ctx.fillStyle = colors.accent;
   ctx.font = 'bold 56px Arial';
   ctx.fillText(`NIVEAU ${level}`, infoX, infoY);
@@ -421,6 +430,11 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   const statsX = 950;
   let statsY = 150;
   
+  // Stats background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, statsX - 20, statsY - 20, 550, 300, 15);
+  ctx.fill();
+  
   // Title
   ctx.fillStyle = colors.text;
   ctx.font = 'bold 52px Arial';
@@ -442,13 +456,18 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   ctx.font = 'bold 42px Arial';
   ctx.fillText(`${Math.round(progress * 100)}%`, statsX, statsY);
 
-  // Bottom message
+  // Bottom message background
+  const msgY = 770;
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, 400, msgY - 10, 800, 70, 15);
+  ctx.fill();
+  
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 46px Arial';
   ctx.shadowColor = '#000000';
   ctx.shadowBlur = 10;
-  ctx.fillText('🎉 FÉLICITATIONS POUR CE NIVEAU ! 🎉', 800, 800);
+  ctx.fillText('🎉 FÉLICITATIONS POUR CE NIVEAU ! 🎉', 800, msgY + 20);
   ctx.shadowBlur = 0;
 
   return canvas.toBuffer();
@@ -492,106 +511,134 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
     ctx.fillRect(0, 0, 1600, 900);
   }
 
-  // Vignette effect
-  const vign = ctx.createRadialGradient(800, 450, 200, 800, 450, 900);
-  vign.addColorStop(0, 'rgba(0,0,0,0)');
-  vign.addColorStop(1, 'rgba(0,0,0,0.60)');
-  ctx.fillStyle = vign;
+  // Dark overlay to completely cover existing text on background images
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.fillRect(0, 0, 1600, 900);
 
-  // Watermark (guild icon)
+  // Server logo (top right corner, visible)
   if (guildIcon) {
     try {
       const icon = await loadImage(guildIcon);
-      const target = 1080;
-      const x = (1600 - target) / 2;
-      const y = (900 - target) / 2 + 20;
+      const logoSize = 100;
+      const logoX = 1600 - logoSize - 30;
+      const logoY = 30;
+      
       ctx.save();
-      ctx.globalAlpha = 0.08;
-      ctx.drawImage(icon, x, y, target, target);
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI*2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(icon, logoX, logoY, logoSize, logoSize);
       ctx.restore();
+      
+      // Logo border
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI*2);
+      ctx.strokeStyle = colors.border;
+      ctx.lineWidth = 4;
+      ctx.stroke();
     } catch (error) {
       console.error('Error loading guild icon:', error);
     }
   }
 
-  // Border + corners
-  const m = 22;
-  ctx.lineWidth = 3;
+  // Border
+  const m = 20;
+  ctx.lineWidth = 4;
   ctx.strokeStyle = colors.border;
-  roundedRect(ctx, m, m, 1600 - 2*m, 900 - 2*m, 18);
+  roundedRect(ctx, m, m, 1600 - 2*m, 900 - 2*m, 20);
   ctx.stroke();
 
-  // Title
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillStyle = colors.text;
-  ctx.font = 'bold 72px Arial';
-  ctx.shadowColor = '#00000080';
-  ctx.shadowBlur = 10;
-  ctx.fillText('SOLDE', 800, 72);
-  ctx.shadowBlur = 0;
-
-  // Username
-  let y = 160;
-  ctx.fillStyle = colors.text;
-  ctx.font = 'bold 78px Arial';
-  ctx.fillText(user.username, 800, y);
-  y += 90;
-
-  // Balance info
-  ctx.fillStyle = colors.text;
-  ctx.font = 'bold 58px Arial';
-  ctx.fillText(`Solde : ${balance} ${currencyName}`, 800, y);
-  y += 70;
-
-  // Central logo
-  const logoSize = 200;
-  const logoY = y;
-  const centerX = 800;
-  const centerY = logoY + logoSize / 2;
-
-  // User avatar as central logo
+  // User info section - left side
+  const infoX = 100;
+  let infoY = 150;
+  
+  // Avatar
+  const avatarSize = 180;
   try {
     const avatar = await loadImage(user.displayAvatarURL({ extension: 'png', size: 256 }));
-    
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, logoSize/2 + 6, 0, Math.PI*2);
-    ctx.strokeStyle = colors.border;
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
     ctx.save();
     ctx.beginPath();
-    ctx.arc(centerX, centerY, logoSize/2, 0, Math.PI*2);
+    ctx.arc(infoX + avatarSize/2, infoY + avatarSize/2, avatarSize/2, 0, Math.PI*2);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, centerX - logoSize/2, logoY, logoSize, logoSize);
+    ctx.drawImage(avatar, infoX, infoY, avatarSize, avatarSize);
     ctx.restore();
+    
+    // Avatar border
+    ctx.beginPath();
+    ctx.arc(infoX + avatarSize/2, infoY + avatarSize/2, avatarSize/2, 0, Math.PI*2);
+    ctx.strokeStyle = colors.border;
+    ctx.lineWidth = 5;
+    ctx.stroke();
   } catch (error) {
     console.error('Error loading avatar:', error);
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, logoSize/2, 0, Math.PI*2);
-    ctx.fillStyle = colors.border;
-    ctx.fill();
-    ctx.fillStyle = '#0a0a0a';
-    ctx.font = 'bold 72px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(user.username.substring(0, 3).toUpperCase(), centerX, centerY);
   }
 
-  // Congratulations
-  const congratsY = logoY + logoSize + 22;
-  ctx.fillStyle = colors.text;
-  ctx.font = 'bold 80px Arial';
-  ctx.fillText('💰', 800, congratsY);
+  // Username background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, infoX + avatarSize + 20, infoY + 10, 500, 110, 15);
+  ctx.fill();
 
-  // Baseline
-  const baseY = congratsY + 86;
+  // Username
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = '#000000';
+  ctx.shadowBlur = 8;
+  ctx.font = 'bold 48px Arial';
+  ctx.fillText(user.username, infoX + avatarSize + 30, infoY + 20);
+  
+  // Discriminator
+  ctx.fillStyle = '#cccccc';
+  ctx.font = '32px Arial';
+  ctx.fillText(`#${user.discriminator}`, infoX + avatarSize + 30, infoY + 80);
+  ctx.shadowBlur = 0;
+
+  // Balance badge background
+  infoY += avatarSize + 40;
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, infoX - 10, infoY - 10, 500, 80, 15);
+  ctx.fill();
+  
+  ctx.fillStyle = colors.accent;
+  ctx.font = 'bold 56px Arial';
+  ctx.fillText(`SOLDE : ${balance} ${currencyName}`, infoX, infoY);
+
+  // Right side - Stats
+  const statsX = 950;
+  let statsY = 150;
+  
+  // Stats background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, statsX - 20, statsY - 20, 550, 200, 15);
+  ctx.fill();
+  
+  // Title
   ctx.fillStyle = colors.text;
-  ctx.font = 'bold 42px Arial';
-  ctx.fillText('💎 TON ARGENT EST EN SÉCURITÉ 💎', 800, baseY);
+  ctx.font = 'bold 52px Arial';
+  ctx.fillText('INFORMATIONS', statsX, statsY);
+  statsY += 80;
+
+  // Balance stat
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '36px Arial';
+  ctx.fillText(`Argent disponible: ${balance} ${currencyName}`, statsX, statsY);
+  statsY += 60;
+
+  // Bottom message background
+  const msgY = 770;
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  roundedRect(ctx, 400, msgY - 10, 800, 70, 15);
+  ctx.fill();
+  
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 46px Arial';
+  ctx.shadowColor = '#000000';
+  ctx.shadowBlur = 10;
+  ctx.fillText('� TON ARGENT EST EN SÉCURITÉ �', 800, msgY + 20);
+  ctx.shadowBlur = 0;
 
   return canvas.toBuffer();
 }
