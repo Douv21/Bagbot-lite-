@@ -311,21 +311,32 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     ctx.fillRect(0, 0, 1600, 900);
   }
 
-  // Semi-transparent dark overlay for better text readability
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  // Semi-transparent dark overlay for better text readability and to cover existing text
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
   ctx.fillRect(0, 0, 1600, 900);
 
-  // Watermark (guild icon)
+  // Server logo (top right corner, visible)
   if (guildIcon) {
     try {
       const icon = await loadImage(guildIcon);
-      const target = 1080;
-      const x = (1600 - target) / 2;
-      const y = (900 - target) / 2 + 20;
+      const logoSize = 100;
+      const logoX = 1600 - logoSize - 30;
+      const logoY = 30;
+      
       ctx.save();
-      ctx.globalAlpha = 0.1;
-      ctx.drawImage(icon, x, y, target, target);
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI*2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(icon, logoX, logoY, logoSize, logoSize);
       ctx.restore();
+      
+      // Logo border
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI*2);
+      ctx.strokeStyle = colors.border;
+      ctx.lineWidth = 4;
+      ctx.stroke();
     } catch (error) {
       console.error('Error loading guild icon:', error);
     }
