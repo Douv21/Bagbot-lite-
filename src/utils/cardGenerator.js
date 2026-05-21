@@ -285,34 +285,9 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   
   const colors = getThemeColors(theme);
 
-  // Load background image from src/carte
-  const themeImageMap = {
-    'blue': 'Bleu.png',
-    'gaming': 'Gaming.png',
-    'holographic': 'Holographique.png',
-    'futuristic': 'Futuriste.png',
-    'love': 'Love.png',
-    'sensual': 'Sensuelle.png',
-    'rose': 'Rose.png',
-    'gold': 'Or.png'
-  };
-
-  const imageName = themeImageMap[theme] || 'Bleu.png';
-  const imagePath = path.join(__dirname, '../carte', imageName);
-
-  try {
-    const backgroundImage = await loadImage(imagePath);
-    ctx.drawImage(backgroundImage, 0, 0, 1600, 900);
-  } catch (error) {
-    console.error('Error loading background image:', error);
-    // Fallback to gradient if image fails
-    const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 1600, 900);
-  }
-
-  // Dark overlay to completely cover existing text on background images
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  // Create gradient background based on theme style (no text, just visual style)
+  const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, 1600, 900);
 
   // Server logo (top right corner, visible)
@@ -375,11 +350,6 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     console.error('Error loading avatar:', error);
   }
 
-  // Username background
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, infoX + avatarSize + 20, infoY + 10, 500, 110, 15);
-  ctx.fill();
-
   // Username
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
@@ -395,12 +365,8 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   ctx.fillText(`#${user.discriminator}`, infoX + avatarSize + 30, infoY + 80);
   ctx.shadowBlur = 0;
 
-  // Level badge background
+  // Level badge
   infoY += avatarSize + 40;
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, infoX - 10, infoY - 10, 400, 80, 15);
-  ctx.fill();
-  
   ctx.fillStyle = colors.accent;
   ctx.font = 'bold 56px Arial';
   ctx.fillText(`NIVEAU ${level}`, infoX, infoY);
@@ -430,11 +396,6 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   const statsX = 950;
   let statsY = 150;
   
-  // Stats background
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, statsX - 20, statsY - 20, 550, 300, 15);
-  ctx.fill();
-  
   // Title
   ctx.fillStyle = colors.text;
   ctx.font = 'bold 52px Arial';
@@ -456,18 +417,13 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   ctx.font = 'bold 42px Arial';
   ctx.fillText(`${Math.round(progress * 100)}%`, statsX, statsY);
 
-  // Bottom message background
-  const msgY = 770;
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, 400, msgY - 10, 800, 70, 15);
-  ctx.fill();
-  
+  // Bottom message
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 46px Arial';
   ctx.shadowColor = '#000000';
   ctx.shadowBlur = 10;
-  ctx.fillText('🎉 FÉLICITATIONS POUR CE NIVEAU ! 🎉', 800, msgY + 20);
+  ctx.fillText('🎉 FÉLICITATIONS POUR CE NIVEAU ! 🎉', 800, 800);
   ctx.shadowBlur = 0;
 
   return canvas.toBuffer();
@@ -485,34 +441,9 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   
   const colors = getThemeColors(theme);
 
-  // Load background image from src/carte
-  const themeImageMap = {
-    'blue': 'Bleu.png',
-    'gaming': 'Gaming.png',
-    'holographic': 'Holographique.png',
-    'futuristic': 'Futuriste.png',
-    'love': 'Love.png',
-    'sensual': 'Sensuelle.png',
-    'rose': 'Rose.png',
-    'gold': 'Or.png'
-  };
-
-  const imageName = themeImageMap[theme] || 'Bleu.png';
-  const imagePath = path.join(__dirname, '../carte', imageName);
-
-  try {
-    const backgroundImage = await loadImage(imagePath);
-    ctx.drawImage(backgroundImage, 0, 0, 1600, 900);
-  } catch (error) {
-    console.error('Error loading background image:', error);
-    // Fallback to gradient if image fails
-    const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 1600, 900);
-  }
-
-  // Dark overlay to completely cover existing text on background images
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  // Create gradient background based on theme style (no text, just visual style)
+  const bg = getThemeGradient(ctx, theme, 0, 0, 1600, 900);
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, 1600, 900);
 
   // Server logo (top right corner, visible)
@@ -575,11 +506,6 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
     console.error('Error loading avatar:', error);
   }
 
-  // Username background
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, infoX + avatarSize + 20, infoY + 10, 500, 110, 15);
-  ctx.fill();
-
   // Username
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
@@ -595,12 +521,8 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   ctx.fillText(`#${user.discriminator}`, infoX + avatarSize + 30, infoY + 80);
   ctx.shadowBlur = 0;
 
-  // Balance badge background
+  // Balance badge
   infoY += avatarSize + 40;
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, infoX - 10, infoY - 10, 500, 80, 15);
-  ctx.fill();
-  
   ctx.fillStyle = colors.accent;
   ctx.font = 'bold 56px Arial';
   ctx.fillText(`SOLDE : ${balance} ${currencyName}`, infoX, infoY);
@@ -608,11 +530,6 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   // Right side - Stats
   const statsX = 950;
   let statsY = 150;
-  
-  // Stats background
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, statsX - 20, statsY - 20, 550, 200, 15);
-  ctx.fill();
   
   // Title
   ctx.fillStyle = colors.text;
@@ -626,18 +543,13 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   ctx.fillText(`Argent disponible: ${balance} ${currencyName}`, statsX, statsY);
   statsY += 60;
 
-  // Bottom message background
-  const msgY = 770;
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  roundedRect(ctx, 400, msgY - 10, 800, 70, 15);
-  ctx.fill();
-  
+  // Bottom message
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 46px Arial';
   ctx.shadowColor = '#000000';
   ctx.shadowBlur = 10;
-  ctx.fillText('� TON ARGENT EST EN SÉCURITÉ �', 800, msgY + 20);
+  ctx.fillText('� TON ARGENT EST EN SÉCURITÉ �', 800, 800);
   ctx.shadowBlur = 0;
 
   return canvas.toBuffer();

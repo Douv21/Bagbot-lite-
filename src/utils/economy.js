@@ -1,85 +1,35 @@
-const fs = require('fs');
-const path = require('path');
-
-// Chemin vers le fichier d'économie
-const economyPath = path.join(__dirname, '../../data/economy.json');
-
-// Assurer que le dossier data existe
-const dataDir = path.join(__dirname, '../../data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
-
-// Charger les données d'économie
-function loadEconomy() {
-  if (!fs.existsSync(economyPath)) {
-    return {};
-  }
-  try {
-    return JSON.parse(fs.readFileSync(economyPath, 'utf8'));
-  } catch (error) {
-    console.error('Erreur chargement economy:', error);
-    return {};
-  }
-}
-
-// Sauvegarder les données d'économie
-function saveEconomy(data) {
-  try {
-    fs.writeFileSync(economyPath, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Erreur sauvegarde economy:', error);
-  }
-}
+const { getBalance: getBalanceStore, addBalance: addBalanceStore, getXP: getXPStore, addXP: addXPStore } = require('../storage/jsonStore');
 
 // Obtenir le solde d'un utilisateur
 function getBalance(guildId, userId) {
-  const economy = loadEconomy();
-  const key = `${guildId}_${userId}`;
-  return economy[key] || 0;
+  return getBalanceStore(guildId, userId);
 }
 
 // Ajouter de l'argent à un utilisateur
 function addBalance(guildId, userId, amount) {
-  const economy = loadEconomy();
-  const key = `${guildId}_${userId}`;
-  economy[key] = (economy[key] || 0) + amount;
-  saveEconomy(economy);
-  return economy[key];
+  return addBalanceStore(guildId, userId, amount);
 }
 
 // Définir le solde d'un utilisateur
 function setBalance(guildId, userId, amount) {
-  const economy = loadEconomy();
-  const key = `${guildId}_${userId}`;
-  economy[key] = amount;
-  saveEconomy(economy);
-  return economy[key];
+  const { updateUserData } = require('../storage/jsonStore');
+  return updateUserData(guildId, userId, { balance: amount }).then(() => amount);
 }
 
 // Obtenir l'XP d'un utilisateur
 function getXP(guildId, userId) {
-  const economy = loadEconomy();
-  const key = `${guildId}_${userId}_xp`;
-  return economy[key] || 0;
+  return getXPStore(guildId, userId);
 }
 
 // Ajouter de l'XP à un utilisateur
 function addXP(guildId, userId, amount) {
-  const economy = loadEconomy();
-  const key = `${guildId}_${userId}_xp`;
-  economy[key] = (economy[key] || 0) + amount;
-  saveEconomy(economy);
-  return economy[key];
+  return addXPStore(guildId, userId, amount);
 }
 
 // Définir l'XP d'un utilisateur
 function setXP(guildId, userId, amount) {
-  const economy = loadEconomy();
-  const key = `${guildId}_${userId}_xp`;
-  economy[key] = amount;
-  saveEconomy(economy);
-  return economy[key];
+  const { updateUserData } = require('../storage/jsonStore');
+  return updateUserData(guildId, userId, { xp: amount }).then(() => amount);
 }
 
 module.exports = {
