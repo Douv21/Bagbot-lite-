@@ -1,12 +1,8 @@
-// npm i discord.js canvas node-fetch sharp
-// Carte holographique futuriste Discord
+// Carte holographique utilisant Holographique.png comme fond
 // Compatible discord.js v14
 
-const {
-  AttachmentBuilder
-} = require("discord.js");
-
 const Canvas = require("canvas");
+const path = require("path");
 
 module.exports = async (member, data = {}) => {
 
@@ -43,260 +39,155 @@ module.exports = async (member, data = {}) => {
 
   const progress = currentXP / requiredXP;
 
-  // ===== BACKGROUND =====
-
-  // Fond noir
-  ctx.fillStyle = "#050816";
-  ctx.fillRect(0, 0, width, height);
-
-  // Effet grille / texture
-  for (let i = 0; i < 300; i++) {
-    ctx.fillStyle = `rgba(0,255,255,${Math.random() * 0.08})`;
-    ctx.fillRect(
-      Math.random() * width,
-      Math.random() * height,
-      2,
-      2
-    );
+  // ===== BACKGROUND IMAGE =====
+  try {
+    const bgPath = path.join(__dirname, 'Holographique.png');
+    const bgImage = await Canvas.loadImage(bgPath);
+    ctx.drawImage(bgImage, 0, 0, width, height);
+  } catch (error) {
+    console.error('Error loading background image:', error);
+    // Fallback to dark background
+    ctx.fillStyle = "#050816";
+    ctx.fillRect(0, 0, width, height);
   }
 
-  // Glow cyan
-  const glow = ctx.createRadialGradient(
-    width / 2,
-    height / 2,
-    100,
-    width / 2,
-    height / 2,
-    900
-  );
-
-  glow.addColorStop(0, "rgba(0,255,255,0.15)");
-  glow.addColorStop(1, "rgba(0,0,0,0)");
-
-  ctx.fillStyle = glow;
+  // ===== DARK OVERLAY TO COVER ORIGINAL TEXT =====
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, width, height);
 
-  // ===== BORDURE HOLOGRAPHIQUE =====
-
-  ctx.strokeStyle = "#00e5ff";
-  ctx.lineWidth = 6;
-
-  roundRect(ctx, 20, 20, width - 40, height - 40, 25);
-  ctx.stroke();
-
-  ctx.shadowBlur = 25;
-  ctx.shadowColor = "#00e5ff";
-
-  ctx.stroke();
-
-  ctx.shadowBlur = 0;
-
-  // ===== HEADER =====
-
-  drawPanel(ctx, 50, 50, 1500, 120);
-
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#bdfdff";
-  ctx.fillText("DISCORD LEVEL CARD", 90, 125);
-
   // ===== AVATAR =====
-
   const avatar = await Canvas.loadImage(avatarURL);
 
   ctx.save();
-
   ctx.beginPath();
   ctx.arc(220, 310, 110, 0, Math.PI * 2);
   ctx.closePath();
   ctx.clip();
-
   ctx.drawImage(avatar, 110, 200, 220, 220);
-
   ctx.restore();
 
-  // Cercle holographique
+  // Avatar border
   ctx.strokeStyle = "#00f7ff";
   ctx.lineWidth = 8;
   ctx.shadowBlur = 20;
   ctx.shadowColor = "#00f7ff";
-
   ctx.beginPath();
   ctx.arc(220, 310, 125, 0, Math.PI * 2);
   ctx.stroke();
-
   ctx.shadowBlur = 0;
 
   // ===== INFOS MEMBRE =====
-
   ctx.font = "bold 72px sans-serif";
   ctx.fillStyle = "#d9ffff";
+  ctx.shadowColor = "#000000";
+  ctx.shadowBlur = 8;
   ctx.fillText(username.toUpperCase(), 400, 280);
 
   ctx.font = "42px sans-serif";
   ctx.fillStyle = "#7d8cff";
   ctx.fillText(`#${discriminator}`, 405, 340);
-
-  drawSmallPanel(ctx, 400, 380, 420, 80);
-
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#8defff";
-  ctx.fillText("MEMBRE DU SERVEUR", 470, 432);
-
-  // ===== LOGO SERVEUR =====
-
-  if (serverIcon) {
-
-    const icon = await Canvas.loadImage(serverIcon);
-
-    ctx.save();
-
-    ctx.beginPath();
-    ctx.arc(1340, 760, 75, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-
-    ctx.drawImage(icon, 1265, 685, 150, 150);
-
-    ctx.restore();
-
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = "#ffe08a";
-
-    ctx.beginPath();
-    ctx.arc(1340, 760, 78, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+  ctx.shadowBlur = 0;
 
   // ===== NIVEAU =====
-
-  drawPanel(ctx, 980, 80, 520, 280);
-
-  ctx.font = "bold 42px sans-serif";
-  ctx.fillStyle = "#bfffff";
-  ctx.fillText("NIVEAU", 1160, 145);
-
   ctx.font = "bold 180px sans-serif";
   ctx.fillStyle = "#5ef7ff";
-
   ctx.shadowBlur = 30;
   ctx.shadowColor = "#00ffff";
-
   ctx.fillText(level, 1080, 300);
-
   ctx.shadowBlur = 0;
 
   // ===== BARRE XP =====
-
-  drawPanel(ctx, 70, 500, 1460, 90);
-
   ctx.font = "bold 40px sans-serif";
   ctx.fillStyle = "#d8ffff";
+  ctx.shadowColor = "#000000";
+  ctx.shadowBlur = 8;
   ctx.fillText("EXP", 100, 558);
+  ctx.shadowBlur = 0;
 
   // Fond barre
   roundRect(ctx, 230, 525, 1100, 35, 18);
-
   ctx.fillStyle = "#0b2230";
   ctx.fill();
 
   // Progression
   const gradient = ctx.createLinearGradient(230, 0, 1330, 0);
-
   gradient.addColorStop(0, "#00e5ff");
   gradient.addColorStop(0.5, "#5e9dff");
   gradient.addColorStop(1, "#8effff");
 
-  roundRect(
-    ctx,
-    230,
-    525,
-    1100 * progress,
-    35,
-    18
-  );
-
+  roundRect(ctx, 230, 525, 1100 * progress, 35, 18);
   ctx.fillStyle = gradient;
   ctx.fill();
 
   ctx.font = "bold 36px sans-serif";
   ctx.fillStyle = "#9fe7ff";
-
-  ctx.fillText(
-    `${currentXP.toLocaleString()} / ${requiredXP.toLocaleString()} EXP`,
-    1080,
-    558
-  );
+  ctx.shadowColor = "#000000";
+  ctx.shadowBlur = 8;
+  ctx.fillText(`${currentXP.toLocaleString()} / ${requiredXP.toLocaleString()} EXP`, 1080, 558);
+  ctx.shadowBlur = 0;
 
   // ===== STATS =====
-
-  drawPanel(ctx, 70, 640, 560, 200);
-
-  ctx.font = "bold 38px sans-serif";
-  ctx.fillStyle = "#c8ffff";
-
-  ctx.fillText("STATISTIQUES", 95, 690);
-
-  // Messages
   ctx.font = "bold 34px sans-serif";
   ctx.fillStyle = "#76f7ff";
-
+  ctx.shadowColor = "#000000";
+  ctx.shadowBlur = 8;
   ctx.fillText("MESSAGES", 100, 760);
 
   ctx.font = "bold 52px sans-serif";
   ctx.fillStyle = "#ffffff";
-
   ctx.fillText(messages.toString(), 100, 815);
 
-  // Temps
   ctx.font = "bold 34px sans-serif";
   ctx.fillStyle = "#76f7ff";
-
   ctx.fillText("TEMPS", 300, 760);
 
   ctx.font = "bold 52px sans-serif";
   ctx.fillStyle = "#ffffff";
-
   ctx.fillText(timeSpent, 300, 815);
 
-  // Série
   ctx.font = "bold 34px sans-serif";
   ctx.fillStyle = "#76f7ff";
-
   ctx.fillText("SÉRIE", 470, 760);
 
   ctx.font = "bold 52px sans-serif";
   ctx.fillStyle = "#ffffff";
-
   ctx.fillText(streak, 470, 815);
+  ctx.shadowBlur = 0;
 
   // ===== PROCHAIN NIVEAU =====
-
-  drawPanel(ctx, 720, 640, 420, 200);
-
-  ctx.font = "bold 38px sans-serif";
-  ctx.fillStyle = "#c8ffff";
-
-  ctx.fillText("PROCHAIN NIVEAU", 760, 695);
-
   ctx.font = "bold 80px sans-serif";
   ctx.fillStyle = "#5ef7ff";
-
+  ctx.shadowBlur = 30;
+  ctx.shadowColor = "#00ffff";
   ctx.fillText(nextLevel, 770, 790);
+  ctx.shadowBlur = 0;
 
   ctx.font = "bold 40px sans-serif";
   ctx.fillStyle = "#ffffff";
-
+  ctx.shadowColor = "#000000";
+  ctx.shadowBlur = 8;
   ctx.fillText(`${remainingXP} EXP`, 910, 790);
+  ctx.shadowBlur = 0;
 
-  // ===== FOOTER =====
+  // ===== LOGO SERVEUR =====
+  if (serverIcon) {
+    const icon = await Canvas.loadImage(serverIcon);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(1340, 760, 75, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(icon, 1265, 685, 150, 150);
+    ctx.restore();
 
-  ctx.font = "bold 64px sans-serif";
-  ctx.fillStyle = "#9ffcff";
-
-  ctx.fillText("FÉLICITATIONS !", 70, 885);
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#ffe08a";
+    ctx.beginPath();
+    ctx.arc(1340, 760, 78, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 
   // ===== EXPORT =====
-
   return canvas.toBuffer();
 
 };
