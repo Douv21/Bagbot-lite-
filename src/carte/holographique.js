@@ -219,75 +219,170 @@ module.exports = async (member, data = {}) => {
   ctx.fillStyle = gradient;
   ctx.fill();
 
+  ctx.font = "bold 36px sans-serif";
+  ctx.fillStyle = "#9fe7ff";
+
+  ctx.fillText(
+    `${currentXP.toLocaleString()} / ${requiredXP.toLocaleString()} EXP`,
+    1080,
+    558
+  );
+
   // ===== STATS =====
 
-  drawPanel(ctx, 70, 620, 700, 240);
+  drawPanel(ctx, 70, 640, 560, 200);
 
-  ctx.font = "bold 36px sans-serif";
-  ctx.fillStyle = "#bfffff";
-  ctx.fillText("STATISTIQUES", 100, 670);
+  ctx.font = "bold 38px sans-serif";
+  ctx.fillStyle = "#c8ffff";
 
-  ctx.font = "32px sans-serif";
-  ctx.fillStyle = "#8defff";
-  ctx.fillText(`XP: ${currentXP} / ${requiredXP}`, 100, 720);
-  ctx.fillText(`Messages: ${messages}`, 100, 770);
-  ctx.fillText(`Temps: ${timeSpent}`, 100, 820);
+  ctx.fillText("STATISTIQUES", 95, 690);
 
-  // ===== STREAK =====
+  // Messages
+  ctx.font = "bold 34px sans-serif";
+  ctx.fillStyle = "#76f7ff";
 
-  drawPanel(ctx, 830, 620, 700, 240);
+  ctx.fillText("MESSAGES", 100, 760);
 
-  ctx.font = "bold 36px sans-serif";
-  ctx.fillStyle = "#bfffff";
-  ctx.fillText("ACTIVITÉ", 860, 670);
+  ctx.font = "bold 52px sans-serif";
+  ctx.fillStyle = "#ffffff";
 
-  ctx.font = "32px sans-serif";
-  ctx.fillStyle = "#8defff";
-  ctx.fillText(`Série: ${streak}`, 860, 720);
-  ctx.fillText(`Prochain niveau: ${nextLevel}`, 860, 770);
-  ctx.fillText(`XP restant: ${remainingXP}`, 860, 820);
+  ctx.fillText(messages.toString(), 100, 815);
+
+  // Temps
+  ctx.font = "bold 34px sans-serif";
+  ctx.fillStyle = "#76f7ff";
+
+  ctx.fillText("TEMPS", 300, 760);
+
+  ctx.font = "bold 52px sans-serif";
+  ctx.fillStyle = "#ffffff";
+
+  ctx.fillText(timeSpent, 300, 815);
+
+  // Série
+  ctx.font = "bold 34px sans-serif";
+  ctx.fillStyle = "#76f7ff";
+
+  ctx.fillText("SÉRIE", 470, 760);
+
+  ctx.font = "bold 52px sans-serif";
+  ctx.fillStyle = "#ffffff";
+
+  ctx.fillText(streak, 470, 815);
+
+  // ===== PROCHAIN NIVEAU =====
+
+  drawPanel(ctx, 720, 640, 420, 200);
+
+  ctx.font = "bold 38px sans-serif";
+  ctx.fillStyle = "#c8ffff";
+
+  ctx.fillText("PROCHAIN NIVEAU", 760, 695);
+
+  ctx.font = "bold 80px sans-serif";
+  ctx.fillStyle = "#5ef7ff";
+
+  ctx.fillText(nextLevel, 770, 790);
+
+  ctx.font = "bold 40px sans-serif";
+  ctx.fillStyle = "#ffffff";
+
+  ctx.fillText(`${remainingXP} EXP`, 910, 790);
 
   // ===== FOOTER =====
 
-  ctx.font = "bold 38px sans-serif";
-  ctx.fillStyle = "#7d8cff";
-  ctx.fillText(`Généré pour ${username}`, 90, 880);
+  ctx.font = "bold 64px sans-serif";
+  ctx.fillStyle = "#9ffcff";
 
-  return canvas.toBuffer();
+  ctx.fillText("FÉLICITATIONS !", 70, 885);
+
+  // ===== EXPORT =====
+
+  const buffer = await sharp(canvas.toBuffer("image/png"))
+    .sharpen()
+    .png()
+    .toBuffer();
+
+  return new AttachmentBuilder(buffer, {
+    name: "holographic-card.png"
+  });
+
 };
 
-// ===== FONCTIONS UTILITAIRES =====
+// ===== FONCTIONS =====
 
-function roundRect(ctx, x, y, w, h, r) {
+function roundRect(ctx, x, y, width, height, radius) {
+
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
+
+  ctx.moveTo(x + radius, y);
+
+  ctx.lineTo(x + width - radius, y);
+
+  ctx.quadraticCurveTo(
+    x + width,
+    y,
+    x + width,
+    y + radius
+  );
+
+  ctx.lineTo(x + width, y + height - radius);
+
+  ctx.quadraticCurveTo(
+    x + width,
+    y + height,
+    x + width - radius,
+    y + height
+  );
+
+  ctx.lineTo(x + radius, y + height);
+
+  ctx.quadraticCurveTo(
+    x,
+    y + height,
+    x,
+    y + height - radius
+  );
+
+  ctx.lineTo(x, y + radius);
+
+  ctx.quadraticCurveTo(
+    x,
+    y,
+    x + radius,
+    y
+  );
+
   ctx.closePath();
 }
 
 function drawPanel(ctx, x, y, w, h) {
-  ctx.fillStyle = "rgba(0, 20, 40, 0.8)";
-  roundRect(ctx, x, y, w, h, 15);
+
+  roundRect(ctx, x, y, w, h, 20);
+
+  const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
+
+  gradient.addColorStop(0, "rgba(0,255,255,0.12)");
+  gradient.addColorStop(1, "rgba(0,80,120,0.18)");
+
+  ctx.fillStyle = gradient;
   ctx.fill();
 
-  ctx.strokeStyle = "rgba(0, 229, 255, 0.5)";
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(0,255,255,0.5)";
+  ctx.lineWidth = 3;
+
   ctx.stroke();
 }
 
 function drawSmallPanel(ctx, x, y, w, h) {
-  ctx.fillStyle = "rgba(0, 30, 60, 0.7)";
-  roundRect(ctx, x, y, w, h, 10);
+
+  roundRect(ctx, x, y, w, h, 15);
+
+  ctx.fillStyle = "rgba(0,255,255,0.08)";
   ctx.fill();
 
-  ctx.strokeStyle = "rgba(0, 229, 255, 0.4)";
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = "rgba(0,255,255,0.4)";
+  ctx.lineWidth = 2;
+
   ctx.stroke();
 }
