@@ -64,12 +64,13 @@ module.exports = {
 
       // Générer la carte
       const card = await generateLevelUpCard(
-        { username: name, displayAvatarURL: (ext, size) => targetUser.displayAvatarURL({ extension: ext, size }) },
+        { username: name, discriminator: targetUser.discriminator, displayAvatarURL: (ext, size) => targetUser.displayAvatarURL({ extension: ext, size }) },
         level,
         xpSinceLevel,
         xpRequired,
         interaction.guild.iconURL(),
-        cardTheme
+        cardTheme,
+        interaction.guild
       );
 
       const embed = new EmbedBuilder()

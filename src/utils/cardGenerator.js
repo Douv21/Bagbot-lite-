@@ -1,6 +1,7 @@
 const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
+const generateHolographicCard = require('../carte/holographique');
 
 // Theme gradient functions
 function getThemeGradient(ctx, theme, x, y, w, h) {
@@ -273,15 +274,41 @@ function drawBackgroundPattern(ctx, width, height, pattern) {
   ctx.restore();
 }
 
-async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, themeName = null) {
-  const canvas = createCanvas(1600, 900);
-  const ctx = canvas.getContext('2d');
-
+async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, themeName = null, guild = null) {
   // Select theme (random if not specified)
   const availableThemes = ['blue', 'gaming', 'holographic', 'futuristic', 'love', 'sensual', 'rose', 'gold'];
   const theme = themeName 
     ? (themeName === 'random' ? availableThemes[Math.floor(Math.random() * availableThemes.length)] : themeName)
     : availableThemes[Math.floor(Math.random() * availableThemes.length)];
+
+  // Use holographic card function for holographic theme
+  if (theme === 'holographic' && guild) {
+    // Create a mock member object for the holographic card function
+    const mockMember = {
+      user: {
+        username: user.username,
+        discriminator: user.discriminator,
+        displayAvatarURL: (opts) => user.displayAvatarURL(opts)
+      },
+      guild: {
+        iconURL: (opts) => guildIcon
+      }
+    };
+
+    const data = {
+      level: level,
+      currentXP: xp,
+      requiredXP: xpToNextLevel,
+      messages: 0,
+      timeSpent: "0h",
+      streak: "0 jours"
+    };
+
+    return await generateHolographicCard(mockMember, data);
+  }
+
+  const canvas = createCanvas(1600, 900);
+  const ctx = canvas.getContext('2d');
   
   const colors = getThemeColors(theme);
 
