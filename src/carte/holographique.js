@@ -7,7 +7,6 @@ const {
 } = require("discord.js");
 
 const Canvas = require("canvas");
-const sharp = require("sharp");
 
 module.exports = async (member, data = {}) => {
 
@@ -298,14 +297,7 @@ module.exports = async (member, data = {}) => {
 
   // ===== EXPORT =====
 
-  const buffer = await sharp(canvas.toBuffer("image/png"))
-    .sharpen()
-    .png()
-    .toBuffer();
-
-  return new AttachmentBuilder(buffer, {
-    name: "holographic-card.png"
-  });
+  return canvas.toBuffer();
 
 };
 
