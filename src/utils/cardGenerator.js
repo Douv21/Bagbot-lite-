@@ -6,10 +6,10 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     user: {
       username: user.username,
       discriminator: user.discriminator,
-      displayAvatarURL: (opts) => user.displayAvatarURL(opts)
+      displayAvatarURL: user.displayAvatarURL.bind(user)
     },
     guild: {
-      iconURL: (opts) => guildIcon
+      iconURL: () => guildIcon
     }
   };
 
@@ -36,10 +36,10 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
     user: {
       username: user.username,
       discriminator: user.discriminator,
-      displayAvatarURL: (opts) => user.displayAvatarURL(opts)
+      displayAvatarURL: user.displayAvatarURL.bind(user)
     },
     guild: {
-      iconURL: (opts) => guildIcon
+      iconURL: () => guildIcon
     }
   };
 
