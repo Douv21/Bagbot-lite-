@@ -1,200 +1,378 @@
-// Carte holographique utilisant Holographique.png comme fond
-// Compatible discord.js v14
+const {
+  AttachmentBuilder
+} = require("discord.js");
 
 const Canvas = require("canvas");
-const path = require("path");
+const sharp = require("sharp");
 
-module.exports = async (member, data = {}) => {
+Canvas.registerFont(
+  "./assets/fonts/Orbitron-Bold.ttf",
+  { family: "Orbitron" }
+);
 
-  // ===== CONFIG =====
-  const width = 1600;
-  const height = 900;
+module.exports = async (member, data) => {
 
-  const canvas = Canvas.createCanvas(width, height);
+  const canvas = Canvas.createCanvas(1600, 900);
   const ctx = canvas.getContext("2d");
 
-  // ===== DONNÉES =====
+  // =========================
+  // DATA
+  // =========================
+
   const username = member.user.username;
-  const discriminator = member.user.discriminator;
-  const avatarURL = member.user.displayAvatarURL({
-    extension: "png",
-    size: 512
-  });
 
-  const serverIcon = member.guild.iconURL({
-    extension: "png",
-    size: 512
-  });
+  const avatar = await Canvas.loadImage(
+    member.user.displayAvatarURL({
+      extension: "png",
+      size: 512
+    })
+  );
 
-  const level = data.level || 38;
-  const currentXP = data.currentXP || 18750;
-  const requiredXP = data.requiredXP || 25000;
+  const serverLogo = await Canvas.loadImage(
+    member.guild.iconURL({
+      extension: "png",
+      size: 512
+    })
+  );
 
-  const messages = data.messages || 5842;
-  const timeSpent = data.timeSpent || "120h";
-  const streak = data.streak || "28 jours";
+  const level = data.level;
+  const xp = data.xp;
+  const required = data.required;
+  const rank = data.rank;
 
-  const nextLevel = level + 1;
-  const remainingXP = requiredXP - currentXP;
+  const progress = xp / required;
 
-  const progress = currentXP / requiredXP;
+  // =========================
+  // BACKGROUND
+  // =========================
 
-  // ===== BACKGROUND IMAGE =====
-  try {
-    const bgPath = path.join(__dirname, 'Holographique.png');
-    const bgImage = await Canvas.loadImage(bgPath);
-    ctx.drawImage(bgImage, 0, 0, width, height);
-  } catch (error) {
-    console.error('Error loading background image:', error);
-    // Fallback to dark background
-    ctx.fillStyle = "#050816";
-    ctx.fillRect(0, 0, width, height);
+  const bg = await Canvas.loadImage(
+    "./assets/background.png"
+  );
+
+  ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+  // =========================
+  // OVERLAY GRID
+  // =========================
+
+  ctx.fillStyle = "rgba(0,255,255,0.03)";
+
+  for (let x = 0; x < canvas.width; x += 4) {
+    for (let y = 0; y < canvas.height; y += 4) {
+      ctx.fillRect(x, y, 1, 1);
+    }
   }
 
-  // ===== DARK OVERLAY TO COVER ORIGINAL TEXT =====
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-  ctx.fillRect(0, 0, width, height);
+  // =========================
+  // MAIN PANEL
+  // =========================
 
-  // ===== AVATAR =====
-  const avatar = await Canvas.loadImage(avatarURL);
+  holographicPanel(
+    ctx,
+    40,
+    40,
+    1520,
+    820
+  );
+
+  // =========================
+  // AVATAR
+  // =========================
 
   ctx.save();
+
   ctx.beginPath();
-  ctx.arc(220, 310, 110, 0, Math.PI * 2);
+  ctx.arc(240, 270, 120, 0, Math.PI * 2);
   ctx.closePath();
   ctx.clip();
-  ctx.drawImage(avatar, 110, 200, 220, 220);
+
+  ctx.drawImage(
+    avatar,
+    120,
+    150,
+    240,
+    240
+  );
+
   ctx.restore();
 
-  // Avatar border
+  // glow
+  ctx.beginPath();
+  ctx.arc(240, 270, 135, 0, Math.PI * 2);
+
   ctx.strokeStyle = "#00f7ff";
   ctx.lineWidth = 8;
-  ctx.shadowBlur = 20;
+
   ctx.shadowColor = "#00f7ff";
-  ctx.beginPath();
-  ctx.arc(220, 310, 125, 0, Math.PI * 2);
+  ctx.shadowBlur = 40;
+
   ctx.stroke();
+
   ctx.shadowBlur = 0;
 
-  // ===== INFOS MEMBRE =====
-  ctx.font = "bold 72px sans-serif";
-  ctx.fillStyle = "#d9ffff";
-  ctx.shadowColor = "#000000";
-  ctx.shadowBlur = 8;
-  ctx.fillText(username.toUpperCase(), 400, 280);
+  // =========================
+  // USERNAME
+  // =========================
 
-  ctx.font = "42px sans-serif";
-  ctx.fillStyle = "#7d8cff";
-  ctx.fillText(`#${discriminator}`, 405, 340);
+  ctx.font = "bold 72px Orbitron";
+  ctx.fillStyle = "#dffcff";
+
+  ctx.fillText(username, 420, 260);
+
+  ctx.font = "40px Orbitron";
+  ctx.fillStyle = "#7aaeff";
+
+  ctx.fillText(`#${member.user.discriminator}`, 425, 320);
+
+  // =========================
+  // LEVEL PANEL
+  // =========================
+
+  holographicPanel(
+    ctx,
+    980,
+    70,
+    500,
+    300
+  );
+
+  ctx.font = "bold 50px Orbitron";
+  ctx.fillStyle = "#b8ffff";
+
+  ctx.fillText("NIVEAU", 1120, 140);
+
+  ctx.font = "bold 190px Orbitron";
+
+  const holo = ctx.createLinearGradient(
+    1080,
+    180,
+    1300,
+    350
+  );
+
+  holo.addColorStop(0, "#ffffff");
+  holo.addColorStop(0.3, "#6ef7ff");
+  holo.addColorStop(0.7, "#6b7dff");
+  holo.addColorStop(1, "#ffffff");
+
+  ctx.fillStyle = holo;
+
+  ctx.shadowBlur = 50;
+  ctx.shadowColor = "#00f7ff";
+
+  ctx.fillText(level, 1080, 320);
+
   ctx.shadowBlur = 0;
 
-  // ===== NIVEAU =====
-  ctx.font = "bold 180px sans-serif";
-  ctx.fillStyle = "#5ef7ff";
-  ctx.shadowBlur = 30;
-  ctx.shadowColor = "#00ffff";
-  ctx.fillText(level, 1080, 300);
-  ctx.shadowBlur = 0;
+  // =========================
+  // XP BAR
+  // =========================
 
-  // ===== BARRE XP =====
-  ctx.font = "bold 40px sans-serif";
-  ctx.fillStyle = "#d8ffff";
-  ctx.shadowColor = "#000000";
-  ctx.shadowBlur = 8;
-  ctx.fillText("EXP", 100, 558);
-  ctx.shadowBlur = 0;
+  holographicPanel(
+    ctx,
+    70,
+    460,
+    1420,
+    90
+  );
 
-  // Fond barre
-  roundRect(ctx, 230, 525, 1100, 35, 18);
-  ctx.fillStyle = "#0b2230";
+  // bar background
+  roundedRect(
+    ctx,
+    220,
+    490,
+    1100,
+    28,
+    15
+  );
+
+  ctx.fillStyle = "#09131f";
   ctx.fill();
 
-  // Progression
-  const gradient = ctx.createLinearGradient(230, 0, 1330, 0);
-  gradient.addColorStop(0, "#00e5ff");
-  gradient.addColorStop(0.5, "#5e9dff");
-  gradient.addColorStop(1, "#8effff");
+  // bar fill
+  const xpGradient = ctx.createLinearGradient(
+    220,
+    0,
+    1320,
+    0
+  );
 
-  roundRect(ctx, 230, 525, 1100 * progress, 35, 18);
-  ctx.fillStyle = gradient;
+  xpGradient.addColorStop(0, "#00f7ff");
+  xpGradient.addColorStop(0.5, "#7b68ff");
+  xpGradient.addColorStop(1, "#7dffff");
+
+  roundedRect(
+    ctx,
+    220,
+    490,
+    1100 * progress,
+    28,
+    15
+  );
+
+  ctx.fillStyle = xpGradient;
+
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#00ffff";
+
   ctx.fill();
 
-  ctx.font = "bold 36px sans-serif";
-  ctx.fillStyle = "#9fe7ff";
-  ctx.shadowColor = "#000000";
-  ctx.shadowBlur = 8;
-  ctx.fillText(`${currentXP.toLocaleString()} / ${requiredXP.toLocaleString()} EXP`, 1080, 558);
   ctx.shadowBlur = 0;
 
-  // ===== STATS =====
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#76f7ff";
-  ctx.shadowColor = "#000000";
-  ctx.shadowBlur = 8;
-  ctx.fillText("MESSAGES", 100, 760);
+  // text
+  ctx.font = "40px Orbitron";
+  ctx.fillStyle = "#bfffff";
 
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(messages.toString(), 100, 815);
+  ctx.fillText(
+    `${xp} / ${required} EXP`,
+    1080,
+    520
+  );
 
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#76f7ff";
-  ctx.fillText("TEMPS", 300, 760);
+  // =========================
+  // SERVER LOGO
+  // =========================
 
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(timeSpent, 300, 815);
+  ctx.save();
 
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#76f7ff";
-  ctx.fillText("SÉRIE", 470, 760);
+  ctx.beginPath();
+  ctx.arc(800, 760, 85, 0, Math.PI * 2);
+  ctx.clip();
 
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(streak, 470, 815);
+  ctx.drawImage(
+    serverLogo,
+    715,
+    675,
+    170,
+    170
+  );
+
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(800, 760, 90, 0, Math.PI * 2);
+
+  ctx.strokeStyle = "#ffd86b";
+  ctx.lineWidth = 6;
+
+  ctx.shadowBlur = 25;
+  ctx.shadowColor = "#ffd86b";
+
+  ctx.stroke();
+
   ctx.shadowBlur = 0;
 
-  // ===== PROCHAIN NIVEAU =====
-  ctx.font = "bold 80px sans-serif";
-  ctx.fillStyle = "#5ef7ff";
-  ctx.shadowBlur = 30;
-  ctx.shadowColor = "#00ffff";
-  ctx.fillText(nextLevel, 770, 790);
-  ctx.shadowBlur = 0;
+  // =========================
+  // RANK PANEL
+  // =========================
 
-  ctx.font = "bold 40px sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.shadowColor = "#000000";
-  ctx.shadowBlur = 8;
-  ctx.fillText(`${remainingXP} EXP`, 910, 790);
-  ctx.shadowBlur = 0;
+  holographicPanel(
+    ctx,
+    610,
+    590,
+    380,
+    190
+  );
 
-  // ===== LOGO SERVEUR =====
-  if (serverIcon) {
-    const icon = await Canvas.loadImage(serverIcon);
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(1340, 760, 75, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-    ctx.drawImage(icon, 1265, 685, 150, 150);
-    ctx.restore();
+  ctx.font = "40px Orbitron";
+  ctx.fillStyle = "#bfffff";
 
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = "#ffe08a";
-    ctx.beginPath();
-    ctx.arc(1340, 760, 78, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+  ctx.fillText("RANG", 720, 650);
 
-  // ===== EXPORT =====
-  return canvas.toBuffer();
+  ctx.font = "bold 75px Orbitron";
+  ctx.fillStyle = "#6ef7ff";
+
+  ctx.fillText(rank, 710, 740);
+
+  // =========================
+  // FOOTER
+  // =========================
+
+  ctx.font = "bold 60px Orbitron";
+  ctx.fillStyle = "#d7ffff";
+
+  ctx.fillText(
+    "FÉLICITATIONS !",
+    70,
+    840
+  );
+
+  // =========================
+  // EXPORT
+  // =========================
+
+  const final = await sharp(
+    canvas.toBuffer("image/png")
+  )
+    .sharpen()
+    .png()
+    .toBuffer();
+
+  return new AttachmentBuilder(final, {
+    name: "holographic-card.png"
+  });
 
 };
 
-// ===== FONCTIONS =====
+// =====================================
+// HOLOGRAPHIC PANEL
+// =====================================
 
-function roundRect(ctx, x, y, width, height, radius) {
+function holographicPanel(
+  ctx,
+  x,
+  y,
+  w,
+  h
+) {
+
+  roundedRect(ctx, x, y, w, h, 25);
+
+  const gradient = ctx.createLinearGradient(
+    x,
+    y,
+    x + w,
+    y + h
+  );
+
+  gradient.addColorStop(
+    0,
+    "rgba(0,255,255,0.10)"
+  );
+
+  gradient.addColorStop(
+    1,
+    "rgba(0,50,90,0.25)"
+  );
+
+  ctx.fillStyle = gradient;
+
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(0,255,255,0.6)";
+  ctx.lineWidth = 3;
+
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#00ffff";
+
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+}
+
+// =====================================
+// ROUNDED RECT
+// =====================================
+
+function roundedRect(
+  ctx,
+  x,
+  y,
+  width,
+  height,
+  radius
+) {
 
   ctx.beginPath();
 
@@ -209,7 +387,10 @@ function roundRect(ctx, x, y, width, height, radius) {
     y + radius
   );
 
-  ctx.lineTo(x + width, y + height - radius);
+  ctx.lineTo(
+    x + width,
+    y + height - radius
+  );
 
   ctx.quadraticCurveTo(
     x + width,
@@ -237,35 +418,4 @@ function roundRect(ctx, x, y, width, height, radius) {
   );
 
   ctx.closePath();
-}
-
-function drawPanel(ctx, x, y, w, h) {
-
-  roundRect(ctx, x, y, w, h, 20);
-
-  const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
-
-  gradient.addColorStop(0, "rgba(0,255,255,0.12)");
-  gradient.addColorStop(1, "rgba(0,80,120,0.18)");
-
-  ctx.fillStyle = gradient;
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(0,255,255,0.5)";
-  ctx.lineWidth = 3;
-
-  ctx.stroke();
-}
-
-function drawSmallPanel(ctx, x, y, w, h) {
-
-  roundRect(ctx, x, y, w, h, 15);
-
-  ctx.fillStyle = "rgba(0,255,255,0.08)";
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(0,255,255,0.4)";
-  ctx.lineWidth = 2;
-
-  ctx.stroke();
 }
