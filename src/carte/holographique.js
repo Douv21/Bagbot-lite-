@@ -1,309 +1,378 @@
-// npm i discord.js canvas node-fetch sharp
-// Carte holographique futuriste Discord
-// Compatible discord.js v14
-
 const {
   AttachmentBuilder
 } = require("discord.js");
 
 const Canvas = require("canvas");
+const sharp = require("sharp");
 
-module.exports = async (member, data = {}) => {
+Canvas.registerFont(
+  "./assets/fonts/Orbitron-Bold.ttf",
+  { family: "Orbitron" }
+);
 
-  // ===== CONFIG =====
-  const width = 1600;
-  const height = 900;
+module.exports = async (member, data) => {
 
-  const canvas = Canvas.createCanvas(width, height);
+  const canvas = Canvas.createCanvas(1600, 900);
   const ctx = canvas.getContext("2d");
 
-  // ===== DONNÉES =====
+  // =========================
+  // DATA
+  // =========================
+
   const username = member.user.username;
-  const discriminator = member.user.discriminator;
-  const avatarURL = member.user.displayAvatarURL({
-    extension: "png",
-    size: 512
-  });
 
-  const serverIcon = member.guild.iconURL({
-    extension: "png",
-    size: 512
-  });
-
-  const level = data.level || 38;
-  const currentXP = data.currentXP || 18750;
-  const requiredXP = data.requiredXP || 25000;
-
-  const messages = data.messages || 5842;
-  const timeSpent = data.timeSpent || "120h";
-  const streak = data.streak || "28 jours";
-
-  const nextLevel = level + 1;
-  const remainingXP = requiredXP - currentXP;
-
-  const progress = currentXP / requiredXP;
-
-  // ===== BACKGROUND =====
-
-  // Fond noir
-  ctx.fillStyle = "#050816";
-  ctx.fillRect(0, 0, width, height);
-
-  // Effet grille / texture
-  for (let i = 0; i < 300; i++) {
-    ctx.fillStyle = `rgba(0,255,255,${Math.random() * 0.08})`;
-    ctx.fillRect(
-      Math.random() * width,
-      Math.random() * height,
-      2,
-      2
-    );
-  }
-
-  // Glow cyan
-  const glow = ctx.createRadialGradient(
-    width / 2,
-    height / 2,
-    100,
-    width / 2,
-    height / 2,
-    900
+  const avatar = await Canvas.loadImage(
+    member.user.displayAvatarURL({
+      extension: "png",
+      size: 512
+    })
   );
 
-  glow.addColorStop(0, "rgba(0,255,255,0.15)");
-  glow.addColorStop(1, "rgba(0,0,0,0)");
+  const serverLogo = await Canvas.loadImage(
+    member.guild.iconURL({
+      extension: "png",
+      size: 512
+    })
+  );
 
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, width, height);
+  const level = data.level;
+  const xp = data.xp;
+  const required = data.required;
+  const rank = data.rank;
 
-  // ===== BORDURE HOLOGRAPHIQUE =====
+  const progress = xp / required;
 
-  ctx.strokeStyle = "#00e5ff";
-  ctx.lineWidth = 6;
+  // =========================
+  // BACKGROUND
+  // =========================
 
-  roundRect(ctx, 20, 20, width - 40, height - 40, 25);
-  ctx.stroke();
+  const bg = await Canvas.loadImage(
+    "./assets/background.png"
+  );
 
-  ctx.shadowBlur = 25;
-  ctx.shadowColor = "#00e5ff";
+  ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-  ctx.stroke();
+  // =========================
+  // OVERLAY GRID
+  // =========================
 
-  ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(0,255,255,0.03)";
 
-  // ===== HEADER =====
+  for (let x = 0; x < canvas.width; x += 4) {
+    for (let y = 0; y < canvas.height; y += 4) {
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
 
-  drawPanel(ctx, 50, 50, 1500, 120);
+  // =========================
+  // MAIN PANEL
+  // =========================
 
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#bdfdff";
-  ctx.fillText("DISCORD LEVEL CARD", 90, 125);
+  holographicPanel(
+    ctx,
+    40,
+    40,
+    1520,
+    820
+  );
 
-  // ===== AVATAR =====
-
-  const avatar = await Canvas.loadImage(avatarURL);
+  // =========================
+  // AVATAR
+  // =========================
 
   ctx.save();
 
   ctx.beginPath();
-  ctx.arc(220, 310, 110, 0, Math.PI * 2);
+  ctx.arc(240, 270, 120, 0, Math.PI * 2);
   ctx.closePath();
   ctx.clip();
 
-  ctx.drawImage(avatar, 110, 200, 220, 220);
+  ctx.drawImage(
+    avatar,
+    120,
+    150,
+    240,
+    240
+  );
 
   ctx.restore();
 
-  // Cercle holographique
+  // glow
+  ctx.beginPath();
+  ctx.arc(240, 270, 135, 0, Math.PI * 2);
+
   ctx.strokeStyle = "#00f7ff";
   ctx.lineWidth = 8;
-  ctx.shadowBlur = 20;
-  ctx.shadowColor = "#00f7ff";
 
-  ctx.beginPath();
-  ctx.arc(220, 310, 125, 0, Math.PI * 2);
+  ctx.shadowColor = "#00f7ff";
+  ctx.shadowBlur = 40;
+
   ctx.stroke();
 
   ctx.shadowBlur = 0;
 
-  // ===== INFOS MEMBRE =====
+  // =========================
+  // USERNAME
+  // =========================
 
-  ctx.font = "bold 72px sans-serif";
-  ctx.fillStyle = "#d9ffff";
-  ctx.fillText(username.toUpperCase(), 400, 280);
+  ctx.font = "bold 72px Orbitron";
+  ctx.fillStyle = "#dffcff";
 
-  ctx.font = "42px sans-serif";
-  ctx.fillStyle = "#7d8cff";
-  ctx.fillText(`#${discriminator}`, 405, 340);
+  ctx.fillText(username, 420, 260);
 
-  drawSmallPanel(ctx, 400, 380, 420, 80);
+  ctx.font = "40px Orbitron";
+  ctx.fillStyle = "#7aaeff";
 
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#8defff";
-  ctx.fillText("MEMBRE DU SERVEUR", 470, 432);
+  ctx.fillText(`#${member.user.discriminator}`, 425, 320);
 
-  // ===== LOGO SERVEUR =====
+  // =========================
+  // LEVEL PANEL
+  // =========================
 
-  if (serverIcon) {
+  holographicPanel(
+    ctx,
+    980,
+    70,
+    500,
+    300
+  );
 
-    const icon = await Canvas.loadImage(serverIcon);
+  ctx.font = "bold 50px Orbitron";
+  ctx.fillStyle = "#b8ffff";
 
-    ctx.save();
+  ctx.fillText("NIVEAU", 1120, 140);
 
-    ctx.beginPath();
-    ctx.arc(1340, 760, 75, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
+  ctx.font = "bold 190px Orbitron";
 
-    ctx.drawImage(icon, 1265, 685, 150, 150);
+  const holo = ctx.createLinearGradient(
+    1080,
+    180,
+    1300,
+    350
+  );
 
-    ctx.restore();
+  holo.addColorStop(0, "#ffffff");
+  holo.addColorStop(0.3, "#6ef7ff");
+  holo.addColorStop(0.7, "#6b7dff");
+  holo.addColorStop(1, "#ffffff");
 
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = "#ffe08a";
+  ctx.fillStyle = holo;
 
-    ctx.beginPath();
-    ctx.arc(1340, 760, 78, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+  ctx.shadowBlur = 50;
+  ctx.shadowColor = "#00f7ff";
 
-  // ===== NIVEAU =====
-
-  drawPanel(ctx, 980, 80, 520, 280);
-
-  ctx.font = "bold 42px sans-serif";
-  ctx.fillStyle = "#bfffff";
-  ctx.fillText("NIVEAU", 1160, 145);
-
-  ctx.font = "bold 180px sans-serif";
-  ctx.fillStyle = "#5ef7ff";
-
-  ctx.shadowBlur = 30;
-  ctx.shadowColor = "#00ffff";
-
-  ctx.fillText(level, 1080, 300);
+  ctx.fillText(level, 1080, 320);
 
   ctx.shadowBlur = 0;
 
-  // ===== BARRE XP =====
+  // =========================
+  // XP BAR
+  // =========================
 
-  drawPanel(ctx, 70, 500, 1460, 90);
-
-  ctx.font = "bold 40px sans-serif";
-  ctx.fillStyle = "#d8ffff";
-  ctx.fillText("EXP", 100, 558);
-
-  // Fond barre
-  roundRect(ctx, 230, 525, 1100, 35, 18);
-
-  ctx.fillStyle = "#0b2230";
-  ctx.fill();
-
-  // Progression
-  const gradient = ctx.createLinearGradient(230, 0, 1330, 0);
-
-  gradient.addColorStop(0, "#00e5ff");
-  gradient.addColorStop(0.5, "#5e9dff");
-  gradient.addColorStop(1, "#8effff");
-
-  roundRect(
+  holographicPanel(
     ctx,
-    230,
-    525,
-    1100 * progress,
-    35,
-    18
+    70,
+    460,
+    1420,
+    90
   );
 
-  ctx.fillStyle = gradient;
+  // bar background
+  roundedRect(
+    ctx,
+    220,
+    490,
+    1100,
+    28,
+    15
+  );
+
+  ctx.fillStyle = "#09131f";
   ctx.fill();
 
-  ctx.font = "bold 36px sans-serif";
-  ctx.fillStyle = "#9fe7ff";
+  // bar fill
+  const xpGradient = ctx.createLinearGradient(
+    220,
+    0,
+    1320,
+    0
+  );
+
+  xpGradient.addColorStop(0, "#00f7ff");
+  xpGradient.addColorStop(0.5, "#7b68ff");
+  xpGradient.addColorStop(1, "#7dffff");
+
+  roundedRect(
+    ctx,
+    220,
+    490,
+    1100 * progress,
+    28,
+    15
+  );
+
+  ctx.fillStyle = xpGradient;
+
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#00ffff";
+
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+
+  // text
+  ctx.font = "40px Orbitron";
+  ctx.fillStyle = "#bfffff";
 
   ctx.fillText(
-    `${currentXP.toLocaleString()} / ${requiredXP.toLocaleString()} EXP`,
+    `${xp} / ${required} EXP`,
     1080,
-    558
+    520
   );
 
-  // ===== STATS =====
+  // =========================
+  // SERVER LOGO
+  // =========================
 
-  drawPanel(ctx, 70, 640, 560, 200);
+  ctx.save();
 
-  ctx.font = "bold 38px sans-serif";
-  ctx.fillStyle = "#c8ffff";
+  ctx.beginPath();
+  ctx.arc(800, 760, 85, 0, Math.PI * 2);
+  ctx.clip();
 
-  ctx.fillText("STATISTIQUES", 95, 690);
+  ctx.drawImage(
+    serverLogo,
+    715,
+    675,
+    170,
+    170
+  );
 
-  // Messages
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#76f7ff";
+  ctx.restore();
 
-  ctx.fillText("MESSAGES", 100, 760);
+  ctx.beginPath();
+  ctx.arc(800, 760, 90, 0, Math.PI * 2);
 
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#ffd86b";
+  ctx.lineWidth = 6;
 
-  ctx.fillText(messages.toString(), 100, 815);
+  ctx.shadowBlur = 25;
+  ctx.shadowColor = "#ffd86b";
 
-  // Temps
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#76f7ff";
+  ctx.stroke();
 
-  ctx.fillText("TEMPS", 300, 760);
+  ctx.shadowBlur = 0;
 
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#ffffff";
+  // =========================
+  // RANK PANEL
+  // =========================
 
-  ctx.fillText(timeSpent, 300, 815);
+  holographicPanel(
+    ctx,
+    610,
+    590,
+    380,
+    190
+  );
 
-  // Série
-  ctx.font = "bold 34px sans-serif";
-  ctx.fillStyle = "#76f7ff";
+  ctx.font = "40px Orbitron";
+  ctx.fillStyle = "#bfffff";
 
-  ctx.fillText("SÉRIE", 470, 760);
+  ctx.fillText("RANG", 720, 650);
 
-  ctx.font = "bold 52px sans-serif";
-  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 75px Orbitron";
+  ctx.fillStyle = "#6ef7ff";
 
-  ctx.fillText(streak, 470, 815);
+  ctx.fillText(rank, 710, 740);
 
-  // ===== PROCHAIN NIVEAU =====
+  // =========================
+  // FOOTER
+  // =========================
 
-  drawPanel(ctx, 720, 640, 420, 200);
+  ctx.font = "bold 60px Orbitron";
+  ctx.fillStyle = "#d7ffff";
 
-  ctx.font = "bold 38px sans-serif";
-  ctx.fillStyle = "#c8ffff";
+  ctx.fillText(
+    "FÉLICITATIONS !",
+    70,
+    840
+  );
 
-  ctx.fillText("PROCHAIN NIVEAU", 760, 695);
+  // =========================
+  // EXPORT
+  // =========================
 
-  ctx.font = "bold 80px sans-serif";
-  ctx.fillStyle = "#5ef7ff";
+  const final = await sharp(
+    canvas.toBuffer("image/png")
+  )
+    .sharpen()
+    .png()
+    .toBuffer();
 
-  ctx.fillText(nextLevel, 770, 790);
-
-  ctx.font = "bold 40px sans-serif";
-  ctx.fillStyle = "#ffffff";
-
-  ctx.fillText(`${remainingXP} EXP`, 910, 790);
-
-  // ===== FOOTER =====
-
-  ctx.font = "bold 64px sans-serif";
-  ctx.fillStyle = "#9ffcff";
-
-  ctx.fillText("FÉLICITATIONS !", 70, 885);
-
-  // ===== EXPORT =====
-
-  return canvas.toBuffer();
+  return new AttachmentBuilder(final, {
+    name: "holographic-card.png"
+  });
 
 };
 
-// ===== FONCTIONS =====
+// =====================================
+// HOLOGRAPHIC PANEL
+// =====================================
 
-function roundRect(ctx, x, y, width, height, radius) {
+function holographicPanel(
+  ctx,
+  x,
+  y,
+  w,
+  h
+) {
+
+  roundedRect(ctx, x, y, w, h, 25);
+
+  const gradient = ctx.createLinearGradient(
+    x,
+    y,
+    x + w,
+    y + h
+  );
+
+  gradient.addColorStop(
+    0,
+    "rgba(0,255,255,0.10)"
+  );
+
+  gradient.addColorStop(
+    1,
+    "rgba(0,50,90,0.25)"
+  );
+
+  ctx.fillStyle = gradient;
+
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(0,255,255,0.6)";
+  ctx.lineWidth = 3;
+
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#00ffff";
+
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+}
+
+// =====================================
+// ROUNDED RECT
+// =====================================
+
+function roundedRect(
+  ctx,
+  x,
+  y,
+  width,
+  height,
+  radius
+) {
 
   ctx.beginPath();
 
@@ -318,7 +387,10 @@ function roundRect(ctx, x, y, width, height, radius) {
     y + radius
   );
 
-  ctx.lineTo(x + width, y + height - radius);
+  ctx.lineTo(
+    x + width,
+    y + height - radius
+  );
 
   ctx.quadraticCurveTo(
     x + width,
@@ -346,35 +418,4 @@ function roundRect(ctx, x, y, width, height, radius) {
   );
 
   ctx.closePath();
-}
-
-function drawPanel(ctx, x, y, w, h) {
-
-  roundRect(ctx, x, y, w, h, 20);
-
-  const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
-
-  gradient.addColorStop(0, "rgba(0,255,255,0.12)");
-  gradient.addColorStop(1, "rgba(0,80,120,0.18)");
-
-  ctx.fillStyle = gradient;
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(0,255,255,0.5)";
-  ctx.lineWidth = 3;
-
-  ctx.stroke();
-}
-
-function drawSmallPanel(ctx, x, y, w, h) {
-
-  roundRect(ctx, x, y, w, h, 15);
-
-  ctx.fillStyle = "rgba(0,255,255,0.08)";
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(0,255,255,0.4)";
-  ctx.lineWidth = 2;
-
-  ctx.stroke();
 }
