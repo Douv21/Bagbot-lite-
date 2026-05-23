@@ -20,7 +20,14 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     rank: 1
   };
 
-  return await generateHolographicCard(mockMember, data);
+  const result = await generateHolographicCard(mockMember, data);
+  
+  // If result is an AttachmentBuilder, extract the buffer
+  if (result.constructor.name === 'AttachmentBuilder') {
+    return result.files[0].attachment;
+  }
+  
+  return result;
 }
 
 async function generateBalanceCard(user, balance, currencyName, guildIcon, themeName = null, guild = null) {
@@ -43,7 +50,14 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
     rank: 1
   };
 
-  return await generateHolographicCard(mockMember, data);
+  const result = await generateHolographicCard(mockMember, data);
+  
+  // If result is an AttachmentBuilder, extract the buffer
+  if (result.constructor.name === 'AttachmentBuilder') {
+    return result.files[0].attachment;
+  }
+  
+  return result;
 }
 
 module.exports = {
