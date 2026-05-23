@@ -15,11 +15,9 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
 
   const data = {
     level: level,
-    currentXP: xp,
-    requiredXP: xpToNextLevel,
-    messages: 0,
-    timeSpent: "0h",
-    streak: "0 jours"
+    xp: xp,
+    required: xpToNextLevel,
+    rank: 1
   };
 
   return await generateHolographicCard(mockMember, data);
@@ -40,11 +38,9 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
 
   const data = {
     level: 0,
-    currentXP: balance,
-    requiredXP: balance,
-    messages: 0,
-    timeSpent: "0h",
-    streak: "0 jours"
+    xp: balance,
+    required: balance,
+    rank: 1
   };
 
   return await generateHolographicCard(mockMember, data);

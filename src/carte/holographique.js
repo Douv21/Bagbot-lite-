@@ -1,14 +1,5 @@
-const {
-  AttachmentBuilder
-} = require("discord.js");
-
 const Canvas = require("canvas");
-const sharp = require("sharp");
-
-Canvas.registerFont(
-  "./assets/fonts/Orbitron-Bold.ttf",
-  { family: "Orbitron" }
-);
+const path = require("path");
 
 module.exports = async (member, data) => {
 
@@ -47,7 +38,7 @@ module.exports = async (member, data) => {
   // =========================
 
   const bg = await Canvas.loadImage(
-    "./assets/background.png"
+    path.join(__dirname, "Holographique.png")
   );
 
   ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
@@ -302,16 +293,7 @@ module.exports = async (member, data) => {
   // EXPORT
   // =========================
 
-  const final = await sharp(
-    canvas.toBuffer("image/png")
-  )
-    .sharpen()
-    .png()
-    .toBuffer();
-
-  return new AttachmentBuilder(final, {
-    name: "holographic-card.png"
-  });
+  return canvas.toBuffer();
 
 };
 
