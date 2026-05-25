@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { generateLevelUpCard } = require('../utils/cardGenerator');
 const { loadGuildConfig } = require('../utils/leveling');
 const { getXP } = require('../utils/economy');
+const { getUserData } = require('../storage/jsonStore');
 const { 
   getLastRewardForLevel, 
   memberDisplayName, 
@@ -24,45 +25,48 @@ module.exports = {
     await interaction.deferReply();
     
     try {
-      // Check if in DM
       if (!interaction.guild) {
         await interaction.editReply({ content: '❌ Cette commande ne peut être utilisée que dans un serveur.' });
         return;
       }
 
-      const config = loadGuildConfig(interaction.guild.id);
+      const config    = loadGuildConfig(interaction.guild.id);
       const targetUser = interaction.options.getUser('membre') || interaction.user;
-      const member = await fetchMember(interaction.guild, targetUser.id);
-      const guildId = interaction.guild.id;
+      const member    = await fetchMember(interaction.guild, targetUser.id);
+      const guildId   = interaction.guild.id;
 
-      // Récupérer l'XP total depuis economy.json
-      const totalXp = getXP(guildId, targetUser.id) || 0;
-
-      // Calculer le niveau et XP depuis le niveau actuel avec la courbe
-      const levelCurve = config.levelCurve || { base: 100, factor: 1.2 };
+      const totalXp    = await getXP(guildId, targetUser.id) || 0;
+      const levelCurve = config?.levelCurve || { base: 100, factor: 1.2 };
       const { level, xpSinceLevel } = xpToLevel(totalXp, levelCurve);
       const xpRequired = xpRequiredForNext(level, levelCurve);
 
-      // Récupérer la dernière récompense de rôle
-      const lastReward = getLastRewardForLevel(config, level);
-      const roleName = lastReward ? (interaction.guild.roles.cache.get(lastReward.roleId)?.name || `Rôle ${lastReward.roleId}`) : null;
+      // Get user stats (messages, voiceMinutes)
+      let userData = { messages: 0, voiceMinutes: 0, streak: 0 };
+      try {
+        userData = await getUserData(guildId, targetUser.id);
+      } catch (_) {}
 
-      // Nom d'affichage
+      const lastReward = getLastRewardForLevel(config?.levels || config || {}, level);
+      const roleName   = lastReward
+        ? (interaction.guild.roles.cache.get(lastReward.roleId)?.name || `Rôle ${lastReward.roleId}`)
+        : null;
+
       const name = memberDisplayName(interaction.guild, member, targetUser.id);
 
-      // Déterminer le thème en fonction des rôles
-      let cardTheme = config.cardTheme || null;
-      if (config.roleThemes && member) {
-        const memberRoleIds = member.roles.cache.map(r => r.id);
-        for (const roleId of memberRoleIds) {
-          if (config.roleThemes[roleId]) {
-            cardTheme = config.roleThemes[roleId];
-            break;
-          }
+      let cardTheme = config?.cardTheme || null;
+      if (config?.roleThemes && member) {
+        for (const roleId of member.roles.cache.map(r => r.id)) {
+          if (config.roleThemes[roleId]) { cardTheme = config.roleThemes[roleId]; break; }
         }
       }
 
-      // Générer la carte
+      const stats = {
+        messages:     userData.messages     || 0,
+        voiceMinutes: userData.voiceMinutes || 0,
+        streak:       userData.streak       || 0,
+        roleName:     roleName || 'Membre du serveur'
+      };
+
       const card = await generateLevelUpCard(
         { username: name, discriminator: targetUser.discriminator, displayAvatarURL: (opts) => targetUser.displayAvatarURL(opts || {}) },
         level,
@@ -70,7 +74,8 @@ module.exports = {
         xpRequired,
         interaction.guild.iconURL(),
         cardTheme,
-        interaction.guild
+        interaction.guild,
+        stats
       );
 
       const embed = new EmbedBuilder()
@@ -78,28 +83,24 @@ module.exports = {
         .setTitle(`📊 Niveau de ${name}`)
         .setTimestamp();
 
-      if (roleName) {
-        embed.setDescription(`🎖️ Rôle actuel: ${roleName}`);
-      }
+      if (roleName) embed.setDescription(`🎖️ Rôle actuel: ${roleName}`);
 
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : '';
 
       if (card) {
-        embed.setImage('attachment://level.png');
+        embed.setImage('attachment://holographic-card.png');
         await interaction.editReply({
           content: mention || undefined,
-          embeds: [embed],
-          files: [{ attachment: card, name: 'level.png' }]
+          embeds:  [embed],
+          files:   [{ attachment: card, name: 'holographic-card.png' }]
         });
       } else {
         embed.addFields(
           { name: '📈 Niveau', value: `${level}`, inline: true },
-          { name: '✨ XP', value: `${xpSinceLevel} / ${xpRequired}`, inline: true }
+          { name: '✨ XP',     value: `${xpSinceLevel} / ${xpRequired}`, inline: true },
+          { name: '💬 Messages', value: `${userData.messages || 0}`, inline: true }
         );
-        await interaction.editReply({
-          content: mention || undefined,
-          embeds: [embed]
-        });
+        await interaction.editReply({ content: mention || undefined, embeds: [embed] });
       }
     } catch (error) {
       console.error('Erreur commande niveau:', error);

@@ -1,11 +1,10 @@
 const generateHolographicCard = require('../carte/holographique');
 
-async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, themeName = null, guild = null) {
-  // Create a mock member object for the holographic card function
+async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, themeName = null, guild = null, stats = {}) {
   const mockMember = {
     user: {
-      username: user.username,
-      discriminator: user.discriminator,
+      username:        user.username,
+      discriminator:   user.discriminator,
       displayAvatarURL: user.displayAvatarURL.bind(user)
     },
     guild: {
@@ -14,29 +13,30 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   };
 
   const data = {
-    level: level,
-    xp: xp,
-    required: xpToNextLevel,
-    rank: 1
+    level,
+    xp,
+    required:     xpToNextLevel,
+    rank:         1,
+    messages:     stats.messages     || 0,
+    voiceMinutes: stats.voiceMinutes || 0,
+    streak:       stats.streak       || 0,
+    roleName:     stats.roleName     || 'Membre du serveur'
   };
 
   const result = await generateHolographicCard(mockMember, data);
   if (!result) return null;
-  
-  // If result is an AttachmentBuilder, extract the buffer
+
   if (result.constructor.name === 'AttachmentBuilder') {
     return result.files[0].attachment;
   }
-  
   return result;
 }
 
 async function generateBalanceCard(user, balance, currencyName, guildIcon, themeName = null, guild = null) {
-  // Create a mock member object for the holographic card function
   const mockMember = {
     user: {
-      username: user.username,
-      discriminator: user.discriminator,
+      username:        user.username,
+      discriminator:   user.discriminator,
       displayAvatarURL: user.displayAvatarURL.bind(user)
     },
     guild: {
@@ -45,24 +45,23 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   };
 
   const data = {
-    level: 0,
-    xp: balance,
+    level:    0,
+    xp:       balance,
     required: balance,
-    rank: 1
+    rank:     1,
+    messages: 0,
+    voiceMinutes: 0,
+    streak:   0,
+    roleName: 'Solde BAG'
   };
 
   const result = await generateHolographicCard(mockMember, data);
   if (!result) return null;
-  
-  // If result is an AttachmentBuilder, extract the buffer
+
   if (result.constructor.name === 'AttachmentBuilder') {
     return result.files[0].attachment;
   }
-  
   return result;
 }
 
-module.exports = {
-  generateLevelUpCard,
-  generateBalanceCard
-};
+module.exports = { generateLevelUpCard, generateBalanceCard };

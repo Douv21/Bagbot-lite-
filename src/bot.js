@@ -1,10 +1,11 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, REST, Routes, Partials } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes, Partials, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const { loadGuildConfig } = require('./utils/leveling');
 const { addBalance, addXP, getXP } = require('./utils/economy');
+const { getUserData, updateUserData } = require('./storage/jsonStore');
 const { xpToLevel, getLastRewardForLevel, getNextRewardForLevel } = require('./utils/levelHelpers');
 
 const client = new Client({
@@ -173,28 +174,28 @@ client.on('guildMemberAdd', async (member) => {
       const channel = await member.guild.channels.fetch(config.welcome.channel);
       if (channel && channel.isTextBased()) {
         console.log(`Channel found and is text-based, sending welcome message`);
-        const embed = {
-          title: config.welcome.title || '👋 Bienvenue',
-          description: config.welcome.message
-            .replace('{user}', member.user.toString())
-            .replace('{server}', member.guild.name)
-            .replace('{member_count}', member.guild.memberCount.toString()),
-          color: parseInt(config.welcome.color?.replace('#', ''), 16) || 0xC41E3A
-        };
+        const desc = (config.welcome.message || 'Bienvenue {user} sur le serveur !')
+          .replace('{user}', member.user.toString())
+          .replace('{server}', member.guild.name)
+          .replace('{member_count}', member.guild.memberCount.toString());
 
-        if (config.welcome.image) embed.image = { url: config.welcome.image };
-        if (config.welcome.thumbnail) embed.thumbnail = { url: config.welcome.thumbnail };
+        const embed = new EmbedBuilder()
+          .setTitle(config.welcome.title || '👋 Bienvenue')
+          .setDescription(desc)
+          .setColor(parseInt((config.welcome.color || '#C41E3A').replace('#', ''), 16) || 0xC41E3A)
+          .setTimestamp();
+
+        if (config.welcome.image)     embed.setImage(config.welcome.image);
+        if (config.welcome.thumbnail) embed.setThumbnail(config.welcome.thumbnail);
         if (config.welcome.authorName) {
-          embed.author = {
-            name: config.welcome.authorName,
-            icon_url: config.welcome.authorIcon || undefined
-          };
+          const authorOpts = { name: config.welcome.authorName };
+          if (config.welcome.authorIcon) authorOpts.iconURL = config.welcome.authorIcon;
+          embed.setAuthor(authorOpts);
         }
         if (config.welcome.footerText) {
-          embed.footer = {
-            text: config.welcome.footerText,
-            icon_url: config.welcome.footerIcon || undefined
-          };
+          const footerOpts = { text: config.welcome.footerText };
+          if (config.welcome.footerIcon) footerOpts.iconURL = config.welcome.footerIcon;
+          embed.setFooter(footerOpts);
         }
 
         await channel.send({ embeds: [embed] });
@@ -313,14 +314,20 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
           if (moneyPerMinute > 0) {
             const totalMoney = moneyPerMinute * minutes;
-            addBalance(guildId, userId, totalMoney);
+            await addBalance(guildId, userId, totalMoney);
           }
 
           if (xpMinPerMinute > 0 && xpMaxPerMinute > 0) {
             const totalXP = minutes * Math.floor(Math.random() * (xpMaxPerMinute - xpMinPerMinute + 1)) + xpMinPerMinute;
-            const oldXP = getXP(guildId, userId) || 0;
-            addXP(guildId, userId, totalXP);
-            const newXP = getXP(guildId, userId);
+            const oldXP = await getXP(guildId, userId) || 0;
+            await addXP(guildId, userId, totalXP);
+            const newXP = await getXP(guildId, userId);
+
+            // Track voice minutes in user stats
+            try {
+              const ud = await getUserData(guildId, userId);
+              await updateUserData(guildId, userId, { voiceMinutes: (ud.voiceMinutes || 0) + minutes });
+            } catch (_) {}
             
             // Check for level up
             const levelCurve = config?.levelCurve || { base: 100, factor: 1.2 };
@@ -355,14 +362,20 @@ client.on('messageCreate', async (message) => {
     const xpMaxPerMessage = config?.economy?.xpMaxPerMessage || 5;
     
     if (moneyPerMessage > 0) {
-      addBalance(message.guild.id, message.author.id, moneyPerMessage);
+      await addBalance(message.guild.id, message.author.id, moneyPerMessage);
     }
     
     if (xpMinPerMessage > 0 && xpMaxPerMessage > 0) {
       const xpReward = Math.floor(Math.random() * (xpMaxPerMessage - xpMinPerMessage + 1)) + xpMinPerMessage;
-      const oldXP = getXP(message.guild.id, message.author.id) || 0;
-      addXP(message.guild.id, message.author.id, xpReward);
-      const newXP = getXP(message.guild.id, message.author.id);
+      const oldXP = await getXP(message.guild.id, message.author.id) || 0;
+      await addXP(message.guild.id, message.author.id, xpReward);
+      const newXP = await getXP(message.guild.id, message.author.id);
+
+      // Track message count in user stats
+      try {
+        const ud = await getUserData(message.guild.id, message.author.id);
+        await updateUserData(message.guild.id, message.author.id, { messages: (ud.messages || 0) + 1 });
+      } catch (_) {}
       
       // Check for level up
       const levelCurve = config?.levelCurve || { base: 100, factor: 1.2 };
