@@ -896,49 +896,92 @@ async function loadRoles() {
   }
 }
 
-// Load forum channels
+// Store available forum channels for the picker
+let availableForumChannels = [];
+// Store selected forum channel IDs
+let selectedForumChannels = [];
+
+// Load forum channels into the picker dropdown
 async function loadForumChannels() {
   try {
     const response = await fetch('/api/channels');
     const channels = await response.json();
-    
-    console.log('All channels:', channels);
-    console.log('Channel types:', channels.map(ch => ({ name: ch.name || 'undefined', type: ch.type, type_name: getChannelTypeName(ch.type) })));
-    
-    // Filter only forum channels (type 15 in Discord API) - also try type 16 for media channels
-    const forumChannels = channels.filter(ch => ch.type === 15 || ch.type === 16);
-    
-    console.log('Forum channels found:', forumChannels);
-    
-    const forumChannelsSelect = document.getElementById('forumChannelsSelect');
-    
-    if (!forumChannelsSelect) {
-      console.error('forumChannelsSelect element not found');
-      return;
-    }
-    
-    if (forumChannels.length === 0) {
-      // Show all channels for debugging
-      const allChannelsList = channels.map(ch => `${ch.name || 'undefined'} (type: ${ch.type})`).join(', ');
-      forumChannelsSelect.innerHTML = `<option value="">Aucun salon forum trouvé (types 15 ou 16). Salons: ${allChannelsList}</option>`;
-      return;
-    }
-    
-    forumChannelsSelect.innerHTML = '';
-    forumChannels.forEach(channel => {
-      const option = document.createElement('option');
-      option.value = channel.id;
-      option.textContent = channel.name || 'Sans nom';
-      forumChannelsSelect.appendChild(option);
-    });
-    
-    console.log('Forum channels loaded successfully');
+
+    // Filter only forum channels (type 15) and media channels (type 16)
+    availableForumChannels = channels.filter(ch => ch.type === 15 || ch.type === 16);
+
+    refreshForumPicker();
   } catch (error) {
     console.error('Error loading forum channels:', error);
-    const forumChannelsSelect = document.getElementById('forumChannelsSelect');
-    if (forumChannelsSelect) {
-      forumChannelsSelect.innerHTML = '<option value="">Erreur lors du chargement des salons.</option>';
-    }
+    const picker = document.getElementById('forumChannelPicker');
+    if (picker) picker.innerHTML = '<option value="">Erreur lors du chargement des salons.</option>';
+  }
+}
+
+// Refresh the picker to only show channels not yet selected
+function refreshForumPicker() {
+  const picker = document.getElementById('forumChannelPicker');
+  if (!picker) return;
+
+  const unselected = availableForumChannels.filter(ch => !selectedForumChannels.includes(ch.id));
+
+  if (availableForumChannels.length === 0) {
+    picker.innerHTML = '<option value="">Aucun salon forum trouvé sur ce serveur</option>';
+  } else if (unselected.length === 0) {
+    picker.innerHTML = '<option value="">Tous les salons forum sont déjà ajoutés</option>';
+  } else {
+    picker.innerHTML = '<option value="">Choisir un salon forum...</option>';
+    unselected.forEach(ch => {
+      const opt = document.createElement('option');
+      opt.value = ch.id;
+      opt.textContent = '💬 ' + (ch.name || 'Sans nom');
+      picker.appendChild(opt);
+    });
+  }
+}
+
+// Add selected channel from picker as a tag
+function addForumChannel() {
+  const picker = document.getElementById('forumChannelPicker');
+  const channelId = picker.value;
+  if (!channelId) return;
+
+  const channel = availableForumChannels.find(ch => ch.id === channelId);
+  if (!channel || selectedForumChannels.includes(channelId)) return;
+
+  selectedForumChannels.push(channelId);
+  renderForumTags();
+  refreshForumPicker();
+}
+
+// Remove a channel tag
+function removeForumChannel(channelId) {
+  selectedForumChannels = selectedForumChannels.filter(id => id !== channelId);
+  renderForumTags();
+  refreshForumPicker();
+}
+
+// Render the selected channel tags
+function renderForumTags() {
+  const container = document.getElementById('forumChannelTags');
+  if (!container) return;
+
+  container.innerHTML = '';
+  selectedForumChannels.forEach(channelId => {
+    const channel = availableForumChannels.find(ch => ch.id === channelId);
+    const name = channel ? (channel.name || 'Sans nom') : channelId;
+
+    const tag = document.createElement('div');
+    tag.className = 'forum-channel-tag';
+    tag.innerHTML = `
+      <span>💬 ${name}</span>
+      <button type="button" onclick="removeForumChannel('${channelId}')" title="Retirer ce salon">&times;</button>
+    `;
+    container.appendChild(tag);
+  });
+
+  if (selectedForumChannels.length === 0) {
+    container.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.85rem;">Aucun salon sélectionné</span>';
   }
 }
 
@@ -1269,15 +1312,11 @@ async function loadConfig() {
 
     if (config.forum) {
       document.getElementById('forumEnabled').checked = config.forum.enabled;
-      // Load selected forum channels after the select is populated
-      setTimeout(() => {
-        const forumChannelsSelect = document.getElementById('forumChannelsSelect');
-        if (config.forum.channels && Array.isArray(config.forum.channels)) {
-          Array.from(forumChannelsSelect.options).forEach(option => {
-            option.selected = config.forum.channels.includes(option.value);
-          });
-        }
-      }, 500);
+      if (config.forum.channels && Array.isArray(config.forum.channels)) {
+        selectedForumChannels = config.forum.channels;
+        renderForumTags();
+        refreshForumPicker();
+      }
     }
 
     if (config.shop) {
@@ -1349,9 +1388,6 @@ async function loadConfig() {
 
 // Save configuration
 async function saveConfig() {
-  // Get selected forum channels
-  const forumChannelsSelect = document.getElementById('forumChannelsSelect');
-  const selectedForumChannels = Array.from(forumChannelsSelect.selectedOptions).map(option => option.value);
 
   const config = {
     welcome: {
