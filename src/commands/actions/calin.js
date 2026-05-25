@@ -11,13 +11,11 @@ module.exports = {
     .setDMPermission(true),
 
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply();
     
     const config = loadGuildConfig(interaction.guildId);
-    
-    if (!config?.actions?.enabled) return interaction.editReply({ content: '❌ Actions désactivées', ephemeral: true });
-    const actionConfig = config.actions.commands?.['calin'];
-    if (!actionConfig?.enabled) return interaction.editReply({ content: '❌ Action désactivée', ephemeral: true });
+    const actionConfig = config?.actions?.commands?.['calin'] || { enabled: true, rewardMin: 5, rewardMax: 15, messages: [] };
+    if (actionConfig.enabled === false) return interaction.editReply({ content: '❌ Action désactivée', ephemeral: true });
 
     let target = interaction.options.getUser('cible');
     if (!target) {
@@ -56,11 +54,6 @@ module.exports = {
       .setFooter({ text: `Nouveau solde: ${newBalance} BAG` })
       .setTimestamp();
 
-    try {
-      await interaction.user.send({ embeds: [embed] });
-      await interaction.editReply({ content: '✅ Action envoyée en message privé !' });
-    } catch {
-      await interaction.editReply({ embeds: [embed] });
-    }
+    await interaction.editReply({ embeds: [embed] });
   }
 };
