@@ -32,7 +32,7 @@ module.exports = {
     const minReward = actionConfig.rewardMin || 5;
     const maxReward = actionConfig.rewardMax || 15;
     const reward = Math.floor(Math.random() * (maxReward - minReward + 1)) + minReward;
-    const newBalance = interaction.guild ? addBalance(interaction.guild.id, author.id, reward) : reward;
+    const newBalance = interaction.guild ? await addBalance(interaction.guild.id, author.id, reward) : reward;
 
     let message;
     if (actionConfig.messages && actionConfig.messages.length > 0) {

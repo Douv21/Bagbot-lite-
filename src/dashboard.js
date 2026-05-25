@@ -7,15 +7,19 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust Replit's HTTPS proxy
+app.set('trust proxy', 1);
+
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'bagbot-secret-key-change-in-production',
   resave: false,
   saveUninitialized: true,
   cookie: { 
-    secure: false, 
+    secure: true,
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: 'lax'
+    sameSite: 'none',
+    httpOnly: true
   },
   name: 'bagbot.sid'
 }));

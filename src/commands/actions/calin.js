@@ -36,7 +36,7 @@ module.exports = {
     // Only give money in guild, not in DM
     let newBalance = reward;
     if (interaction.guild) {
-      newBalance = addBalance(interaction.guild.id, author.id, reward);
+      newBalance = await addBalance(interaction.guild.id, author.id, reward);
     }
 
     let message;
