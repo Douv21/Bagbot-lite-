@@ -11,7 +11,7 @@ module.exports = {
     .setDMPermission(true),
 
   async execute(interaction) {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
     
     const config = loadGuildConfig(interaction.guild.id);
     
@@ -47,13 +47,10 @@ module.exports = {
       .setFooter({ text: `Nouveau solde: ${newBalance} BAG` })
       .setTimestamp();
 
-    let targetChannel = interaction.channel;
-    if (actionConfig.channel) targetChannel = await interaction.guild.channels.fetch(actionConfig.channel).catch(() => interaction.channel);
-
-    if (targetChannel.id !== interaction.channel.id) {
-      await interaction.editReply({ content: '✅ Action envoyée !' });
-      await targetChannel.send({ embeds: [embed] });
-    } else {
+    try {
+      await interaction.user.send({ embeds: [embed] });
+      await interaction.editReply({ content: '✅ Action envoyée en message privé !' });
+    } catch {
       await interaction.editReply({ embeds: [embed] });
     }
   }

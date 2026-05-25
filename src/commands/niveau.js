@@ -64,7 +64,7 @@ module.exports = {
 
       // Générer la carte
       const card = await generateLevelUpCard(
-        { username: name, discriminator: targetUser.discriminator, displayAvatarURL: (ext, size) => targetUser.displayAvatarURL({ extension: ext, size }) },
+        { username: name, discriminator: targetUser.discriminator, displayAvatarURL: (opts) => targetUser.displayAvatarURL(opts || {}) },
         level,
         xpSinceLevel,
         xpRequired,
