@@ -76,7 +76,6 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setColor(0x2f6bd6)
         .setTitle(`📊 Niveau de ${name}`)
-        .setImage('attachment://level.png')
         .setTimestamp();
 
       if (roleName) {
@@ -84,11 +83,24 @@ module.exports = {
       }
 
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : '';
-      await interaction.editReply({
-        content: mention || undefined,
-        embeds: [embed],
-        files: [{ attachment: card, name: 'level.png' }]
-      });
+
+      if (card) {
+        embed.setImage('attachment://level.png');
+        await interaction.editReply({
+          content: mention || undefined,
+          embeds: [embed],
+          files: [{ attachment: card, name: 'level.png' }]
+        });
+      } else {
+        embed.addFields(
+          { name: '📈 Niveau', value: `${level}`, inline: true },
+          { name: '✨ XP', value: `${xpSinceLevel} / ${xpRequired}`, inline: true }
+        );
+        await interaction.editReply({
+          content: mention || undefined,
+          embeds: [embed]
+        });
+      }
     } catch (error) {
       console.error('Erreur commande niveau:', error);
       await interaction.editReply({ content: '❌ Une erreur est survenue.' }).catch(() => {});

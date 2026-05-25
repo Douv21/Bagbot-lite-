@@ -2,8 +2,16 @@ const {
   AttachmentBuilder
 } = require("discord.js");
 
-const Canvas = require("canvas");
-const sharp = require("sharp");
+let Canvas, sharp;
+try {
+  Canvas = require("canvas");
+  sharp = require("sharp");
+} catch (e) {
+  console.warn("⚠️  canvas/sharp indisponible — /niveau désactivé. Lancez 'npm rebuild canvas' sur le serveur.");
+  module.exports = async () => null;
+  return;
+}
+
 const path = require("path");
 
 module.exports = async (member, data) => {

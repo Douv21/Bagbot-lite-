@@ -21,6 +21,7 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
   };
 
   const result = await generateHolographicCard(mockMember, data);
+  if (!result) return null;
   
   // If result is an AttachmentBuilder, extract the buffer
   if (result.constructor.name === 'AttachmentBuilder') {
@@ -51,6 +52,7 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
   };
 
   const result = await generateHolographicCard(mockMember, data);
+  if (!result) return null;
   
   // If result is an AttachmentBuilder, extract the buffer
   if (result.constructor.name === 'AttachmentBuilder') {

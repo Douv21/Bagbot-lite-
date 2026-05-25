@@ -7,18 +7,19 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Trust Replit's HTTPS proxy
+// Trust proxy (Replit HTTPS, nginx, etc.)
 app.set('trust proxy', 1);
 
-// Session middleware
+// Session middleware — fonctionne en HTTP (serveur local) et HTTPS (proxy Replit/nginx)
+const isHttps = process.env.HTTPS_PROXY === 'true';
 app.use(session({
   secret: process.env.SESSION_SECRET || 'bagbot-secret-key-change-in-production',
   resave: false,
   saveUninitialized: true,
   cookie: { 
-    secure: true,
+    secure: isHttps,
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: 'none',
+    sameSite: isHttps ? 'none' : 'lax',
     httpOnly: true
   },
   name: 'bagbot.sid'
