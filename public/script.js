@@ -1,4 +1,5 @@
 let currentModalType = 'welcome';
+let currentGuildId = localStorage.getItem('selectedGuildId') || null;
 
 // Check authentication on page load
 async function checkAuth() {
@@ -153,6 +154,9 @@ async function selectGuild(guildId) {
     document.getElementById('configContent').style.display = 'none';
     return;
   }
+
+  currentGuildId = guildId;
+  localStorage.setItem('selectedGuildId', guildId);
   
   // Update visual selection
   document.querySelectorAll('.guild-card').forEach(card => {
@@ -1450,6 +1454,9 @@ async function saveConfig() {
   };
   
   try {
+    // Always include guildId so the server can recover if the session was lost
+    config._guildId = currentGuildId || localStorage.getItem('selectedGuildId');
+
     const response = await fetch('/api/config', {
       method: 'POST',
       headers: {

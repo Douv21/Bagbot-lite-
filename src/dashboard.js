@@ -256,21 +256,30 @@ app.get('/api/selected-guild', (req, res) => {
 // API pour sauvegarder la configuration (par serveur)
 app.post('/api/config', (req, res) => {
   try {
-    if (!req.session.selectedGuild) {
+    // Accept guildId from session or from body (_guildId fallback when session expired)
+    const guildId = req.session.selectedGuild || (req.session.user && req.body._guildId);
+    if (!guildId) {
+      console.warn('Save config: no guild in session and no _guildId in body');
       return res.status(400).json({ error: 'No guild selected' });
     }
-    
+
+    // Keep session in sync
+    if (!req.session.selectedGuild) req.session.selectedGuild = guildId;
+
     const configDir = path.join(__dirname, '../configs');
     if (!fs.existsSync(configDir)) {
-      fs.mkdirSync(configDir);
+      fs.mkdirSync(configDir, { recursive: true });
     }
-    
-    const configPath = path.join(configDir, `${req.session.selectedGuild}.json`);
-    fs.writeFileSync(configPath, JSON.stringify(req.body, null, 2));
+
+    // Remove internal _guildId field before saving
+    const { _guildId, ...configToSave } = req.body;
+    const configPath = path.join(configDir, `${guildId}.json`);
+    fs.writeFileSync(configPath, JSON.stringify(configToSave, null, 2));
+    console.log(`Config saved for guild ${guildId}`);
     res.json({ success: true });
   } catch (error) {
     console.error('Erreur sauvegarde:', error);
-    res.status(500).json({ error: 'Erreur sauvegarde' });
+    res.status(500).json({ error: 'Erreur sauvegarde: ' + error.message });
   }
 });
 
