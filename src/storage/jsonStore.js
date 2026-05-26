@@ -27,6 +27,12 @@ async function loadConfig() {
     if (error.code === 'ENOENT') {
       return { guilds: {} };
     }
+    if (error instanceof SyntaxError) {
+      console.error('[jsonStore] data/config.json corrompu, réinitialisation :', error.message);
+      const empty = { guilds: {} };
+      await fsp.writeFile(CONFIG_PATH, JSON.stringify(empty, null, 2), 'utf8');
+      return empty;
+    }
     throw error;
   }
 }
