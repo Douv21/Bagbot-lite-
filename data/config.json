@@ -1,0 +1,25 @@
+{
+  "guilds": {
+    "1330994758775996566": {
+      "economy": {},
+      "levels": {},
+      "welcome": {},
+      "depart": {},
+      "actions": {},
+      "shop": {},
+      "forum": {},
+      "cards": {},
+      "users": {
+        "943487722738311219": {
+          "xp": 0,
+          "balance": 13,
+          "level": 0,
+          "messages": 0,
+          "voiceMinutes": 0,
+          "lastMessage": null,
+          "lastVoice": null
+        }
+      }
+    }
+  }
+}
