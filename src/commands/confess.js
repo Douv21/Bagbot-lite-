@@ -92,38 +92,25 @@ module.exports = {
         });
       }
 
-      // Envoyer la confession aux salons configurés
-      const guild = interaction.guild;
-      let successCount = 0;
-      let errorChannels = [];
-
-      for (const channelId of guildData.confessions.channels) {
-        try {
-          const channel = await guild.channels.fetch(channelId).catch(() => null);
-          if (channel && channel.isTextBased()) {
-            await channel.send({ embeds: [confessionEmbed] });
-            successCount++;
-          } else {
-            errorChannels.push(channelId);
-          }
-        } catch (error) {
-          console.error(`Erreur envoi confession au canal ${channelId}:`, error);
-          errorChannels.push(channelId);
+      // Envoyer la confession SEULEMENT au salon courant
+      try {
+        const channel = await interaction.guild.channels.fetch(interaction.channelId);
+        if (channel && channel.isTextBased()) {
+          await channel.send({ embeds: [confessionEmbed] });
+          await interaction.editReply({
+            content: '✅ Votre confession a été envoyée de manière anonyme.',
+            ephemeral: true
+          });
+        } else {
+          await interaction.editReply({
+            content: '❌ Erreur : impossible d\'envoyer la confession.',
+            ephemeral: true
+          });
         }
-      }
-
-      if (successCount > 0) {
-        let message = `✅ Votre confession a été envoyée de manière anonyme à ${successCount} salon(s).`;
-        if (errorChannels.length > 0) {
-          message += `\n⚠️ ${errorChannels.length} salon(s) configuré(s) n'ont pas pu recevoir la confession.`;
-        }
+      } catch (error) {
+        console.error(`Erreur envoi confession:`, error);
         await interaction.editReply({
-          content: message,
-          ephemeral: true
-        });
-      } else {
-        await interaction.editReply({
-          content: '❌ Erreur : la confession n\'a pas pu être envoyée.',
+          content: '❌ Une erreur est survenue lors de l\'envoi de la confession.',
           ephemeral: true
         });
       }
