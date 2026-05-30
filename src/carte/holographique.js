@@ -1,24 +1,24 @@
 // holographique.js — thin launcher.
-// All canvas/sharp work runs in card-worker.js (child process).
-// If canvas/sharp cause SIGILL on this machine, only the child dies; the bot survives.
+// All canvas work runs in card-worker.js (child process).
+// If canvas causes SIGILL on this machine, only the child dies; the bot survives.
 
-const { spawn }          = require('child_process');
-const path               = require('path');
+const { spawn }             = require('child_process');
+const path                  = require('path');
 const { AttachmentBuilder } = require('discord.js');
 
-const WORKER = path.join(__dirname, 'card-worker.js');
+const WORKER     = path.join(__dirname, 'card-worker.js');
 const TIMEOUT_MS = 20_000;
 
-module.exports = async (member, data) => {
+module.exports = async (member, data, theme) => {
   try {
-    // Resolve avatar URL before handing off to the worker (the function can't be serialised)
     const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
 
     const payload = JSON.stringify({
-      username:     member.user.username,
+      username:      member.user.username,
       discriminator: member.user.discriminator,
       avatarUrl,
-      data
+      data,
+      theme: theme || 'holographique'
     });
 
     const buf = await new Promise((resolve, reject) => {
@@ -37,7 +37,6 @@ module.exports = async (member, data) => {
       });
       child.on('error', reject);
 
-      // Hard timeout — kill child if it hangs
       const timer = setTimeout(() => {
         child.kill();
         reject(new Error('card-worker timeout'));
@@ -48,10 +47,9 @@ module.exports = async (member, data) => {
       child.stdin.end();
     });
 
-    return new AttachmentBuilder(buf, { name: 'holographic-card.png' });
+    return new AttachmentBuilder(buf, { name: 'niveau-card.png' });
   } catch (err) {
-    console.error('❌ Carte holographique indisponible:', err.message);
-    console.error('   → Rebuild natif requis: npm rebuild canvas sharp');
+    console.error('❌ Carte indisponible:', err.message);
     return null;
   }
 };
