@@ -1085,7 +1085,7 @@ async function run() {
   const voiceStr = voiceMin >= 60 ? `${Math.floor(voiceMin/60)}h` : `${voiceMin}m`;
   const msgStr   = messages >= 10000 ? `${Math.floor(messages/1000)}K`
                  : messages >= 1000  ? `${(messages/1000).toFixed(1)}K` : String(messages);
-  const fireStr  = streak >= 1000 ? `${Math.floor(streak/1000)}K` : String(streak);
+  const fireStr  = streak >= 1000 ? `${Math.floor(streak/1000)}K` : `${streak}msg`;
   const statsData = [
     { icon:'MSG', label:'MESSAGES', value: msgStr },
     { icon:'VOC', label:'VOCAL',    value: voiceStr },
