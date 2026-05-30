@@ -143,6 +143,12 @@ if (fs.existsSync(economyPath)) {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
+  const age = Date.now() - interaction.createdTimestamp;
+  if (age > 2800) {
+    console.warn(`⚠️ Interaction /${interaction.commandName} reçue trop tard (${age}ms) — ignorée`);
+    return;
+  }
+
   const command = commands.find(cmd => cmd.data.name === interaction.commandName);
 
   if (!command) {
@@ -153,9 +159,12 @@ client.on('interactionCreate', async interaction => {
   try {
     await command.execute(interaction);
   } catch (error) {
+    if (error.code === 10062) {
+      console.warn(`⚠️ Interaction /${interaction.commandName} expirée (latence réseau trop élevée)`);
+      return;
+    }
     console.error(`Erreur exécution commande ${interaction.commandName}:`, error);
-    const errorReply = { content: '❌ Une erreur est survenue lors de l\'exécution de cette commande.', ephemeral: true };
-    
+    const errorReply = { content: '❌ Une erreur est survenue lors de l\'exécution de cette commande.', flags: 64 };
     if (interaction.replied || interaction.deferred) {
       await interaction.editReply(errorReply).catch(() => {});
     } else {
