@@ -597,6 +597,181 @@ function drawThemeBackground(ctx, W, H, theme, themeName) {
   ctx.restore();
 }
 
+// ─── Theme overlay: drawn OVER all panels for always-visible theme atmosphere ──
+function drawThemeOverlay(ctx, W, H, theme, themeName) {
+  ctx.save();
+  const t = (themeName || 'holographique').toLowerCase();
+
+  // Every theme: corner vignette in theme color
+  const corners = [[0,0],[W,0],[0,H],[W,H]];
+  const cg = theme.corner || '#00cfff';
+  // Parse first color from corner string for glow
+  const glowRgb = cg.startsWith('#') ? hexToRgb(cg) : '0,200,255';
+
+  corners.forEach(([cx,cy]) => {
+    const vg = ctx.createRadialGradient(cx,cy,0,cx,cy,380);
+    vg.addColorStop(0, `rgba(${glowRgb},0.18)`);
+    vg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = vg; ctx.fillRect(0,0,W,H);
+  });
+
+  if (t === 'holographique') {
+    // Prismatic horizontal band across center
+    const pb = ctx.createLinearGradient(0, H*0.48, 0, H*0.55);
+    pb.addColorStop(0,'rgba(0,240,255,0.08)');
+    pb.addColorStop(0.5,'rgba(180,80,255,0.12)');
+    pb.addColorStop(1,'rgba(0,240,255,0.08)');
+    ctx.fillStyle=pb; ctx.fillRect(0,0,W,H);
+
+  } else if (t === 'gaming') {
+    // Green scan flicker on EXP bar zone
+    ctx.globalAlpha=0.10; ctx.fillStyle='#00ff80';
+    for (let y=418; y<482; y+=4) ctx.fillRect(0,y,W,2);
+    // Green top border glow
+    const tg=ctx.createLinearGradient(0,0,0,60);
+    tg.addColorStop(0,'rgba(0,255,80,0.22)'); tg.addColorStop(1,'rgba(0,255,80,0)');
+    ctx.globalAlpha=1; ctx.fillStyle=tg; ctx.fillRect(0,0,W,60);
+    // Bottom green border
+    const bg=ctx.createLinearGradient(0,H-60,0,H);
+    bg.addColorStop(0,'rgba(0,255,80,0)'); bg.addColorStop(1,'rgba(0,255,80,0.18)');
+    ctx.fillStyle=bg; ctx.fillRect(0,H-60,W,60);
+
+  } else if (t === 'love') {
+    // Pink top gradient
+    const lg=ctx.createLinearGradient(0,0,0,80);
+    lg.addColorStop(0,'rgba(255,60,140,0.25)'); lg.addColorStop(1,'rgba(255,60,140,0)');
+    ctx.fillStyle=lg; ctx.fillRect(0,0,W,80);
+    // Pink bottom gradient
+    const lg2=ctx.createLinearGradient(0,H-80,0,H);
+    lg2.addColorStop(0,'rgba(255,60,140,0)'); lg2.addColorStop(1,'rgba(255,60,140,0.22)');
+    ctx.fillStyle=lg2; ctx.fillRect(0,H-80,W,80);
+    // Small sparkle dots over panels
+    ctx.globalAlpha=0.35; ctx.fillStyle=cg;
+    [[200,520],[450,560],[700,530],[950,540],[1200,525],
+     [320,680],[600,660],[900,675],[1150,665]].forEach(([sx,sy]) => {
+      ctx.beginPath(); ctx.arc(sx,sy,4,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=0.15; ctx.beginPath(); ctx.arc(sx,sy,10,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=0.35;
+    });
+
+  } else if (t === 'sensuel') {
+    // Magenta top glow
+    const sg=ctx.createLinearGradient(0,0,0,90);
+    sg.addColorStop(0,'rgba(200,0,100,0.28)'); sg.addColorStop(1,'rgba(200,0,100,0)');
+    ctx.fillStyle=sg; ctx.fillRect(0,0,W,90);
+    // Faint diagonal silk lines over entire card
+    ctx.globalAlpha=0.08; ctx.lineWidth=3;
+    for (let i=0; i<9; i++) {
+      const ox=-80+i*185;
+      ctx.strokeStyle=i%2===0?'rgba(255,40,120,0.6)':'rgba(200,0,80,0.6)';
+      ctx.beginPath(); ctx.moveTo(ox,0);
+      ctx.bezierCurveTo(ox+70,H*0.28,ox+20,H*0.55,ox+90,H); ctx.stroke();
+    }
+
+  } else if (t === 'cosmos') {
+    // Purple top nebula
+    const cng=ctx.createLinearGradient(0,0,0,100);
+    cng.addColorStop(0,'rgba(80,20,180,0.30)'); cng.addColorStop(1,'rgba(80,20,180,0)');
+    ctx.fillStyle=cng; ctx.fillRect(0,0,W,100);
+    // Twinkle stars over panels
+    const rng=s=>{let x=Math.sin(s)*9999;return x-Math.floor(x);};
+    for (let i=0; i<60; i++) {
+      const sx=rng(i*5+1)*W, sy=rng(i*5+2)*(H-100)+100;
+      ctx.globalAlpha=rng(i*5+3)*0.45+0.20;
+      ctx.beginPath(); ctx.arc(sx,sy,rng(i*5+4)*1.5+0.5,0,Math.PI*2);
+      ctx.fillStyle='#ffffff'; ctx.fill();
+    }
+
+  } else if (t === 'nature') {
+    // Green top canopy
+    const ntg=ctx.createLinearGradient(0,0,0,80);
+    ntg.addColorStop(0,'rgba(30,100,10,0.28)'); ntg.addColorStop(1,'rgba(30,100,10,0)');
+    ctx.fillStyle=ntg; ctx.fillRect(0,0,W,80);
+    // Green bottom ground
+    const nbg=ctx.createLinearGradient(0,H-80,0,H);
+    nbg.addColorStop(0,'rgba(20,80,10,0)'); nbg.addColorStop(1,'rgba(20,80,10,0.30)');
+    ctx.fillStyle=nbg; ctx.fillRect(0,H-80,W,80);
+
+  } else if (t === 'dark') {
+    // Purple top glow
+    const dtg=ctx.createLinearGradient(0,0,0,90);
+    dtg.addColorStop(0,'rgba(80,0,120,0.35)'); dtg.addColorStop(1,'rgba(80,0,120,0)');
+    ctx.fillStyle=dtg; ctx.fillRect(0,0,W,90);
+    // Faint hexagons over panels
+    ctx.globalAlpha=0.06; ctx.strokeStyle=cg; ctx.lineWidth=1;
+    const hr=45, hh=hr*Math.sqrt(3);
+    for (let col=-1;col<W/(hr*1.5)+2;col++) for (let row=-1;row<H/hh+2;row++) {
+      const hcx=col*hr*3+(row%2===0?0:hr*1.5), hcy=row*hh;
+      if (hcy < 400) continue; // Only over bottom panels
+      ctx.beginPath();
+      for (let i=0;i<6;i++){const a=(Math.PI/180)*(60*i-30);i===0?ctx.moveTo(hcx+hr*Math.cos(a),hcy+hr*Math.sin(a)):ctx.lineTo(hcx+hr*Math.cos(a),hcy+hr*Math.sin(a));}
+      ctx.closePath(); ctx.stroke();
+    }
+
+  } else if (t === 'gold') {
+    // Gold top shimmer
+    const gtg=ctx.createLinearGradient(0,0,0,80);
+    gtg.addColorStop(0,'rgba(255,215,0,0.28)'); gtg.addColorStop(1,'rgba(255,200,0,0)');
+    ctx.fillStyle=gtg; ctx.fillRect(0,0,W,80);
+    // Gold diagonal sheen over entire card
+    const gds=ctx.createLinearGradient(0,0,W*0.6,H*0.4);
+    gds.addColorStop(0,'rgba(255,255,180,0)'); gds.addColorStop(0.46,'rgba(255,240,80,0.10)');
+    gds.addColorStop(0.5,'rgba(255,255,220,0.18)'); gds.addColorStop(0.54,'rgba(255,240,80,0.10)');
+    gds.addColorStop(1,'rgba(255,255,180,0)');
+    ctx.fillStyle=gds; ctx.fillRect(0,0,W,H);
+
+  } else if (t === 'argent') {
+    // Silver top sheen
+    const atg=ctx.createLinearGradient(0,0,0,70);
+    atg.addColorStop(0,'rgba(200,220,255,0.30)'); atg.addColorStop(1,'rgba(200,220,255,0)');
+    ctx.fillStyle=atg; ctx.fillRect(0,0,W,70);
+    // Silver diagonal glint
+    const ads=ctx.createLinearGradient(0,0,W*0.55,H*0.38);
+    ads.addColorStop(0,'rgba(255,255,255,0)'); ads.addColorStop(0.48,'rgba(220,235,255,0.16)');
+    ads.addColorStop(0.5,'rgba(255,255,255,0.25)'); ads.addColorStop(0.52,'rgba(220,235,255,0.16)');
+    ads.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=ads; ctx.fillRect(0,0,W,H);
+
+  } else if (t === 'bleu') {
+    // Blue top wave glow
+    const btg=ctx.createLinearGradient(0,0,0,85);
+    btg.addColorStop(0,'rgba(0,100,220,0.28)'); btg.addColorStop(1,'rgba(0,80,200,0)');
+    ctx.fillStyle=btg; ctx.fillRect(0,0,W,85);
+    // 2 bold waves over lower panels
+    ctx.globalAlpha=0.18; ctx.lineWidth=3;
+    [H*0.72, H*0.82].forEach((wy,wi) => {
+      ctx.strokeStyle=wi===0?'#40b0ff':'#0080e0';
+      ctx.beginPath();
+      for (let x=0;x<=W;x+=4) { const y=wy+Math.sin(x*0.013+wi*1.2)*22; x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+      ctx.stroke();
+    });
+
+  } else if (t === 'rose') {
+    // Pink top bloom
+    const rtg=ctx.createLinearGradient(0,0,0,80);
+    rtg.addColorStop(0,'rgba(255,60,140,0.28)'); rtg.addColorStop(1,'rgba(255,60,140,0)');
+    ctx.fillStyle=rtg; ctx.fillRect(0,0,W,80);
+    // Tiny sparkle petals over panels
+    ctx.globalAlpha=0.28; ctx.fillStyle=cg;
+    [[180,550],[400,570],[680,545],[920,560],[1180,548],
+     [300,700],[580,690],[850,705],[1100,695],[1320,680]].forEach(([px,py]) => {
+      ctx.save(); ctx.translate(px,py); ctx.rotate(Math.sin(px)*2);
+      ctx.beginPath(); ctx.ellipse(0,0,14,6,0,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
 // ─── Rank helpers ─────────────────────────────────────────────────────────────
 
 function getRankName(level) {
@@ -944,6 +1119,9 @@ async function run() {
 
   // Barcode
   drawBarcode(ctx, W-48, H-30, theme);
+
+  // ── Theme overlay (drawn last, visible over panels) ───────────────────────
+  drawThemeOverlay(ctx, W, H, theme, themeName);
 
   // ── Export ────────────────────────────────────────────────────────────────
   const buf = await canvas.encode('png');
