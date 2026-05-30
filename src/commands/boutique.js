@@ -148,7 +148,7 @@ module.exports = {
             return;
           }
 
-          const userBalance = getBalance(interaction.guildId, i.user.id);
+          const userBalance = await getBalance(interaction.guildId, i.user.id);
           
           if (userBalance < item.price) {
             await i.reply({ content: `❌ Solde insuffisant. Vous avez ${userBalance} ${currencyName}, mais il faut ${item.price} ${currencyName}.`, ephemeral: true });
@@ -156,7 +156,7 @@ module.exports = {
           }
 
           // Process purchase
-          setBalance(interaction.guildId, i.user.id, userBalance - item.price);
+          await setBalance(interaction.guildId, i.user.id, userBalance - item.price);
 
           let successMessage = `✅ Vous avez acheté **${item.name}** pour ${item.price} ${currencyName} !`;
 
