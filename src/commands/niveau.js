@@ -54,8 +54,35 @@ module.exports = {
 
       const config     = loadGuildConfig(interaction.guild.id);
       const targetUser = interaction.options.getUser('membre') || interaction.user;
-      const theme      = interaction.options.getString('theme') || 'holographique';
       const member     = await fetchMember(interaction.guild, targetUser.id);
+
+      // Determine theme: explicit option > roleThemes config > defaultTheme > fallback
+      let theme = interaction.options.getString('theme');
+      if (!theme) {
+        const roleThemes  = config?.roleThemes  || {};
+        const defaultTheme = config?.defaultTheme || '';
+        // Check member roles from highest to lowest position
+        if (member && Object.keys(roleThemes).length > 0) {
+          const sorted = [...member.roles.cache.values()]
+            .filter(r => r.id !== interaction.guild.id)
+            .sort((a, b) => b.position - a.position);
+          for (const role of sorted) {
+            if (roleThemes[role.id]) {
+              const t = roleThemes[role.id];
+              theme = (t === 'random') ? null : t;
+              break;
+            }
+          }
+        }
+        if (!theme) {
+          if (defaultTheme && defaultTheme !== 'random' && defaultTheme !== '') {
+            theme = defaultTheme;
+          } else {
+            const ALL_THEMES = ['holographique','gaming','love','sensuel','cosmos','nature','dark','gold','argent','bleu','rose'];
+            theme = ALL_THEMES[Math.floor(Math.random() * ALL_THEMES.length)];
+          }
+        }
+      }
       const guildId    = interaction.guild.id;
 
       const totalXp    = await getXP(guildId, targetUser.id) || 0;
