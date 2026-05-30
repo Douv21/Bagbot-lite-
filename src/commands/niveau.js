@@ -95,7 +95,11 @@ module.exports = {
       const cardAttachment = member ? await genCard(member, cardData, theme) : null;
 
       if (cardAttachment) {
-        await interaction.editReply({ content: mention || null, files: [cardAttachment] });
+        await interaction.editReply({
+          content: mention || null,
+          files: [cardAttachment],
+          allowedMentions: mention ? { users: [targetUser.id] } : { parse: [] }
+        });
         return;
       }
 
@@ -117,7 +121,11 @@ module.exports = {
 
       if (roleName) embed.setDescription(`🎖️ Role actuel : **${roleName}**`);
 
-      await interaction.editReply({ content: mention, embeds: [embed] });
+      await interaction.editReply({
+        content: mention || null,
+        embeds: [embed],
+        allowedMentions: mention ? { users: [targetUser.id] } : { parse: [] }
+      });
     } catch (error) {
       console.error('Erreur commande niveau:', error);
       await interaction.editReply({ content: '❌ Une erreur est survenue.' }).catch(() => {});
