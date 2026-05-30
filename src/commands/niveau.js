@@ -11,6 +11,11 @@ const {
 } = require('../utils/levelHelpers');
 const genCard = require('../carte/holographique');
 
+const THEMES = [
+  'holographique','gaming','love','sensuel','cosmos',
+  'nature','dark','gold','argent','bleu','rose'
+];
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('niveau')
@@ -19,6 +24,23 @@ module.exports = {
       option.setName('membre')
         .setDescription('Membre concerné (optionnel)')
         .setRequired(false))
+    .addStringOption(option =>
+      option.setName('theme')
+        .setDescription('Thème visuel de la carte')
+        .setRequired(false)
+        .addChoices(
+          { name: 'Holographique (defaut)', value: 'holographique' },
+          { name: 'Gaming',                value: 'gaming' },
+          { name: 'Love',                  value: 'love' },
+          { name: 'Sensuel',               value: 'sensuel' },
+          { name: 'Cosmos',                value: 'cosmos' },
+          { name: 'Nature',                value: 'nature' },
+          { name: 'Dark',                  value: 'dark' },
+          { name: 'Gold',                  value: 'gold' },
+          { name: 'Argent',                value: 'argent' },
+          { name: 'Bleu',                  value: 'bleu' },
+          { name: 'Rose',                  value: 'rose' }
+        ))
     .setDMPermission(true),
 
   async execute(interaction) {
@@ -32,6 +54,7 @@ module.exports = {
 
       const config     = loadGuildConfig(interaction.guild.id);
       const targetUser = interaction.options.getUser('membre') || interaction.user;
+      const theme      = interaction.options.getString('theme') || 'holographique';
       const member     = await fetchMember(interaction.guild, targetUser.id);
       const guildId    = interaction.guild.id;
 
@@ -45,7 +68,7 @@ module.exports = {
 
       const lastReward = getLastRewardForLevel(config?.levels || config || {}, level);
       const roleName   = lastReward
-        ? (interaction.guild.roles.cache.get(lastReward.roleId)?.name || `Rôle ${lastReward.roleId}`)
+        ? (interaction.guild.roles.cache.get(lastReward.roleId)?.name || `Role ${lastReward.roleId}`)
         : null;
 
       const name    = memberDisplayName(interaction.guild, member, targetUser.id);
@@ -68,28 +91,29 @@ module.exports = {
         roleName:     roleName              || ''
       };
 
-      const cardAttachment = member ? await genCard(member, cardData) : null;
+      const cardAttachment = member ? await genCard(member, cardData, theme) : null;
 
       if (cardAttachment) {
         await interaction.editReply({ content: mention || null, files: [cardAttachment] });
         return;
       }
 
+      // Fallback embed si la carte échoue
       const embed = new EmbedBuilder()
         .setColor(0x2f6bd6)
         .setTitle(`✨ Niveau de ${name}`)
         .setThumbnail(targetUser.displayAvatarURL({ size: 128 }))
         .addFields(
-          { name: '📈 Niveau',       value: `**${level}**`,                                                                             inline: true },
-          { name: '✨ XP',            value: `${xpSinceLevel.toLocaleString('fr-FR')} / ${xpRequired.toLocaleString('fr-FR')} (${pct}%)`, inline: true },
-          { name: '⬆️ Prochain niv.', value: `${xpLeft.toLocaleString('fr-FR')} XP restantes`,                                         inline: true },
-          { name: '💬 Messages',     value: `${(userData.messages || 0).toLocaleString('fr-FR')}`,                                      inline: true },
-          { name: '🎤 Vocal',        value: voiceStr,                                                                                   inline: true },
-          { name: '🔥 Série',        value: `${userData.streak || 0} jours`,                                                           inline: true }
+          { name: '📈 Niveau',        value: `**${level}**`,                                                                              inline: true },
+          { name: '✨ XP',             value: `${xpSinceLevel.toLocaleString('fr-FR')} / ${xpRequired.toLocaleString('fr-FR')} (${pct}%)`, inline: true },
+          { name: '⬆️ Prochain niv.', value: `${xpLeft.toLocaleString('fr-FR')} XP restantes`,                                           inline: true },
+          { name: '💬 Messages',      value: `${(userData.messages || 0).toLocaleString('fr-FR')}`,                                       inline: true },
+          { name: '🎤 Vocal',         value: voiceStr,                                                                                    inline: true },
+          { name: '🔥 Serie',         value: `${userData.streak || 0} jours`,                                                            inline: true }
         )
         .setTimestamp();
 
-      if (roleName) embed.setDescription(`🎖️ Rôle actuel : **${roleName}**`);
+      if (roleName) embed.setDescription(`🎖️ Role actuel : **${roleName}**`);
 
       await interaction.editReply({ content: mention, embeds: [embed] });
     } catch (error) {
