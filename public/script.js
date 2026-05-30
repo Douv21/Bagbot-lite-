@@ -1318,6 +1318,9 @@ const THEME_META = {
   'gold':        { name: 'Or',            css: 'theme-badge-gold' },
 };
 
+// Module-level selected theme (évite les bugs du hidden input)
+let _selectedTheme = '';
+
 // Theme picker card clicks
 document.addEventListener('click', e => {
   const card = e.target.closest('.theme-card');
@@ -1326,13 +1329,12 @@ document.addEventListener('click', e => {
   if (!grid) return;
   grid.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
-  const hidden = document.getElementById('themeSelect');
-  if (hidden) hidden.value = card.getAttribute('data-theme') || '';
+  _selectedTheme = card.dataset.theme ?? '';
 });
 
 function addRoleTheme() {
   const roleId = document.getElementById('themeRole').value;
-  const theme  = document.getElementById('themeSelect').value;
+  const theme  = _selectedTheme;
 
   if (!roleId) {
     alert('Veuillez sélectionner un rôle.');
@@ -1343,8 +1345,9 @@ function addRoleTheme() {
   roleThemes[roleId] = theme === '' ? 'random' : theme;
   localStorage.setItem('roleThemes', JSON.stringify(roleThemes));
 
+  // Reset form
   document.getElementById('themeRole').value = '';
-  document.getElementById('themeSelect').value = '';
+  _selectedTheme = '';
   document.querySelectorAll('#themePickerGrid .theme-card').forEach(c => c.classList.remove('selected'));
   const firstCard = document.querySelector('#themePickerGrid .theme-card');
   if (firstCard) firstCard.classList.add('selected');
