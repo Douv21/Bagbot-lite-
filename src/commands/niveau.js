@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const generateHolographicCard = require('../carte/holographique');
 const { loadGuildConfig } = require('../utils/leveling');
 const { getXP } = require('../utils/economy');
 const { getUserData } = require('../storage/jsonStore');
@@ -48,57 +47,33 @@ module.exports = {
         ? (interaction.guild.roles.cache.get(lastReward.roleId)?.name || `Rôle ${lastReward.roleId}`)
         : null;
 
-      const name = memberDisplayName(interaction.guild, member, targetUser.id);
-
-      const mockMember = {
-        user: {
-          username:         name,
-          discriminator:    targetUser.discriminator,
-          displayAvatarURL: (opts) => targetUser.displayAvatarURL(opts || {})
-        },
-        guild: { iconURL: () => interaction.guild.iconURL() }
-      };
-
-      const data = {
-        level,
-        xp:          xpSinceLevel,
-        required:    xpRequired,
-        rank:        1,
-        messages:    userData.messages     || 0,
-        voiceMinutes:userData.voiceMinutes || 0,
-        streak:      userData.streak       || 0,
-        roleName:    roleName || 'Membre du serveur'
-      };
-
-      const card = await generateHolographicCard(mockMember, data);
-
+      const name    = memberDisplayName(interaction.guild, member, targetUser.id);
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : undefined;
 
-      if (card) {
-        const embed = new EmbedBuilder()
-          .setColor(0x2f6bd6)
-          .setImage('attachment://holographic-card.png')
-          .setTimestamp();
-        if (roleName) embed.setDescription(`🎖️ Rôle actuel : ${roleName}`);
+      const xpLeft = Math.max(0, xpRequired - xpSinceLevel);
+      const pct    = Math.min(100, Math.round((xpSinceLevel / Math.max(1, xpRequired)) * 100));
 
-        await interaction.editReply({
-          content: mention,
-          embeds:  [embed],
-          files:   [card]
-        });
-      } else {
-        const embed = new EmbedBuilder()
-          .setColor(0x2f6bd6)
-          .setTitle(`📊 Niveau de ${name}`)
-          .addFields(
-            { name: '📈 Niveau',    value: `${level}`,                     inline: true },
-            { name: '✨ XP',        value: `${xpSinceLevel} / ${xpRequired}`, inline: true },
-            { name: '💬 Messages',  value: `${userData.messages || 0}`,    inline: true }
-          )
-          .setTimestamp();
-        if (roleName) embed.setDescription(`🎖️ Rôle actuel : ${roleName}`);
-        await interaction.editReply({ content: mention, embeds: [embed] });
-      }
+      const voiceStr = userData.voiceMinutes >= 60
+        ? `${Math.floor(userData.voiceMinutes / 60)}h ${userData.voiceMinutes % 60}m`
+        : `${userData.voiceMinutes || 0}m`;
+
+      const embed = new EmbedBuilder()
+        .setColor(0x2f6bd6)
+        .setTitle(`✨ Niveau de ${name}`)
+        .setThumbnail(targetUser.displayAvatarURL({ size: 128 }))
+        .addFields(
+          { name: '📈 Niveau',       value: `**${level}**`,                          inline: true },
+          { name: '✨ XP',            value: `${xpSinceLevel.toLocaleString('fr-FR')} / ${xpRequired.toLocaleString('fr-FR')} (${pct}%)`, inline: true },
+          { name: '⬆️ Prochain niv.', value: `${xpLeft.toLocaleString('fr-FR')} XP restantes`, inline: true },
+          { name: '💬 Messages',     value: `${(userData.messages || 0).toLocaleString('fr-FR')}`, inline: true },
+          { name: '🎤 Vocal',        value: voiceStr,                                inline: true },
+          { name: '🔥 Série',        value: `${userData.streak || 0} jours`,         inline: true }
+        )
+        .setTimestamp();
+
+      if (roleName) embed.setDescription(`🎖️ Rôle actuel : **${roleName}**`);
+
+      await interaction.editReply({ content: mention, embeds: [embed] });
     } catch (error) {
       console.error('Erreur commande niveau:', error);
       await interaction.editReply({ content: '❌ Une erreur est survenue.' }).catch(() => {});
