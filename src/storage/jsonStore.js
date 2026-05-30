@@ -85,7 +85,9 @@ async function getUserData(guildId, userId) {
       messages: 0,
       voiceMinutes: 0,
       lastMessage: null,
-      lastVoice: null
+      lastVoice: null,
+      karma: 0,
+      fire: 0
     };
   }
   return guildConfig.users[userId];
@@ -103,7 +105,9 @@ async function updateUserData(guildId, userId, data) {
       messages: 0,
       voiceMinutes: 0,
       lastMessage: null,
-      lastVoice: null
+      lastVoice: null,
+      karma: 0,
+      fire: 0
     };
   }
   Object.assign(guildConfig.users[userId], data);
