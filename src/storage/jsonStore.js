@@ -138,6 +138,22 @@ async function getBalance(guildId, userId) {
   return userData.balance || 0;
 }
 
+async function getAllUsersInGuild(guildId) {
+  const config = await loadConfig();
+  const guildConfig = getGuildConfig(config, guildId);
+  return Object.keys(guildConfig.users || {});
+}
+
+async function resetFireForGuild(guildId) {
+  const config = await loadConfig();
+  const guildConfig = getGuildConfig(config, guildId);
+  if (!guildConfig.users) return;
+  for (const userId of Object.keys(guildConfig.users)) {
+    guildConfig.users[userId].fire = 0;
+  }
+  await saveConfig(config);
+}
+
 module.exports = {
   setDataDir,
   loadConfig,
@@ -150,5 +166,7 @@ module.exports = {
   addXP,
   addBalance,
   getXP,
-  getBalance
+  getBalance,
+  getAllUsersInGuild,
+  resetFireForGuild
 };
