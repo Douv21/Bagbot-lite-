@@ -9,6 +9,7 @@ const {
   xpRequiredForNext,
   xpToLevel
 } = require('../utils/levelHelpers');
+const genCard = require('../carte/holographique');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -57,17 +58,34 @@ module.exports = {
         ? `${Math.floor(userData.voiceMinutes / 60)}h ${userData.voiceMinutes % 60}m`
         : `${userData.voiceMinutes || 0}m`;
 
+      const cardData = {
+        level,
+        xp:           xpSinceLevel,
+        required:     xpRequired,
+        messages:     userData.messages     || 0,
+        voiceMinutes: userData.voiceMinutes || 0,
+        streak:       userData.streak       || 0,
+        roleName:     roleName              || ''
+      };
+
+      const cardAttachment = member ? await genCard(member, cardData) : null;
+
+      if (cardAttachment) {
+        await interaction.editReply({ content: mention || null, files: [cardAttachment] });
+        return;
+      }
+
       const embed = new EmbedBuilder()
         .setColor(0x2f6bd6)
         .setTitle(`✨ Niveau de ${name}`)
         .setThumbnail(targetUser.displayAvatarURL({ size: 128 }))
         .addFields(
-          { name: '📈 Niveau',       value: `**${level}**`,                          inline: true },
+          { name: '📈 Niveau',       value: `**${level}**`,                                                                             inline: true },
           { name: '✨ XP',            value: `${xpSinceLevel.toLocaleString('fr-FR')} / ${xpRequired.toLocaleString('fr-FR')} (${pct}%)`, inline: true },
-          { name: '⬆️ Prochain niv.', value: `${xpLeft.toLocaleString('fr-FR')} XP restantes`, inline: true },
-          { name: '💬 Messages',     value: `${(userData.messages || 0).toLocaleString('fr-FR')}`, inline: true },
-          { name: '🎤 Vocal',        value: voiceStr,                                inline: true },
-          { name: '🔥 Série',        value: `${userData.streak || 0} jours`,         inline: true }
+          { name: '⬆️ Prochain niv.', value: `${xpLeft.toLocaleString('fr-FR')} XP restantes`,                                         inline: true },
+          { name: '💬 Messages',     value: `${(userData.messages || 0).toLocaleString('fr-FR')}`,                                      inline: true },
+          { name: '🎤 Vocal',        value: voiceStr,                                                                                   inline: true },
+          { name: '🔥 Série',        value: `${userData.streak || 0} jours`,                                                           inline: true }
         )
         .setTimestamp();
 
