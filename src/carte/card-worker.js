@@ -215,371 +215,380 @@ function drawThemeBackground(ctx, W, H, theme, themeName) {
   ctx.save();
   const t = (themeName || 'holographique').toLowerCase();
 
+  // Visible zones (not covered by panels):
+  // - Top strip: y=22..130, full width
+  // - Left section: x=22..310, y=130..410 (avatar area, no panel)
+  // - Center-left: x=310..840, y=130..410 (name area, no panel)
+  // - Bottom thin strip: y=750..778
+  // - All 4 corner areas
+  // Panel areas (semi-transparent 94-97%) show ~4% of background through them
+
   if (t === 'holographique') {
-    // Large prismatic light beams from top-center
-    for (let i = 0; i < 10; i++) {
-      const angle = -0.5 + i * 0.11;
-      const g = ctx.createLinearGradient(W/2, 0, W/2 + Math.cos(angle)*W*2, Math.sin(angle)*H*2);
-      const colors = ['rgba(0,240,255,0.18)','rgba(180,80,255,0.12)','rgba(0,200,255,0.15)'];
-      g.addColorStop(0, colors[i % 3]); g.addColorStop(1, 'rgba(0,0,0,0)');
+    // Prismatic rays from top-left corner (visible zone)
+    for (let i = 0; i < 12; i++) {
+      const angle = 0.05 + i * 0.14;
+      const g = ctx.createLinearGradient(0, 0, Math.cos(angle)*W*1.2, Math.sin(angle)*H*1.2);
+      const cols = ['rgba(0,240,255,0.32)','rgba(180,60,255,0.26)','rgba(0,200,200,0.28)'];
+      g.addColorStop(0, cols[i%3]); g.addColorStop(0.6,'rgba(0,100,200,0.08)'); g.addColorStop(1,'rgba(0,0,0,0)');
       ctx.beginPath();
-      ctx.moveTo(W/2, 0);
-      ctx.lineTo(W/2 + Math.cos(angle - 0.05)*W*2, Math.sin(angle - 0.05)*H*2);
-      ctx.lineTo(W/2 + Math.cos(angle + 0.05)*W*2, Math.sin(angle + 0.05)*H*2);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(angle-0.06)*W*1.2, Math.sin(angle-0.06)*H*1.2);
+      ctx.lineTo(Math.cos(angle+0.06)*W*1.2, Math.sin(angle+0.06)*H*1.2);
       ctx.closePath(); ctx.fillStyle = g; ctx.fill();
     }
-    // Big lens flare circles
-    [[160,120,90,'rgba(0,240,255,0.22)'],[520,180,50,'rgba(180,100,255,0.18)'],
-     [1050,100,70,'rgba(0,200,255,0.20)'],[850,600,60,'rgba(100,200,255,0.15)']].forEach(([x,y,r,c]) => {
+    // Large lens flares in top area (visible)
+    [[80,80,110,'rgba(0,240,255,0.40)'],[400,60,80,'rgba(160,80,255,0.35)'],
+     [700,50,70,'rgba(0,200,255,0.30)'],[180,340,100,'rgba(0,160,255,0.25)'],
+     [550,300,90,'rgba(120,60,255,0.22)']].forEach(([x,y,r,c]) => {
       const g = ctx.createRadialGradient(x,y,0,x,y,r);
-      g.addColorStop(0, c); g.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle = g; ctx.fill();
+      g.addColorStop(0,c); g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
     });
-    // Iridescent diagonal sweep
-    const sweep = ctx.createLinearGradient(0, 0, W, H*0.6);
-    sweep.addColorStop(0,'rgba(0,0,0,0)');
-    sweep.addColorStop(0.3,'rgba(0,220,255,0.06)');
-    sweep.addColorStop(0.5,'rgba(200,100,255,0.09)');
-    sweep.addColorStop(0.7,'rgba(0,255,200,0.06)');
-    sweep.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle = sweep; ctx.fillRect(0,0,W,H);
+    // Right-side diagonal sheen
+    const sw = ctx.createLinearGradient(W*0.55,0,W,H);
+    sw.addColorStop(0,'rgba(0,220,255,0.12)'); sw.addColorStop(0.4,'rgba(180,80,255,0.16)');
+    sw.addColorStop(0.7,'rgba(0,240,255,0.10)'); sw.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=sw; ctx.fillRect(0,0,W,H);
 
   } else if (t === 'gaming') {
-    // Bold scanlines across full card
-    ctx.globalAlpha = 0.10;
+    // Scanlines full card
+    ctx.globalAlpha = 0.18;
     ctx.fillStyle = '#00ff50';
     for (let y = 0; y < H; y += 5) { ctx.fillRect(0, y, W, 2); }
-    // Large HUD crosshair top-right
-    ctx.globalAlpha = 0.35;
-    ctx.strokeStyle = '#00ff50'; ctx.lineWidth = 2.5;
-    const cx = W - 110, cy = 110, cr = 60;
-    ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(cx, cy, cr*0.35, 0, Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(cx, cy, cr*1.35, 0, Math.PI*2);
-    ctx.strokeStyle = 'rgba(0,255,80,0.18)'; ctx.lineWidth = 1; ctx.stroke();
-    [[cx-cr*1.6,cy,cx-cr*1.05,cy],[cx+cr*1.05,cy,cx+cr*1.6,cy],
-     [cx,cy-cr*1.6,cx,cy-cr*1.05],[cx,cy+cr*1.05,cx,cy+cr*1.6]].forEach(([x1,y1,x2,y2]) => {
+    // HUD crosshair — in the center-top VISIBLE area (not behind niveau panel)
+    ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = '#00ff50'; ctx.lineWidth = 3;
+    const gcx = 560, gcy = 80, gcr = 55;
+    ctx.beginPath(); ctx.arc(gcx, gcy, gcr, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(gcx, gcy, gcr*0.32, 0, Math.PI*2); ctx.stroke();
+    ctx.globalAlpha = 0.30;
+    ctx.beginPath(); ctx.arc(gcx, gcy, gcr*1.5, 0, Math.PI*2);
+    ctx.strokeStyle = '#00ff50'; ctx.lineWidth = 1; ctx.stroke();
+    [[gcx-gcr*1.7,gcy,gcx-gcr*1.1,gcy],[gcx+gcr*1.1,gcy,gcx+gcr*1.7,gcy],
+     [gcx,gcy-gcr*1.7,gcx,gcy-gcr*1.1],[gcx,gcy+gcr*1.1,gcx,gcy+gcr*1.7]].forEach(([x1,y1,x2,y2]) => {
       ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle = '#00ff50'; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.globalAlpha=0.55; ctx.strokeStyle='#00ff50'; ctx.lineWidth=3; ctx.stroke();
     });
-    // Health & mana bars (top-left area, game HUD)
-    ctx.globalAlpha = 0.30;
-    const barData = [['#00ff50',40,44,220,14],['#4488ff',40,66,160,14]];
-    barData.forEach(([col,bx,by,bw,bh]) => {
-      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx-2,by-2,bw+4,bh+4);
-      ctx.fillStyle = col; ctx.fillRect(bx,by,bw,bh);
+    // HP / MP bars visible in top-left
+    ctx.globalAlpha = 0.50;
+    [['#00ff50',36,38,200,18],['#4488ff',36,64,145,18]].forEach(([col,bx,by,bw,bh]) => {
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(bx-2,by-2,bw+4,bh+4);
+      ctx.fillStyle=col; ctx.fillRect(bx,by,bw,bh);
     });
-    // Pixel blocks (retro style)
-    ctx.globalAlpha = 0.25;
-    [[1260,560,16,'#00ff50'],[1290,545,10,'#ffff00'],[1275,578,12,'#ff4000'],
-     [700,50,14,'#00ff50'],[720,40,8,'#80ff00']].forEach(([x,y,s,c]) => {
-      ctx.fillStyle = c; ctx.fillRect(x, y, s, s);
+    // Pixel blocks (corners)
+    ctx.globalAlpha = 0.45;
+    [[36,H-60,14,'#00ff50'],[56,H-60,10,'#ffff00'],[36,H-80,12,'#ff4000'],
+     [760,44,16,'#00ff50'],[782,38,10,'#ffff00'],[760,26,12,'#80ff00']].forEach(([x,y,s,c]) => {
+      ctx.fillStyle=c; ctx.fillRect(x,y,s,s);
     });
-    // Corner bracket HUD decorations (bottom-left)
-    ctx.globalAlpha = 0.30;
-    ctx.strokeStyle = '#00ff50'; ctx.lineWidth = 2;
-    [[48,H-48,1,1],[48+120,H-48,-1,1]].forEach(([bx,by,dx,dy]) => {
-      ctx.beginPath(); ctx.moveTo(bx,by+dy*30); ctx.lineTo(bx,by); ctx.lineTo(bx+dx*30,by); ctx.stroke();
-    });
+    // Radar lines from crosshair
+    ctx.globalAlpha = 0.20;
+    ctx.strokeStyle = '#00ff50'; ctx.lineWidth = 1;
+    for (let a = 0; a < Math.PI*2; a += Math.PI/6) {
+      ctx.beginPath(); ctx.moveTo(gcx,gcy);
+      ctx.lineTo(gcx+Math.cos(a)*200, gcy+Math.sin(a)*200); ctx.stroke();
+    }
+    // Green glow in left section
+    const gg2 = ctx.createRadialGradient(200,300,0,200,300,220);
+    gg2.addColorStop(0,'rgba(0,255,80,0.12)'); gg2.addColorStop(1,'rgba(0,255,80,0)');
+    ctx.globalAlpha=1; ctx.fillStyle=gg2; ctx.beginPath(); ctx.arc(200,300,220,0,Math.PI*2); ctx.fill();
 
   } else if (t === 'love') {
-    // Many large bright hearts at varied positions and sizes
+    // Large hearts — focused in VISIBLE zones (top strip + left/center + borders)
     const heartPos = [
-      [90,55,32],[280,40,22],[500,70,28],[740,45,24],[960,65,30],[1180,50,20],[1340,80,26],
-      [55,300,18],[1360,280,22],[60,600,24],[400,720,20],[700,740,28],[1000,730,18],[1310,660,22],
-      [220,180,14],[580,160,16],[920,150,14],[1200,190,18],
-      [160,460,16],[850,480,12],[1250,430,14]
+      // Top strip (very visible)
+      [80,45,36],[260,38,26],[480,52,32],[700,42,28],[850,50,22],
+      // Left-center section (avatar area, visible)
+      [50,200,22],[50,380,18],[260,160,16],[400,200,14],[200,340,20],
+      // Bottom border
+      [100,740,22],[350,750,18],[700,745,24],[1050,748,18],[1350,738,20],
+      // Right border (outside niveau panel bottom area)
+      [1380,200,18],[1360,420,20],[1370,600,16],
     ];
     heartPos.forEach(([hx, hy, hs]) => {
-      // Glow
-      const hg = ctx.createRadialGradient(hx, hy+hs*0.7, 0, hx, hy+hs*0.7, hs*2.2);
-      hg.addColorStop(0,'rgba(255,80,160,0.22)'); hg.addColorStop(1,'rgba(255,80,160,0)');
-      ctx.fillStyle = hg;
-      ctx.beginPath(); ctx.arc(hx, hy+hs*0.7, hs*2.2, 0, Math.PI*2); ctx.fill();
-      // Heart
-      ctx.globalAlpha = 0.28;
-      ctx.fillStyle = theme.corner;
-      drawHeart(ctx, hx, hy, hs);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      const hg = ctx.createRadialGradient(hx,hy+hs*0.7,0,hx,hy+hs*0.7,hs*2.8);
+      hg.addColorStop(0,'rgba(255,60,140,0.30)'); hg.addColorStop(1,'rgba(255,60,140,0)');
+      ctx.fillStyle=hg; ctx.beginPath(); ctx.arc(hx,hy+hs*0.7,hs*2.8,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=0.50; ctx.fillStyle=theme.corner;
+      drawHeart(ctx,hx,hy,hs); ctx.fill(); ctx.globalAlpha=1;
+    });
+    // Pink glow corners
+    [[0,0],[W,0],[0,H],[W,H]].forEach(([mx,my]) => {
+      const mg=ctx.createRadialGradient(mx,my,0,mx,my,350);
+      mg.addColorStop(0,'rgba(255,80,160,0.18)'); mg.addColorStop(1,'rgba(255,80,160,0)');
+      ctx.fillStyle=mg; ctx.fillRect(0,0,W,H);
     });
 
   } else if (t === 'sensuel') {
-    // Flowing silk drape curves (wide, visible)
-    ctx.globalAlpha = 0.18;
-    ctx.lineWidth = 2.5;
+    // Silk drapes — thick, visible
+    ctx.lineWidth = 4;
     for (let i = 0; i < 10; i++) {
-      const ox = -100 + i * 160;
-      const g = ctx.createLinearGradient(ox, 0, ox+120, H);
-      g.addColorStop(0,'rgba(200,0,120,0.0)');
-      g.addColorStop(0.3, theme.corner);
-      g.addColorStop(0.7,'rgba(200,0,120,0.5)');
-      g.addColorStop(1,'rgba(200,0,120,0.0)');
-      ctx.strokeStyle = g;
-      ctx.beginPath();
-      ctx.moveTo(ox, 0);
-      ctx.bezierCurveTo(ox+80, H*0.25, ox+30, H*0.55, ox+100, H);
-      ctx.stroke();
+      const ox = -80 + i * 155;
+      const g = ctx.createLinearGradient(ox, 0, ox+100, H);
+      g.addColorStop(0,'rgba(200,0,100,0)');
+      g.addColorStop(0.25,'rgba(200,0,100,0.30)');
+      g.addColorStop(0.5,'rgba(255,40,120,0.22)');
+      g.addColorStop(0.75,'rgba(200,0,100,0.30)');
+      g.addColorStop(1,'rgba(200,0,100,0)');
+      ctx.strokeStyle=g; ctx.globalAlpha=0.60;
+      ctx.beginPath(); ctx.moveTo(ox,0);
+      ctx.bezierCurveTo(ox+70,H*0.28, ox+20,H*0.55, ox+90,H); ctx.stroke();
     }
-    // Large rose petals scattered
-    ctx.globalAlpha = 0.28;
-    ctx.fillStyle = theme.corner;
-    [[180,90,50,24,0.5],[460,70,38,18,1.1],[1080,60,46,22,0.2],
-     [940,680,42,20,1.9],[280,700,36,17,0.8],[1240,380,40,19,1.5],
-     [700,120,30,14,2.2],[1340,600,34,16,0.4]].forEach(([px,py,rw,rh,angle]) => {
-      ctx.save(); ctx.translate(px, py); ctx.rotate(angle);
-      ctx.beginPath(); ctx.ellipse(0, 0, rw, rh, 0, 0, Math.PI*2);
-      ctx.fill(); ctx.restore();
-    });
-    // Diagonal vignette glow
-    const sv = ctx.createLinearGradient(0, H, W, 0);
-    sv.addColorStop(0,'rgba(200,0,100,0.12)'); sv.addColorStop(1,'rgba(100,0,60,0.06)');
-    ctx.globalAlpha = 1; ctx.fillStyle = sv; ctx.fillRect(0,0,W,H);
-
-  } else if (t === 'cosmos') {
-    // Dense starfield — 350 stars at full brightness
-    const rng = s => { let x = Math.sin(s)*10000; return x - Math.floor(x); };
-    for (let i = 0; i < 350; i++) {
-      const sx = rng(i*3+1)*W, sy = rng(i*3+2)*H;
-      const sr = rng(i*3+3)*2.2 + 0.3;
-      const bright = rng(i*3)*0.6 + 0.4;
-      ctx.globalAlpha = bright * 0.75;
-      // Big stars get a cross flare
-      if (sr > 2) {
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.8;
-        ctx.globalAlpha = bright * 0.4;
-        [[sx-sr*3,sy,sx+sr*3,sy],[sx,sy-sr*3,sx,sy+sr*3]].forEach(([x1,y1,x2,y2]) => {
-          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-        });
-        ctx.globalAlpha = bright * 0.75;
-      }
-      ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI*2);
-      ctx.fillStyle = '#ffffff'; ctx.fill();
-    }
-    // Nebula cloud (right side)
-    ctx.globalAlpha = 1;
-    [[1100,200,280,'rgba(100,40,200,0.18)'],[1200,350,200,'rgba(60,0,180,0.14)'],
-     [900,150,180,'rgba(140,60,255,0.12)'],[1300,500,160,'rgba(80,20,160,0.10)']].forEach(([nx,ny,nr,nc]) => {
-      const ng = ctx.createRadialGradient(nx,ny,0,nx,ny,nr);
-      ng.addColorStop(0, nc); ng.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle = ng; ctx.beginPath(); ctx.arc(nx,ny,nr,0,Math.PI*2); ctx.fill();
-    });
-    // Bright constellations
-    ctx.globalAlpha = 0.45;
-    ctx.strokeStyle = theme.corner; ctx.lineWidth = 1.2;
-    const conStars = [[120,90],[320,60],[260,160],[480,90],[420,200],[640,80],[750,170],[680,280]];
-    for (let i = 0; i < conStars.length - 1; i++) {
-      ctx.beginPath(); ctx.moveTo(...conStars[i]); ctx.lineTo(...conStars[i+1]); ctx.stroke();
-    }
-    conStars.forEach(([sx,sy]) => {
-      ctx.beginPath(); ctx.arc(sx,sy,3,0,Math.PI*2);
-      ctx.fillStyle = '#ffffff'; ctx.fill();
-    });
-    // Shooting star
-    ctx.globalAlpha = 0.55;
-    const ssg = ctx.createLinearGradient(1100,30,1380,130);
-    ssg.addColorStop(0,'rgba(200,150,255,0)'); ssg.addColorStop(0.6, theme.corner); ssg.addColorStop(1,'#ffffff');
-    ctx.strokeStyle = ssg; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(1100, 30); ctx.lineTo(1380, 130); ctx.stroke();
-
-  } else if (t === 'nature') {
-    // Ground gradient (green mist bottom)
-    const gnd = ctx.createLinearGradient(0, H*0.6, 0, H);
-    gnd.addColorStop(0,'rgba(20,100,30,0)'); gnd.addColorStop(1,'rgba(20,100,30,0.20)');
-    ctx.fillStyle = gnd; ctx.fillRect(0,0,W,H);
-    // Large leaves all around border
-    ctx.globalAlpha = 0.32;
-    ctx.fillStyle = theme.corner;
-    const leafData = [
-      [80,60,55,0.3],[220,40,42,1.2],[420,55,48,2.0],[650,40,38,0.7],
-      [900,50,52,1.5],[1100,60,44,0.2],[1280,80,40,1.9],[1380,160,36,2.5],
-      [55,580,50,1.1],[1390,560,46,0.5],[80,720,44,1.8],[400,750,36,0.4],
-      [750,760,42,2.3],[1050,740,40,1.0],[1320,700,38,1.6]
-    ];
-    leafData.forEach(([lx,ly,ls,rot]) => { drawLeaf(ctx, lx, ly, ls, rot); });
-    // Vein lines on bigger leaves
-    ctx.globalAlpha = 0.15;
-    ctx.strokeStyle = '#c0f040'; ctx.lineWidth = 1.5;
-    [[80,60,55,0.3],[900,50,52,1.5],[1100,60,44,0.2]].forEach(([lx,ly,ls,rot]) => {
-      ctx.save(); ctx.translate(lx, ly); ctx.rotate(rot);
-      ctx.beginPath(); ctx.moveTo(0,-ls); ctx.lineTo(0,ls); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0,-ls*0.3); ctx.lineTo(ls*0.5,ls*0.1); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0,ls*0.2); ctx.lineTo(-ls*0.5,ls*0.5); ctx.stroke();
+    ctx.globalAlpha=1;
+    // Large rose petals — in visible areas
+    [[160,68,55,26,0.5],[400,58,45,21,1.1],[620,72,40,19,2.2],
+     [50,250,42,20,0.8],[50,450,38,18,1.5],
+     [1380,230,40,19,0.3],[1370,480,36,17,1.9],
+     [200,740,50,23,0.7],[550,748,44,21,1.8],[900,742,42,20,0.4],[1200,740,46,22,2.1]].forEach(([px,py,rw,rh,angle]) => {
+      ctx.save(); ctx.translate(px,py); ctx.rotate(angle);
+      ctx.globalAlpha=0.50; ctx.fillStyle=theme.corner;
+      ctx.beginPath(); ctx.ellipse(0,0,rw,rh,0,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=0.18; ctx.fillStyle='#ffffff';
+      ctx.beginPath(); ctx.ellipse(-rw*0.25,-rh*0.25,rw*0.35,rh*0.28,0,0,Math.PI*2); ctx.fill();
       ctx.restore();
     });
-    // Flowing branch curves
-    ctx.globalAlpha = 0.22;
-    ctx.strokeStyle = '#60a040'; ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(0, H*0.35); ctx.bezierCurveTo(W*0.15,H*0.15, W*0.35,H*0.55, W*0.55,H*0.25);
-    ctx.bezierCurveTo(W*0.75,H*0.05, W*0.9,H*0.45, W, H*0.3); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0, H*0.7); ctx.bezierCurveTo(W*0.2,H*0.9, W*0.5,H*0.75, W*0.7,H*0.9);
-    ctx.bezierCurveTo(W*0.85,H*0.98, W*0.95,H*0.85, W, H*0.9); ctx.stroke();
+    // Corner vignette
+    [[0,H],[W,0]].forEach(([vx,vy]) => {
+      const vg=ctx.createRadialGradient(vx,vy,0,vx,vy,500);
+      vg.addColorStop(0,'rgba(160,0,80,0.22)'); vg.addColorStop(1,'rgba(160,0,80,0)');
+      ctx.globalAlpha=1; ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
+    });
+
+  } else if (t === 'cosmos') {
+    // Dense starfield — 400 stars, full brightness
+    const rng = s => { let x=Math.sin(s)*10000; return x-Math.floor(x); };
+    for (let i = 0; i < 400; i++) {
+      const sx=rng(i*3+1)*W, sy=rng(i*3+2)*H, sr=rng(i*3+3)*2.5+0.4;
+      const bright=rng(i*3)*0.5+0.5;
+      ctx.globalAlpha=bright*0.85;
+      if (sr > 1.8) {
+        ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=0.8;
+        ctx.globalAlpha=bright*0.45;
+        [[sx-sr*4,sy,sx+sr*4,sy],[sx,sy-sr*4,sx,sy+sr*4]].forEach(([x1,y1,x2,y2]) => {
+          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        });
+        ctx.globalAlpha=bright*0.85;
+      }
+      ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2);
+      ctx.fillStyle='#ffffff'; ctx.fill();
+    }
+    // Bright nebula (left section, visible around avatar)
+    ctx.globalAlpha=1;
+    [[180,280,200,'rgba(80,20,180,0.35)'],[350,180,160,'rgba(120,40,220,0.28)'],
+     [480,350,140,'rgba(60,0,160,0.22)'],[100,400,180,'rgba(100,30,200,0.20)'],
+     [1100,200,220,'rgba(80,20,160,0.25)'],[1280,400,180,'rgba(60,0,140,0.20)']].forEach(([nx,ny,nr,nc]) => {
+      const ng=ctx.createRadialGradient(nx,ny,0,nx,ny,nr);
+      ng.addColorStop(0,nc); ng.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=ng; ctx.beginPath(); ctx.arc(nx,ny,nr,0,Math.PI*2); ctx.fill();
+    });
+    // Bright constellations in top strip (very visible)
+    ctx.globalAlpha=0.70;
+    ctx.strokeStyle=theme.corner; ctx.lineWidth=1.5;
+    const cst=[[80,60],[200,40],[320,75],[440,45],[540,80],[660,50],[760,65],[820,42]];
+    for (let i=0;i<cst.length-1;i++) {
+      ctx.beginPath(); ctx.moveTo(...cst[i]); ctx.lineTo(...cst[i+1]); ctx.stroke();
+    }
+    cst.forEach(([sx,sy]) => {
+      ctx.beginPath(); ctx.arc(sx,sy,4,0,Math.PI*2);
+      ctx.fillStyle='#ffffff'; ctx.fill();
+    });
+    // Shooting star
+    ctx.globalAlpha=0.75;
+    const ssg=ctx.createLinearGradient(900,30,1250,90);
+    ssg.addColorStop(0,'rgba(180,120,255,0)'); ssg.addColorStop(0.5,theme.corner); ssg.addColorStop(1,'#ffffff');
+    ctx.strokeStyle=ssg; ctx.lineWidth=3.5;
+    ctx.beginPath(); ctx.moveTo(900,30); ctx.lineTo(1250,90); ctx.stroke();
+
+  } else if (t === 'nature') {
+    // Green mist (bottom and left)
+    const gnd=ctx.createLinearGradient(0,H*0.5,0,H);
+    gnd.addColorStop(0,'rgba(10,60,15,0)'); gnd.addColorStop(1,'rgba(10,70,20,0.35)');
+    ctx.fillStyle=gnd; ctx.fillRect(0,0,W,H);
+    const gLeft=ctx.createLinearGradient(0,0,200,0);
+    gLeft.addColorStop(0,'rgba(10,80,20,0.25)'); gLeft.addColorStop(1,'rgba(10,80,20,0)');
+    ctx.fillStyle=gLeft; ctx.fillRect(0,0,W,H);
+    // Large leaves in visible areas
+    ctx.globalAlpha=0.52;
+    ctx.fillStyle=theme.corner;
+    [// Top strip
+     [70,50,62,0.3],[200,36,50,1.2],[400,48,56,2.0],[620,38,46,0.7],
+     [830,44,52,1.5],[1050,52,48,0.2],[1250,60,44,1.9],[1390,130,40,2.5],
+     // Bottom border
+     [50,740,58,1.1],[280,752,50,0.4],[600,748,54,2.3],[900,750,48,1.0],[1150,742,44,1.6],[1380,720,40,0.8],
+     // Left side (visible, no panel)
+     [36,200,42,2.1],[36,360,38,0.6]
+    ].forEach(([lx,ly,ls,rot]) => { drawLeaf(ctx,lx,ly,ls,rot); });
+    // Veins on large leaves
+    ctx.globalAlpha=0.25; ctx.strokeStyle='#c0f040'; ctx.lineWidth=2;
+    [[70,50,62,0.3],[830,44,52,1.5],[1250,60,44,1.9]].forEach(([lx,ly,ls,rot]) => {
+      ctx.save(); ctx.translate(lx,ly); ctx.rotate(rot);
+      ctx.beginPath(); ctx.moveTo(0,-ls); ctx.lineTo(0,ls); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,-ls*0.2); ctx.lineTo(ls*0.55,ls*0.15); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,ls*0.25); ctx.lineTo(-ls*0.55,ls*0.55); ctx.stroke();
+      ctx.restore();
+    });
+    // Branch curves
+    ctx.globalAlpha=0.35; ctx.strokeStyle='#50901e'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(0,H*0.32);
+    ctx.bezierCurveTo(W*0.18,H*0.12, W*0.38,H*0.52, W*0.58,H*0.22);
+    ctx.bezierCurveTo(W*0.76,H*0.04, W*0.92,H*0.42, W,H*0.28); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,H*0.72);
+    ctx.bezierCurveTo(W*0.22,H*0.88, W*0.52,H*0.75, W*0.72,H*0.90);
+    ctx.bezierCurveTo(W*0.86,H*0.98, W*0.94,H*0.86, W,H*0.92); ctx.stroke();
 
   } else if (t === 'dark') {
     // Full hexagon grid, clearly visible
-    ctx.globalAlpha = 0.18;
-    ctx.strokeStyle = theme.corner; ctx.lineWidth = 1.5;
-    const hexR = 50, hexH = hexR * Math.sqrt(3);
-    for (let col = -1; col < W / (hexR * 1.5) + 2; col++) {
-      for (let row = -1; row < H / hexH + 2; row++) {
-        const hcx = col * hexR * 3 + (row % 2 === 0 ? 0 : hexR * 1.5);
-        const hcy = row * hexH;
+    ctx.globalAlpha=0.28; ctx.strokeStyle=theme.corner; ctx.lineWidth=1.8;
+    const hexR=52, hexH=hexR*Math.sqrt(3);
+    for (let col=-1; col<W/(hexR*1.5)+2; col++) {
+      for (let row=-1; row<H/hexH+2; row++) {
+        const hcx=col*hexR*3+(row%2===0?0:hexR*1.5), hcy=row*hexH;
         ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const a = (Math.PI/180) * (60*i - 30);
-          i === 0 ? ctx.moveTo(hcx+hexR*Math.cos(a), hcy+hexR*Math.sin(a))
-                  : ctx.lineTo(hcx+hexR*Math.cos(a), hcy+hexR*Math.sin(a));
+        for (let i=0;i<6;i++) {
+          const a=(Math.PI/180)*(60*i-30);
+          i===0?ctx.moveTo(hcx+hexR*Math.cos(a),hcy+hexR*Math.sin(a)):ctx.lineTo(hcx+hexR*Math.cos(a),hcy+hexR*Math.sin(a));
         }
         ctx.closePath(); ctx.stroke();
       }
     }
-    // Glowing hex accents (a few filled)
-    ctx.globalAlpha = 0.12;
-    ctx.fillStyle = theme.corner;
-    [[200,200],[600,120],[1100,300],[900,600],[300,500]].forEach(([hx,hy]) => {
+    // Glowing filled hexagons
+    ctx.globalAlpha=0.20; ctx.fillStyle=theme.corner;
+    [[180,165],[560,110],[820,280],[300,460],[680,600],[1100,290],[950,640]].forEach(([hx,hy]) => {
       ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const a = (Math.PI/180)*(60*i-30);
+      for (let i=0;i<6;i++) {
+        const a=(Math.PI/180)*(60*i-30);
         i===0?ctx.moveTo(hx+hexR*Math.cos(a),hy+hexR*Math.sin(a)):ctx.lineTo(hx+hexR*Math.cos(a),hy+hexR*Math.sin(a));
       }
       ctx.closePath(); ctx.fill();
     });
-    // Dark fog layers
-    [[0,0,300,'rgba(40,0,60,0.18)'],[W,0,280,'rgba(20,0,40,0.14)'],
-     [W/2,H,350,'rgba(60,20,80,0.12)']].forEach(([fx,fy,fr,fc]) => {
-      const fg2 = ctx.createRadialGradient(fx,fy,0,fx,fy,fr);
+    // Corner dark mist
+    [[0,0,350,'rgba(50,0,70,0.28)'],[W,0,320,'rgba(30,0,50,0.22)'],
+     [0,H,300,'rgba(40,0,60,0.20)'],[W,H,280,'rgba(50,0,70,0.25)']].forEach(([fx,fy,fr,fc]) => {
+      const fg2=ctx.createRadialGradient(fx,fy,0,fx,fy,fr);
       fg2.addColorStop(0,fc); fg2.addColorStop(1,'rgba(0,0,0,0)');
       ctx.globalAlpha=1; ctx.fillStyle=fg2; ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2); ctx.fill();
     });
 
   } else if (t === 'gold') {
-    // Bold diagonal metallic stripes
-    ctx.globalAlpha = 0.14;
-    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.5;
-    for (let i = -H; i < W + H; i += 22) {
-      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke();
+    // Bold diagonal gold stripes
+    ctx.globalAlpha=0.22; ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5;
+    for (let i=-H; i<W+H; i+=20) {
+      ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i+H,H); ctx.stroke();
     }
-    // Large diamond pattern
-    ctx.globalAlpha = 0.18;
-    ctx.strokeStyle = '#ffe860'; ctx.lineWidth = 2;
-    for (let i = 0; i < 9; i++) {
-      for (let j = 0; j < 5; j++) {
-        const dx = 80 + i*150, dy = 80 + j*150, ds = 55;
-        ctx.beginPath();
-        ctx.moveTo(dx,dy-ds); ctx.lineTo(dx+ds,dy);
-        ctx.lineTo(dx,dy+ds); ctx.lineTo(dx-ds,dy);
-        ctx.closePath(); ctx.stroke();
-      }
+    // Large diamond lattice
+    ctx.globalAlpha=0.28; ctx.strokeStyle='#ffe860'; ctx.lineWidth=2.5;
+    for (let i=0; i<9; i++) for (let j=0; j<6; j++) {
+      const dx=70+i*148, dy=60+j*130, ds=52;
+      ctx.beginPath();
+      ctx.moveTo(dx,dy-ds); ctx.lineTo(dx+ds,dy); ctx.lineTo(dx,dy+ds); ctx.lineTo(dx-ds,dy);
+      ctx.closePath(); ctx.stroke();
     }
-    // Bright golden glow orbs
-    [[160,120,130,'rgba(255,215,0,0.22)'],[W/2,H/2,200,'rgba(255,180,0,0.10)'],
-     [1200,160,110,'rgba(255,200,0,0.20)'],[1000,650,100,'rgba(255,220,0,0.18)'],
-     [300,600,90,'rgba(255,200,0,0.14)']].forEach(([gx,gy,gr,gc]) => {
-      const gg = ctx.createRadialGradient(gx,gy,0,gx,gy,gr);
-      gg.addColorStop(0, gc); gg.addColorStop(1,'rgba(255,200,0,0)');
+    // Bright gold orbs in visible areas
+    [[120,80,140,'rgba(255,215,0,0.38)'],[400,200,120,'rgba(255,180,0,0.28)'],
+     [200,380,110,'rgba(255,200,0,0.25)'],[700,60,100,'rgba(255,220,0,0.22)'],
+     [1200,120,130,'rgba(255,215,0,0.30)'],[1000,680,110,'rgba(255,200,0,0.26)']].forEach(([gx,gy,gr,gc]) => {
+      const gg=ctx.createRadialGradient(gx,gy,0,gx,gy,gr);
+      gg.addColorStop(0,gc); gg.addColorStop(1,'rgba(255,180,0,0)');
       ctx.globalAlpha=1; ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(gx,gy,gr,0,Math.PI*2); ctx.fill();
     });
-    // Shimmering diagonal sheen
-    const gs = ctx.createLinearGradient(0,0,W,H*0.5);
-    gs.addColorStop(0,'rgba(255,255,200,0)');
-    gs.addColorStop(0.45,'rgba(255,240,100,0.12)');
-    gs.addColorStop(0.5,'rgba(255,255,255,0.20)');
-    gs.addColorStop(0.55,'rgba(255,240,100,0.12)');
-    gs.addColorStop(1,'rgba(255,255,200,0)');
+    // Gold sheen sweep
+    const gs=ctx.createLinearGradient(0,0,W,H*0.55);
+    gs.addColorStop(0,'rgba(255,255,180,0)'); gs.addColorStop(0.42,'rgba(255,235,80,0.18)');
+    gs.addColorStop(0.5,'rgba(255,255,200,0.30)'); gs.addColorStop(0.58,'rgba(255,235,80,0.18)');
+    gs.addColorStop(1,'rgba(255,255,180,0)');
     ctx.fillStyle=gs; ctx.fillRect(0,0,W,H);
 
   } else if (t === 'argent') {
-    // Metallic horizontal bands
-    ctx.globalAlpha = 0.10;
-    ctx.strokeStyle = '#d0e0f8'; ctx.lineWidth = 1;
-    for (let y = 0; y < H; y += 8) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y + Math.sin(y*0.04)*10); ctx.stroke();
+    // Metallic horizontal wave bands
+    ctx.globalAlpha=0.18; ctx.strokeStyle='#c8dcf4'; ctx.lineWidth=1.2;
+    for (let y=0; y<H; y+=7) {
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y+Math.sin(y*0.035)*12); ctx.stroke();
     }
-    // Large sheen streaks (diagonal silver glints)
-    [[0,0,W*0.5,H*0.35,'rgba(255,255,255,0.18)'],
-     [W*0.3,0,W*0.8,H*0.4,'rgba(200,220,255,0.12)'],
-     [W*0.6,H*0.3,W,H*0.7,'rgba(255,255,255,0.14)']].forEach(([x1,y1,x2,y2,c]) => {
-      const ag = ctx.createLinearGradient(x1,y1,x2,y2);
-      ag.addColorStop(0,'rgba(255,255,255,0)'); ag.addColorStop(0.4,c);
-      ag.addColorStop(0.5,'rgba(255,255,255,0.30)'); ag.addColorStop(0.6,c);
+    // Multiple silver sheen streaks
+    [[0,0,W*0.45,H*0.30],[W*0.25,H*0.1,W*0.7,H*0.4],[W*0.5,H*0.25,W,H*0.6]].forEach(([x1,y1,x2,y2]) => {
+      const ag=ctx.createLinearGradient(x1,y1,x2,y2);
+      ag.addColorStop(0,'rgba(255,255,255,0)'); ag.addColorStop(0.38,'rgba(210,230,255,0.28)');
+      ag.addColorStop(0.5,'rgba(255,255,255,0.45)'); ag.addColorStop(0.62,'rgba(210,230,255,0.28)');
       ag.addColorStop(1,'rgba(255,255,255,0)');
       ctx.globalAlpha=1; ctx.fillStyle=ag; ctx.fillRect(0,0,W,H);
     });
-    // Silver circle accents
-    ctx.globalAlpha = 0.12;
-    ctx.strokeStyle = '#e0f0ff'; ctx.lineWidth = 2;
-    [[W-180,60,80],[W-120,120,40],[W-220,140,30]].forEach(([cx,cy,cr]) => {
+    // Silver rings (left section, visible)
+    ctx.globalAlpha=0.30; ctx.strokeStyle='#d8eeff'; ctx.lineWidth=2.5;
+    [[200,240,90],[120,340,60],[350,160,70],[550,80,55]].forEach(([cx,cy,cr]) => {
       ctx.beginPath(); ctx.arc(cx,cy,cr,0,Math.PI*2); ctx.stroke();
+      ctx.globalAlpha=0.12; ctx.beginPath(); ctx.arc(cx,cy,cr*1.5,0,Math.PI*2); ctx.stroke();
+      ctx.globalAlpha=0.30;
     });
 
   } else if (t === 'bleu') {
-    // Bold ocean waves across full width
-    ctx.globalAlpha = 0.22;
-    ctx.lineWidth = 3;
-    const waveColors = ['#40b0ff','#0080ff','#80d0ff','#0060e0','#60c0ff'];
-    for (let w = 0; w < 8; w++) {
-      ctx.strokeStyle = waveColors[w % waveColors.length];
+    // Ocean waves full width (centered in visible mid area)
+    ctx.lineWidth=3.5;
+    const wc=['#40b0ff','#0080ff','#80d0ff','#0060e0','#60c0ff','#2090e0'];
+    for (let w=0; w<10; w++) {
+      ctx.globalAlpha=0.35;
+      ctx.strokeStyle=wc[w%wc.length];
       ctx.beginPath();
-      for (let x = 0; x <= W; x += 4) {
-        const wy = H*0.55 + w*52 + Math.sin(x*0.012 + w*0.9)*35 + Math.sin(x*0.025 + w*0.4)*18;
-        x === 0 ? ctx.moveTo(x, wy) : ctx.lineTo(x, wy);
+      for (let x=0; x<=W; x+=4) {
+        const wy=H*0.48+w*46+Math.sin(x*0.011+w*0.85)*38+Math.sin(x*0.024+w*0.38)*20;
+        x===0?ctx.moveTo(x,wy):ctx.lineTo(x,wy);
       }
       ctx.stroke();
     }
-    // Large concentric ripples (top-right)
-    ctx.globalAlpha = 0.20;
-    ctx.strokeStyle = '#40b0ff';
-    for (let r = 60; r < 500; r += 55) {
-      ctx.lineWidth = r > 250 ? 1 : 2;
-      ctx.beginPath(); ctx.arc(W-80, 80, r, 0, Math.PI*2); ctx.stroke();
+    // Concentric ripples from top-left (visible, not behind panel)
+    ctx.globalAlpha=0.38; ctx.strokeStyle='#40b0ff';
+    for (let r=50; r<420; r+=50) {
+      ctx.lineWidth=r>220?1.5:2.5;
+      ctx.beginPath(); ctx.arc(50,50,r,0,Math.PI*2); ctx.stroke();
     }
-    // Deep water glow (bottom)
-    const bwg = ctx.createLinearGradient(0, H*0.5, 0, H);
-    bwg.addColorStop(0,'rgba(0,60,180,0)'); bwg.addColorStop(1,'rgba(0,40,160,0.22)');
+    // Deep water gradient
+    const bwg=ctx.createLinearGradient(0,H*0.4,0,H);
+    bwg.addColorStop(0,'rgba(0,50,160,0)'); bwg.addColorStop(1,'rgba(0,30,130,0.35)');
     ctx.globalAlpha=1; ctx.fillStyle=bwg; ctx.fillRect(0,0,W,H);
+    // Water glints (top strip)
+    ctx.globalAlpha=0.40;
+    [[200,55,60,'rgba(0,160,255,0.30)'],[500,45,50,'rgba(0,140,255,0.25)'],
+     [750,60,55,'rgba(40,180,255,0.28)'],[200,320,80,'rgba(0,100,200,0.22)']].forEach(([gx,gy,gr,gc]) => {
+      const bg=ctx.createRadialGradient(gx,gy,0,gx,gy,gr);
+      bg.addColorStop(0,gc); bg.addColorStop(1,'rgba(0,100,200,0)');
+      ctx.fillStyle=bg; ctx.beginPath(); ctx.arc(gx,gy,gr,0,Math.PI*2); ctx.fill();
+    });
 
   } else if (t === 'rose') {
-    // Sakura petals (large, clearly visible)
-    ctx.globalAlpha = 0.30;
-    const sakura = [
-      [100,70,28,12,0.4],[280,50,24,10,1.2],[500,80,32,14,2.1],[740,55,26,11,0.7],
-      [960,70,30,13,1.5],[1180,55,22,9,2.4],[1340,90,28,12,0.2],
-      [60,400,24,10,1.8],[1370,380,26,11,0.6],
-      [180,720,28,12,2.0],[500,740,22,9,0.9],[780,750,30,13,1.4],
-      [1060,730,24,10,1.1],[1320,710,26,11,2.3],
-      [340,200,20,8,1.6],[680,160,24,10,0.3],[1000,190,22,9,2.0],[1240,220,20,8,1.0]
-    ];
-    sakura.forEach(([px,py,rw,rh,angle]) => {
-      ctx.save(); ctx.translate(px, py); ctx.rotate(angle);
-      ctx.fillStyle = theme.corner;
-      ctx.beginPath(); ctx.ellipse(0, 0, rw, rh, 0, 0, Math.PI*2); ctx.fill();
-      // Petal highlight
-      ctx.globalAlpha = 0.15;
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath(); ctx.ellipse(-rw*0.2, -rh*0.2, rw*0.4, rh*0.3, 0, 0, Math.PI*2); ctx.fill();
-      ctx.restore();
-      ctx.globalAlpha = 0.30;
+    // Sakura petals — large, spread in visible areas
+    ctx.globalAlpha=0.50;
+    [// Top strip
+     [80,48,34,15,0.4],[240,40,28,12,1.2],[440,58,36,16,2.1],[640,44,30,13,0.7],
+     [800,50,26,11,1.8],
+     // Left section (avatar area, no panel)
+     [50,180,30,13,0.9],[50,330,26,11,1.5],[220,150,24,10,2.0],[380,190,28,12,0.3],
+     // Bottom border
+     [90,742,32,14,1.1],[340,750,28,12,2.2],[620,745,34,15,0.6],[920,748,28,12,1.8],[1200,742,30,13,0.4],[1380,720,26,11,1.9],
+     // Right border
+     [1380,180,24,10,0.7],[1370,380,28,12,1.4],[1365,560,22,9,2.3]
+    ].forEach(([px,py,rw,rh,angle]) => {
+      ctx.save(); ctx.translate(px,py); ctx.rotate(angle);
+      ctx.fillStyle=theme.corner;
+      ctx.beginPath(); ctx.ellipse(0,0,rw,rh,0,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=0.22; ctx.fillStyle='#ffffff';
+      ctx.beginPath(); ctx.ellipse(-rw*0.22,-rh*0.22,rw*0.38,rh*0.30,0,0,Math.PI*2); ctx.fill();
+      ctx.restore(); ctx.globalAlpha=0.50;
     });
     // Flower clusters in corners
-    ctx.globalAlpha = 0.28;
-    ctx.fillStyle = theme.corner;
-    [[100,100],[1310,100],[100,700],[1310,700]].forEach(([fcx,fcy]) => {
-      for (let p = 0; p < 5; p++) {
-        const pa = (Math.PI*2/5)*p - Math.PI/2;
-        ctx.save(); ctx.translate(fcx+Math.cos(pa)*28, fcy+Math.sin(pa)*28); ctx.rotate(pa);
-        ctx.beginPath(); ctx.ellipse(0,0,18,9,0,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=0.48; ctx.fillStyle=theme.corner;
+    [[80,80],[1340,80],[80,720],[1340,720]].forEach(([fcx,fcy]) => {
+      for (let p=0; p<5; p++) {
+        const pa=(Math.PI*2/5)*p-Math.PI/2;
+        ctx.save(); ctx.translate(fcx+Math.cos(pa)*34, fcy+Math.sin(pa)*34); ctx.rotate(pa);
+        ctx.beginPath(); ctx.ellipse(0,0,22,11,0,0,Math.PI*2); ctx.fill();
         ctx.restore();
       }
-      // Flower center
-      ctx.beginPath(); ctx.arc(fcx,fcy,8,0,Math.PI*2);
-      ctx.fillStyle = '#fffbe0'; ctx.fill(); ctx.fillStyle = theme.corner;
+      ctx.beginPath(); ctx.arc(fcx,fcy,9,0,Math.PI*2);
+      ctx.fillStyle='#fff0f8'; ctx.fill(); ctx.fillStyle=theme.corner;
     });
-    // Pink mist overlay (corners)
-    [[0,0,'rgba(255,100,180,0.10)'],[W,0,'rgba(255,80,160,0.08)'],
-     [0,H,'rgba(255,120,190,0.09)'],[W,H,'rgba(255,100,170,0.07)']].forEach(([mx,my,mc]) => {
-      const mg = ctx.createRadialGradient(mx,my,0,mx,my,400);
+    // Pink corner glow
+    [[0,0,'rgba(255,80,160,0.20)'],[W,0,'rgba(255,60,140,0.16)'],
+     [0,H,'rgba(255,100,170,0.18)'],[W,H,'rgba(255,80,150,0.16)']].forEach(([mx,my,mc]) => {
+      const mg=ctx.createRadialGradient(mx,my,0,mx,my,450);
       mg.addColorStop(0,mc); mg.addColorStop(1,'rgba(0,0,0,0)');
       ctx.globalAlpha=1; ctx.fillStyle=mg; ctx.fillRect(0,0,W,H);
     });
