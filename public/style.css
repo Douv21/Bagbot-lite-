@@ -810,14 +810,17 @@ body {
 }
 
 .theme-badge-random    { background: linear-gradient(90deg,#ff4466,#ffaa00,#00ff88,#0088ff); color:#000; }
-.theme-badge-blue      { background: linear-gradient(90deg,#0d4fa0,#0099ff); color:#fff; }
-.theme-badge-gaming    { background: linear-gradient(90deg,#00ff88,#9900ff); color:#fff; }
 .theme-badge-holo      { background: linear-gradient(90deg,#ff00ff,#00ffff,#ffff00); color:#000; }
-.theme-badge-futuristic{ background: linear-gradient(90deg,#0044ff,#00ffff); color:#fff; }
-.theme-badge-love      { background: linear-gradient(90deg,#ff3366,#ff99bb); color:#fff; }
-.theme-badge-sensual   { background: linear-gradient(90deg,#cc4400,#ff8833); color:#fff; }
-.theme-badge-rose      { background: linear-gradient(90deg,#ff3399,#ffaadd); color:#fff; }
-.theme-badge-gold      { background: linear-gradient(90deg,#cc8800,#ffdd00); color:#000; }
+.theme-badge-blue      { background: linear-gradient(90deg,#000818,#0080ff,#40b0ff); color:#fff; }
+.theme-badge-gaming    { background: linear-gradient(90deg,#0a0a0a,#00ff50,#80ff00); color:#000; }
+.theme-badge-gold      { background: linear-gradient(90deg,#100800,#dca000,#ffd700); color:#000; }
+.theme-badge-argent    { background: linear-gradient(90deg,#0a0c10,#90a8d0,#d0e0f8); color:#000; }
+.theme-badge-love      { background: linear-gradient(90deg,#1a0010,#ff0080,#ffb0d8); color:#fff; }
+.theme-badge-sensuel   { background: linear-gradient(90deg,#150010,#cc0080,#ff40a0); color:#fff; }
+.theme-badge-rose      { background: linear-gradient(90deg,#120008,#ff2090,#ffb0de); color:#fff; }
+.theme-badge-cosmos    { background: linear-gradient(90deg,#010112,#6020ff,#c090ff); color:#fff; }
+.theme-badge-nature    { background: linear-gradient(90deg,#021008,#28b43c,#c0f040); color:#000; }
+.theme-badge-dark      { background: linear-gradient(90deg,#050505,#604080,#c0a8d8); color:#fff; }
 
 .btn-sm {
     padding: 4px 10px;
