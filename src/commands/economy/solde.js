@@ -39,7 +39,7 @@ module.exports = {
     try {
       const targetUser = interaction.options.getUser('membre') || interaction.user;
       const guildId    = interaction.guildId;
-      const balance    = getBalance(guildId, targetUser.id);
+      const balance    = await getBalance(guildId, targetUser.id);
       const member     = await fetchMember(interaction.guild, targetUser.id);
       const config     = loadGuildConfig(guildId);
 
