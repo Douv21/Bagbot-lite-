@@ -63,7 +63,7 @@ module.exports = {
       const { level, xpSinceLevel } = xpToLevel(totalXp, levelCurve);
       const xpRequired = xpRequiredForNext(level, levelCurve);
 
-      let userData = { messages: 0, voiceMinutes: 0, streak: 0 };
+      let userData = { messages: 0, voiceMinutes: 0, streak: 0, karma: 0, fire: 0 };
       try { userData = await getUserData(guildId, targetUser.id); } catch (_) {}
 
       const lastReward = getLastRewardForLevel(config?.levels || config || {}, level);
@@ -87,7 +87,8 @@ module.exports = {
         required:     xpRequired,
         messages:     userData.messages     || 0,
         voiceMinutes: userData.voiceMinutes || 0,
-        streak:       userData.streak       || 0,
+        streak:       userData.fire         || 0,
+        karma:        userData.karma        || 0,
         roleName:     roleName              || ''
       };
 
@@ -109,7 +110,8 @@ module.exports = {
           { name: '⬆️ Prochain niv.', value: `${xpLeft.toLocaleString('fr-FR')} XP restantes`,                                           inline: true },
           { name: '💬 Messages',      value: `${(userData.messages || 0).toLocaleString('fr-FR')}`,                                       inline: true },
           { name: '🎤 Vocal',         value: voiceStr,                                                                                    inline: true },
-          { name: '🔥 Serie',         value: `${userData.streak || 0} jours`,                                                            inline: true }
+          { name: '🔥 Feu',           value: `${(userData.fire    || 0).toLocaleString('fr-FR')}`,                                        inline: true },
+          { name: '⭐ Karma',         value: `${(userData.karma   || 0).toLocaleString('fr-FR')}`,                                        inline: true }
         )
         .setTimestamp();
 
