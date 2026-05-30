@@ -904,6 +904,26 @@ async function run() {
   const rankName = getRankName(level);
   const pal      = gemPalette(rankName, theme.gemOverride);
 
+  // ── Dynamic mode helpers (all optional, keep full backward-compat) ────────
+  const voiceStr      = voiceMin >= 60 ? `${Math.floor(voiceMin/60)}h` : `${voiceMin}m`;
+  const msgStr        = messages >= 10000 ? `${Math.floor(messages/1000)}K`
+                      : messages >= 1000  ? `${(messages/1000).toFixed(1)}K` : String(messages);
+  const fireStr       = streak >= 1000 ? `${Math.floor(streak/1000)}K` : `${streak}msg`;
+  const panelTitle      = (data.panelTitle || 'NIVEAU').toUpperCase();
+  const displayNumStr   = data.displayNumStr != null ? String(data.displayNumStr) : String(level);
+  const expBarLabel     = data.expBarLabel   != null ? String(data.expBarLabel)
+                        : `${xp.toLocaleString('fr-FR')} / ${required.toLocaleString('fr-FR')} EXP`;
+  const bottomStats     = Array.isArray(data.statsItems) ? data.statsItems : [
+    { icon: 'MSG', label: 'MESSAGES', value: msgStr },
+    { icon: 'VOC', label: 'VOCAL',    value: voiceStr },
+    { icon: '🔥',  label: 'FEU',      value: fireStr }
+  ];
+  const rankDisplay     = data.rankDisplay     || rankName;
+  const nextPanelTitle  = data.nextPanelTitle  || 'PROCHAIN NIVEAU';
+  const nextPanelBig    = data.nextPanelBig    || `NIV. ${nextLvl}`;
+  const nextPanelSub    = data.nextPanelSub    || `${xpLeft.toLocaleString('fr-FR')} XP`;
+  const nextPanelSubSub = data.nextPanelSubSub || 'RESTANTES';
+
   const avatar = await loadImage(avatarUrl);
 
   // ── Background ────────────────────────────────────────────────────────────
@@ -1033,10 +1053,10 @@ async function run() {
   }); ctx.shadowBlur = 0;
   ctx.font = 'bold 44px Arial'; ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow; ctx.shadowBlur = 10;
-  ctx.fillText('NIVEAU', NX+36, NY+76); ctx.shadowBlur = 0;
+  ctx.fillText(panelTitle, NX+36, NY+76); ctx.shadowBlur = 0;
 
-  const lvlStr = String(level);
-  const lvlPx = lvlStr.length > 2 ? 160 : 210;
+  const lvlStr = displayNumStr;
+  const lvlPx  = lvlStr.length > 7 ? 70 : lvlStr.length > 5 ? 100 : lvlStr.length > 3 ? 150 : 210;
   ctx.font = `bold ${lvlPx}px Arial`;
   const lvlMw = ctx.measureText(lvlStr).width;
   const lvlStartX = NX + (NW - lvlMw) / 2;
@@ -1069,7 +1089,7 @@ async function run() {
   }
   ctx.font = 'bold 26px Arial'; ctx.fillStyle = theme.statColor;
   ctx.textAlign = 'right';
-  ctx.fillText(`${xp.toLocaleString('fr-FR')} / ${required.toLocaleString('fr-FR')} EXP`, EX+EW-18, EY+40);
+  ctx.fillText(expBarLabel, EX+EW-18, EY+40);
   ctx.textAlign = 'left';
 
   // ── Bottom 3 panels ───────────────────────────────────────────────────────
@@ -1082,17 +1102,8 @@ async function run() {
   ctx.font = 'bold 22px Arial'; ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow; ctx.shadowBlur = 6;
   ctx.fillText('STATISTIQUES', p1x+18, PY+34); ctx.shadowBlur = 0;
-  const voiceStr = voiceMin >= 60 ? `${Math.floor(voiceMin/60)}h` : `${voiceMin}m`;
-  const msgStr   = messages >= 10000 ? `${Math.floor(messages/1000)}K`
-                 : messages >= 1000  ? `${(messages/1000).toFixed(1)}K` : String(messages);
-  const fireStr  = streak >= 1000 ? `${Math.floor(streak/1000)}K` : `${streak}msg`;
-  const statsData = [
-    { icon:'MSG', label:'MESSAGES', value: msgStr },
-    { icon:'VOC', label:'VOCAL',    value: voiceStr },
-    { icon:'🔥',  label:'FEU',      value: fireStr }
-  ];
-  const colW = PW/3;
-  statsData.forEach((s,i) => {
+  const colW = PW / Math.max(1, bottomStats.length);
+  bottomStats.forEach((s,i) => {
     const sx = p1x+14+i*colW;
     ctx.font = 'bold 16px Arial'; ctx.fillStyle = theme.statColor;
     ctx.shadowColor = theme.panelGlow; ctx.shadowBlur = 4;
@@ -1120,23 +1131,23 @@ async function run() {
   const rnG = ctx.createLinearGradient(p2x, PY+PH-48, p2x+PW, PY+PH-28);
   rnG.addColorStop(0, pal[0]); rnG.addColorStop(1, pal[1]);
   ctx.fillStyle = rnG; ctx.shadowColor = pal[0]; ctx.shadowBlur = 14;
-  ctx.fillText(rankName, gemCx, PY+PH-26); ctx.shadowBlur = 0;
+  ctx.fillText(rankDisplay, gemCx, PY+PH-26); ctx.shadowBlur = 0;
   ctx.textAlign = 'left';
 
-  // Prochain niveau panel
+  // Prochain niveau / prochain rang panel
   drawPanel(ctx, p3x, PY, PW, PH, theme);
   ctx.font = 'bold 22px Arial'; ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow; ctx.shadowBlur = 6;
-  ctx.fillText('PROCHAIN NIVEAU', p3x+18, PY+34); ctx.shadowBlur = 0;
+  ctx.fillText(nextPanelTitle, p3x+18, PY+34); ctx.shadowBlur = 0;
   drawCrystalGem(ctx, p3x+60, PY+PH/2-8, 34, pal);
   ctx.font = 'bold 36px Arial';
   const nlG = ctx.createLinearGradient(p3x+98, PY+80, p3x+PW, PY+130);
   nlG.addColorStop(0, theme.titleColor); nlG.addColorStop(1, theme.statColor);
-  ctx.fillStyle = nlG; ctx.fillText(`NIV. ${nextLvl}`, p3x+98, PY+118);
+  ctx.fillStyle = nlG; ctx.fillText(nextPanelBig, p3x+98, PY+118);
   ctx.font = 'bold 26px Arial'; ctx.fillStyle = theme.statColor;
-  ctx.fillText(`${xpLeft.toLocaleString('fr-FR')} XP`, p3x+98, PY+158);
+  ctx.fillText(nextPanelSub, p3x+98, PY+158);
   ctx.font = '18px Arial'; ctx.fillStyle = theme.statColor; ctx.globalAlpha = 0.65;
-  ctx.fillText('RESTANTES', p3x+98, PY+188); ctx.globalAlpha = 1;
+  ctx.fillText(nextPanelSubSub, p3x+98, PY+188); ctx.globalAlpha = 1;
 
   // Barcode
   drawBarcode(ctx, W-48, H-30, theme);
