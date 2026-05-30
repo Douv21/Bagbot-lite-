@@ -896,6 +896,7 @@ async function run() {
   const messages = data.messages     || 0;
   const voiceMin = data.voiceMinutes || 0;
   const streak   = data.streak       || 0;
+  const karma    = data.karma        || 0;
   const roleName = (data.roleName || 'MEMBRE DU SERVEUR').toUpperCase();
   const nextLvl  = level + 1;
   const xpLeft   = Math.max(0, required - xp);
@@ -997,6 +998,25 @@ async function run() {
   ctx.shadowColor = theme.panelGlow; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
   ctx.fillStyle = theme.titleColor; ctx.fillText(badgeTxt, nameX, 310);
 
+  // ── Karma badge ───────────────────────────────────────────────────────────
+  if (karma > 0) {
+    const karmaStr = karma >= 1000000 ? `${(karma/1000000).toFixed(1)}M`
+                   : karma >= 1000    ? `${Math.floor(karma/1000)}K`
+                   : String(karma);
+    const karmaTxt = `  ⭐  KARMA ${karmaStr}  `;
+    ctx.font = 'bold 19px Arial';
+    const kw = ctx.measureText(karmaTxt).width;
+    roundedRect(ctx, nameX, 334, kw, 34, 17);
+    const kg = ctx.createLinearGradient(nameX, 334, nameX+kw, 368);
+    kg.addColorStop(0, theme.panelBg1.replace('0.94','0.28').replace('0.96','0.28').replace('0.97','0.28'));
+    kg.addColorStop(1, theme.panelBg2.replace('0.94','0.28').replace('0.96','0.28').replace('0.97','0.28'));
+    ctx.fillStyle = kg; ctx.fill();
+    roundedRect(ctx, nameX, 334, kw, 34, 17);
+    ctx.strokeStyle = theme.corner || theme.panelBorder; ctx.lineWidth = 1.2;
+    ctx.shadowColor = theme.panelGlow; ctx.shadowBlur = 6; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.fillStyle = theme.statColor; ctx.fillText(karmaTxt, nameX, 358);
+  }
+
   // ── Niveau panel ──────────────────────────────────────────────────────────
   const NX = 860, NY = 40, NW = 510, NH = 350;
   roundedRect(ctx, NX, NY, NW, NH, 20);
@@ -1065,10 +1085,11 @@ async function run() {
   const voiceStr = voiceMin >= 60 ? `${Math.floor(voiceMin/60)}h` : `${voiceMin}m`;
   const msgStr   = messages >= 10000 ? `${Math.floor(messages/1000)}K`
                  : messages >= 1000  ? `${(messages/1000).toFixed(1)}K` : String(messages);
+  const fireStr  = streak >= 1000 ? `${Math.floor(streak/1000)}K` : String(streak);
   const statsData = [
     { icon:'MSG', label:'MESSAGES', value: msgStr },
     { icon:'VOC', label:'VOCAL',    value: voiceStr },
-    { icon:'FEU', label:'SERIE',    value: `${streak}J` }
+    { icon:'🔥',  label:'FEU',      value: fireStr }
   ];
   const colW = PW/3;
   statsData.forEach((s,i) => {
