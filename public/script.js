@@ -855,37 +855,23 @@ async function loadChannels() {
       });
     };
 
-    const confessionInputSelect  = document.getElementById('confessionInputChannel');
-    const confessionOutputSelect = document.getElementById('confessionOutputChannel');
-    const confessionModSelect    = document.getElementById('confessionModChannel');
+    const confessionModSelect = document.getElementById('confessionModChannel');
 
     populateSelect(welcomeChannelSelect);
     populateSelect(departChannelSelect);
     populateSelect(shopChannelSelect);
     populateSelect(levelUpChannelSelect);
 
-    // Confession selectors have different default options
-    if (confessionInputSelect) {
-      confessionInputSelect.innerHTML = '<option value="">Tous les salons</option>';
-      textChannels.forEach(ch => {
-        const o = document.createElement('option');
-        o.value = ch.id; o.textContent = ch.name || 'Sans nom';
-        confessionInputSelect.appendChild(o);
-      });
-    }
-    if (confessionOutputSelect) {
-      confessionOutputSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
-      textChannels.forEach(ch => {
-        const o = document.createElement('option');
-        o.value = ch.id; o.textContent = ch.name || 'Sans nom';
-        confessionOutputSelect.appendChild(o);
-      });
-    }
+    // Confession multi-picker
+    availableConfessionChannels = textChannels;
+    refreshConfessionPicker();
+
+    // Confession mod channel (single select)
     if (confessionModSelect) {
       confessionModSelect.innerHTML = '<option value="">Désactivé</option>';
       textChannels.forEach(ch => {
         const o = document.createElement('option');
-        o.value = ch.id; o.textContent = ch.name || 'Sans nom';
+        o.value = ch.id; o.textContent = '#' + (ch.name || 'Sans nom');
         confessionModSelect.appendChild(o);
       });
     }
@@ -1017,6 +1003,64 @@ function renderForumTags() {
   if (selectedForumChannels.length === 0) {
     container.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.85rem;">Aucun salon sélectionné</span>';
   }
+}
+
+// ── Confession channel multi-picker ────────────────────────────────────────
+let availableConfessionChannels = [];
+let selectedConfessionChannels  = [];
+
+function refreshConfessionPicker() {
+  const picker = document.getElementById('confessionChannelPicker');
+  if (!picker) return;
+  const unselected = availableConfessionChannels.filter(ch => !selectedConfessionChannels.includes(ch.id));
+  if (availableConfessionChannels.length === 0) {
+    picker.innerHTML = '<option value="">Aucun salon texte trouvé</option>';
+  } else if (unselected.length === 0) {
+    picker.innerHTML = '<option value="">Tous les salons sont déjà ajoutés</option>';
+  } else {
+    picker.innerHTML = '<option value="">Choisir un salon...</option>';
+    unselected.forEach(ch => {
+      const opt = document.createElement('option');
+      opt.value = ch.id;
+      opt.textContent = '# ' + (ch.name || 'Sans nom');
+      picker.appendChild(opt);
+    });
+  }
+}
+
+function addConfessionChannel() {
+  const picker = document.getElementById('confessionChannelPicker');
+  const channelId = picker.value;
+  if (!channelId) return;
+  const channel = availableConfessionChannels.find(ch => ch.id === channelId);
+  if (!channel || selectedConfessionChannels.includes(channelId)) return;
+  selectedConfessionChannels.push(channelId);
+  renderConfessionTags();
+  refreshConfessionPicker();
+}
+
+function removeConfessionChannel(channelId) {
+  selectedConfessionChannels = selectedConfessionChannels.filter(id => id !== channelId);
+  renderConfessionTags();
+  refreshConfessionPicker();
+}
+
+function renderConfessionTags() {
+  const container = document.getElementById('confessionChannelTags');
+  if (!container) return;
+  container.innerHTML = '';
+  if (selectedConfessionChannels.length === 0) {
+    container.innerHTML = '<span style="color:var(--text-secondary);font-size:0.85rem;">Aucun salon — commande utilisable partout</span>';
+    return;
+  }
+  selectedConfessionChannels.forEach(channelId => {
+    const ch   = availableConfessionChannels.find(c => c.id === channelId);
+    const name = ch ? (ch.name || 'Sans nom') : channelId;
+    const tag  = document.createElement('div');
+    tag.className = 'forum-channel-tag';
+    tag.innerHTML = `<span># ${name}</span><button type="button" onclick="removeConfessionChannel('${channelId}')" title="Retirer">&times;</button>`;
+    container.appendChild(tag);
+  });
 }
 
 function getChannelTypeName(type) {
@@ -1417,11 +1461,14 @@ async function loadConfig() {
     }
 
     if (config.confession) {
-      document.getElementById('confessionEnabled').checked    = config.confession.enabled  || false;
-      document.getElementById('confessionInputChannel').value  = config.confession.inputChannel  || '';
-      document.getElementById('confessionOutputChannel').value = config.confession.outputChannel || '';
-      document.getElementById('confessionModChannel').value    = config.confession.modChannel    || '';
-      document.getElementById('confessionColor').value         = config.confession.color         || '#5865f2';
+      document.getElementById('confessionEnabled').checked = config.confession.enabled || false;
+      document.getElementById('confessionModChannel').value = config.confession.modChannel || '';
+      document.getElementById('confessionColor').value = config.confession.color || '#5865f2';
+      if (Array.isArray(config.confession.channels)) {
+        selectedConfessionChannels = config.confession.channels;
+        renderConfessionTags();
+        refreshConfessionPicker();
+      }
     }
   } catch (error) {
     console.error('Error loading config:', error);
@@ -1490,11 +1537,10 @@ async function saveConfig() {
     rewards: JSON.parse(localStorage.getItem('levelRewards') || '{}'),
     roleThemes: JSON.parse(localStorage.getItem('roleThemes') || '{}'),
     confession: {
-      enabled:       document.getElementById('confessionEnabled').checked,
-      inputChannel:  document.getElementById('confessionInputChannel').value  || '',
-      outputChannel: document.getElementById('confessionOutputChannel').value || '',
-      modChannel:    document.getElementById('confessionModChannel').value    || '',
-      color:         document.getElementById('confessionColor').value         || '#5865f2'
+      enabled:    document.getElementById('confessionEnabled').checked,
+      channels:   selectedConfessionChannels,
+      modChannel: document.getElementById('confessionModChannel').value || '',
+      color:      document.getElementById('confessionColor').value || '#5865f2'
     }
   };
   
