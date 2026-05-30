@@ -139,8 +139,85 @@ if (fs.existsSync(economyPath)) {
   }
 }
 
-// Handler pour les interactions (commandes slash)
+// ── Confession counter ─────────────────────────────────────────────────────
+const confessCounterPath = path.join(__dirname, '../data/confession_counters.json');
+
+function getConfessCount(guildId) {
+  try {
+    if (!fs.existsSync(confessCounterPath)) return 0;
+    const data = JSON.parse(fs.readFileSync(confessCounterPath, 'utf8'));
+    return data[guildId] || 0;
+  } catch (_) { return 0; }
+}
+
+function incrementConfessCount(guildId) {
+  let data = {};
+  try {
+    if (fs.existsSync(confessCounterPath)) data = JSON.parse(fs.readFileSync(confessCounterPath, 'utf8'));
+  } catch (_) {}
+  data[guildId] = (data[guildId] || 0) + 1;
+  fs.writeFileSync(confessCounterPath, JSON.stringify(data, null, 2));
+  return data[guildId];
+}
+
+// ── Modal handler ──────────────────────────────────────────────────────────
+async function handleConfessModal(interaction) {
+  try {
+    await interaction.deferReply({ ephemeral: true });
+
+    const config = loadGuildConfig(interaction.guild.id);
+    if (!config?.confession?.outputChannel) {
+      return interaction.editReply({ content: '❌ Aucun salon de sortie configuré pour les confessions.' });
+    }
+
+    const outputChannel = await interaction.guild.channels.fetch(config.confession.outputChannel).catch(() => null);
+    if (!outputChannel || !outputChannel.isTextBased()) {
+      return interaction.editReply({ content: '❌ Le salon de confessions est introuvable ou invalide.' });
+    }
+
+    const text    = interaction.fields.getTextInputValue('confessText');
+    const count   = incrementConfessCount(interaction.guild.id);
+    const color   = parseInt((config.confession.color || '#5865f2').replace('#', ''), 16) || 0x5865f2;
+
+    const { EmbedBuilder } = require('discord.js');
+    const embed = new EmbedBuilder()
+      .setColor(color)
+      .setAuthor({ name: `🙊 Confession anonyme #${count}` })
+      .setDescription(text)
+      .setFooter({ text: `${interaction.guild.name} • Confession anonyme` })
+      .setTimestamp();
+
+    await outputChannel.send({ embeds: [embed] });
+
+    // Optionally post to mod channel with author info
+    if (config.confession.modChannel) {
+      const modCh = await interaction.guild.channels.fetch(config.confession.modChannel).catch(() => null);
+      if (modCh && modCh.isTextBased()) {
+        const modEmbed = new EmbedBuilder()
+          .setColor(0xff4444)
+          .setTitle(`🔍 Log confession #${count}`)
+          .setDescription(text)
+          .addFields({ name: 'Auteur', value: `<@${interaction.user.id}> (${interaction.user.tag})`, inline: true })
+          .setTimestamp();
+        await modCh.send({ embeds: [modEmbed] });
+      }
+    }
+
+    await interaction.editReply({ content: `✅ Votre confession **#${count}** a été envoyée anonymement !` });
+  } catch (error) {
+    console.error('Erreur confession modal:', error);
+    interaction.editReply({ content: '❌ Une erreur est survenue.' }).catch(() => {});
+  }
+}
+
+// Handler pour les interactions (commandes slash + modals)
 client.on('interactionCreate', async interaction => {
+  // Modal submissions
+  if (interaction.isModalSubmit()) {
+    if (interaction.customId === 'confessModal') await handleConfessModal(interaction);
+    return;
+  }
+
   if (!interaction.isChatInputCommand()) return;
 
   const command = commands.find(cmd => cmd.data.name === interaction.commandName);
