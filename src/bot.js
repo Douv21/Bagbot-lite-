@@ -1,4 +1,12 @@
 require('dotenv').config();
+
+process.on('uncaughtException', err => {
+  console.error('💥 UNCAUGHT EXCEPTION — bot va redémarrer:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 UNHANDLED REJECTION — promesse non catchée:', reason);
+});
+
 const { Client, GatewayIntentBits, REST, Routes, Partials, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
