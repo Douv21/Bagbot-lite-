@@ -1,17 +1,17 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getUserData }    = require('../storage/jsonStore');
-const { loadGuildConfig } = require('../utils/leveling');
-const { fetchMember }    = require('../utils/levelHelpers');
-const genCard            = require('../carte/holographique');
+const { SlashCommandBuilder, EmbedBuilder } = require(\'discord.js\');
+const { getUserData }    = require(\'../storage/jsonStore\');
+const { loadGuildConfig } = require(\'../utils/leveling\');
+const { fetchMember }    = require(\'../utils/levelHelpers\');
+const genCard            = require(\'../carte/holographique\');
 
 const KARMA_RANKS = [
-  { min: 10000, name: '👑 LÉGENDE',  next: Infinity, nextName: 'MAX' },
-  { min: 5000,  name: '💎 MAÎTRE',   next: 10000,    nextName: '👑 LÉGENDE' },
-  { min: 2000,  name: '🔮 EXPERT',   next: 5000,     nextName: '💎 MAÎTRE' },
-  { min: 1000,  name: '⭐ VÉTÉRAN',  next: 2000,     nextName: '🔮 EXPERT' },
-  { min: 500,   name: '🔥 ACTIF',    next: 1000,     nextName: '⭐ VÉTÉRAN' },
-  { min: 100,   name: '📈 MONTANT',  next: 500,      nextName: '🔥 ACTIF' },
-  { min: 0,     name: '🌱 DÉBUTANT', next: 100,      nextName: '📈 MONTANT' },
+  { min: 10000, name: \'👑 LÉGENDE\',  next: Infinity, nextName: \'MAX\' },
+  { min: 5000,  name: \'💎 MAÎTRE\',   next: 10000,    nextName: \'👑 LÉGENDE\' },
+  { min: 2000,  name: \'🔮 EXPERT\',   next: 5000,     nextName: \'💎 MAÎTRE\' },
+  { min: 1000,  name: \'⭐ VÉTÉRAN\',  next: 2000,     nextName: \'🔮 EXPERT\' },
+  { min: 500,   name: \'🔥 ACTIF\',    next: 1000,     nextName: \'⭐ VÉTÉRAN\' },
+  { min: 100,   name: \'📈 MONTANT\',  next: 500,      nextName: \'🔥 ACTIF\' },
+  { min: 0,     name: \'🌱 DÉBUTANT\', next: 100,      nextName: \'📈 MONTANT\' },
 ];
 
 function getKarmaRank(k) {
@@ -22,31 +22,31 @@ function fmt(n) {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
   if (n >= 10000)   return `${Math.floor(n / 1000)}K`;
   if (n >= 1000)    return `${(n / 1000).toFixed(1)}K`;
-  return n.toLocaleString('fr-FR');
+  return n.toLocaleString(\'fr-FR\');
 }
 
-const ALL_THEMES = ['holographique','gaming','love','sensuel','cosmos','nature','dark','gold','argent','bleu','rose'];
+const ALL_THEMES = [\'holographique\',\'gaming\',\'love\',\'sensuel\',\'cosmos\',\'nature\',\'dark\',\'gold\',\'argent\',\'bleu\',\'rose\'];
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('karma')
-    .setDescription('Affiche votre karma et vos stats')
+    .setName(\'karma\')
+    .setDescription(\'Affiche votre karma et vos stats\')
     .addUserOption(opt =>
-      opt.setName('membre').setDescription('Membre à consulter (optionnel)').setRequired(false))
+      opt.setName(\'membre\').setDescription(\'Membre à consulter (optionnel)\').setRequired(false))
     .setDMPermission(false),
 
   async execute(interaction) {
     await interaction.deferReply();
     try {
       const guildId    = interaction.guild.id;
-      const targetUser = interaction.options.getUser('membre') || interaction.user;
+      const targetUser = interaction.options.getUser(\'membre\') || interaction.user;
       const member     = await fetchMember(interaction.guild, targetUser.id);
       const config     = loadGuildConfig(guildId);
 
       // Theme selection: roleThemes > defaultTheme > random
       let theme = null;
       const roleThemes   = config?.roleThemes  || {};
-      const defaultTheme = config?.defaultTheme || '';
+      const defaultTheme = config?.defaultTheme || \'\';
       if (member && Object.keys(roleThemes).length > 0) {
         const sorted = [...member.roles.cache.values()]
           .filter(r => r.id !== interaction.guild.id)
@@ -54,19 +54,19 @@ module.exports = {
         for (const role of sorted) {
           if (roleThemes[role.id]) {
             const t = roleThemes[role.id];
-            theme = t === 'random' ? null : t;
+            theme = t === \'random\' ? null : t;
             break;
           }
         }
       }
       if (!theme) {
-        theme = (defaultTheme && defaultTheme !== 'random' && defaultTheme !== '')
+        theme = (defaultTheme && defaultTheme !== \'random\' && defaultTheme !== \'\')
           ? defaultTheme
           : ALL_THEMES[Math.floor(Math.random() * ALL_THEMES.length)];
       }
 
       let ud = { karma: 0, fire: 0, messages: 0, voiceMinutes: 0 };
-      try { ud = await getUserData(guildId, targetUser.id); } catch (_) {}
+      try { ud = await getUserData(guildId, targetUser.id); } catch (_) {}\
 
       const karma    = ud.karma        || 0;
       const fire     = ud.fire         || 0;
@@ -80,7 +80,7 @@ module.exports = {
       const voiceStr      = voiceMin >= 60 ? `${Math.floor(voiceMin / 60)}h ${voiceMin % 60}m` : `${voiceMin}m`;
 
       const cardData = {
-        panelTitle:      'KARMA',
+        panelTitle:      \'KARMA\',
         displayNumStr:   fmt(karma),
         level:           0,
         xp:              Math.max(0, progress),
@@ -89,25 +89,25 @@ module.exports = {
         voiceMinutes:    voiceMin,
         streak:          fire,
         karma,
-        roleName:        'KARMA CARD',
+        roleName:        \'KARMA CARD\',
         expBarLabel:     rank.next === Infinity
-          ? `${karma.toLocaleString('fr-FR')} KARMA — LÉGENDE MAX`
-          : `${karma.toLocaleString('fr-FR')} / ${nextThreshold.toLocaleString('fr-FR')} KARMA`,
+          ? `${karma.toLocaleString(\'fr-FR\')} KARMA — LÉGENDE MAX`
+          : `${karma.toLocaleString(\'fr-FR\')} / ${nextThreshold.toLocaleString(\'fr-FR\')} KARMA`,
         statsItems: [
-          { icon: '⭐',  label: 'KARMA',    value: fmt(karma) },
-          { icon: '🔥',  label: 'FEU',      value: fmt(fire) },
-          { icon: 'MSG', label: 'MESSAGES', value: fmt(messages) },
+          { icon: \'⭐\',  label: \'KARMA\',    value: fmt(karma) },
+          { icon: \'🔥\',  label: \'FEU\',      value: fmt(fire) },
+          { icon: \'MSG\', label: \'MESSAGES\', value: fmt(messages) },
         ],
         rankDisplay:     rank.name,
-        nextPanelTitle:  'PROCHAIN RANG',
+        nextPanelTitle:  \'PROCHAIN RANG\',
         nextPanelBig:    rank.nextName,
-        nextPanelSub:    rank.next === Infinity ? 'MAX' : `${(rank.next - karma).toLocaleString('fr-FR')} pts`,
-        nextPanelSubSub: 'RESTANTS',
+        nextPanelSub:    rank.next === Infinity ? \'MAX\' : `${(rank.next - karma).toLocaleString(\'fr-FR\')} pts`,
+        nextPanelSubSub: \'RESTANTS\',
       };
 
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : null;
 
-      if (member) {
+      if (false) { // <--- MODIFICATION ICI
         const card = await genCard(member, cardData, theme);
         if (card) {
           return interaction.editReply({
@@ -128,9 +128,9 @@ module.exports = {
         .setThumbnail(targetUser.displayAvatarURL({ size: 128 }))
         .setDescription(`**Rang :** ${rank.name}`)
         .addFields(
-          { name: '⭐ Karma',    value: `${karma.toLocaleString('fr-FR')} pts`, inline: true },
-          { name: '🔥 Feu',      value: `${fire.toLocaleString('fr-FR')}`,      inline: true },
-          { name: '💬 Messages', value: `${messages.toLocaleString('fr-FR')}`,  inline: true },
+          { name: \'⭐ Karma\',    value: `${karma.toLocaleString(\'fr-FR\')} pts`, inline: true },
+          { name: \'🔥 Feu\',      value: `${fire.toLocaleString(\'fr-FR\')}`,      inline: true },
+          { name: \'💬 Messages\', value: `${messages.toLocaleString(\'fr-FR\')}`,  inline: true },
         )
         .setTimestamp();
       await interaction.editReply({
@@ -139,8 +139,8 @@ module.exports = {
         allowedMentions: mention ? { users: [targetUser.id] } : { parse: [] }
       });
     } catch (err) {
-      console.error('Erreur /karma:', err);
-      await interaction.editReply({ content: '❌ Une erreur est survenue.' }).catch(() => {});
+      console.error(\'Erreur /karma:\', err);
+      await interaction.editReply({ content: \'❌ Une erreur est survenue.\' }).catch(() => {});
     }
   }
 };
