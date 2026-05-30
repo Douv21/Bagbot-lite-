@@ -387,10 +387,15 @@ client.on('messageCreate', async (message) => {
       await addXP(message.guild.id, message.author.id, xpReward);
       const newXP = await getXP(message.guild.id, message.author.id);
 
-      // Track message count in user stats
+      // Track message count + karma + fire in user stats
       try {
         const ud = await getUserData(message.guild.id, message.author.id);
-        await updateUserData(message.guild.id, message.author.id, { messages: (ud.messages || 0) + 1 });
+        const isNsfw = message.channel && message.channel.nsfw === true;
+        await updateUserData(message.guild.id, message.author.id, {
+          messages: (ud.messages || 0) + 1,
+          karma:    (ud.karma   || 0) + 1,
+          fire:     (ud.fire    || 0) + (isNsfw ? 1 : 0)
+        });
       } catch (_) {}
       
       // Check for level up
