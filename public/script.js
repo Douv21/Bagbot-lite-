@@ -206,46 +206,53 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 // Sidebar navigation
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', (e) => {
+const sectionTitles = {
+  'welcome':        'Bienvenue',
+  'depart':         'Départ',
+  'forum':          'Forum Illimité',
+  'shop':           'Boutique',
+  'actions':        'Actions',
+  'economy':        'Économie',
+  'levels-xp':      'Niveaux — Courbe XP',
+  'levels-rewards': 'Niveaux — Récompenses',
+  'levels-fire':    'Niveaux — Réinitialisation Feu',
+  'levels-themes':  'Niveaux — Thèmes',
+  'confession':     'Confessions'
+};
+
+function navigateToSection(section) {
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const tabContent = document.getElementById(`tab-${section}`);
+  if (tabContent) tabContent.classList.add('active');
+  document.getElementById('headerTitle').textContent = sectionTitles[section] || 'Dashboard';
+}
+
+// Nav parent toggle dropdown
+document.querySelectorAll('.nav-parent').forEach(parent => {
+  parent.addEventListener('click', e => {
     e.preventDefault();
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-    
-    const section = item.getAttribute('data-section');
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    
-    const tab = document.querySelector(`.tab[data-tab="${section}"]`);
-    const tabContent = document.getElementById(`tab-${section}`);
-    
-    if (tab) tab.classList.add('active');
-    if (tabContent) tabContent.classList.add('active');
-    
-    // Update header title
-    const titles = {
-      'welcome-depart': 'Bienvenue / Départ',
-      'forum': 'Forum Illimité',
-      'shop': 'Boutique',
-      'actions': 'Actions',
-      'economy': 'Économie',
-      'levels': 'Niveaux'
-    };
-    document.getElementById('headerTitle').textContent = titles[section] || 'Dashboard';
+    parent.closest('.nav-group').classList.toggle('open');
   });
 });
 
-// Sub-tabs switching (Bienvenue / Départ)
-document.addEventListener('click', e => {
-  const btn = e.target.closest('.sub-tab');
-  if (!btn) return;
-  const parent = btn.closest('.tab-content');
-  parent.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
-  parent.querySelectorAll('.sub-tab-content').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  const subtab = btn.getAttribute('data-subtab');
-  const content = parent.querySelector(`#subtab-${subtab}`);
-  if (content) content.classList.add('active');
+// Nav sub-items (inside dropdown)
+document.querySelectorAll('.nav-sub-item').forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.nav-sub-item, .nav-item:not(.nav-parent)').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    navigateToSection(item.getAttribute('data-section'));
+  });
+});
+
+// Flat nav items (not inside dropdown)
+document.querySelectorAll('.nav-item:not(.nav-parent)').forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.nav-sub-item, .nav-item:not(.nav-parent)').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    navigateToSection(item.getAttribute('data-section'));
+  });
 });
 
 // Get current user info for preview
