@@ -224,8 +224,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     
     // Update header title
     const titles = {
-      'welcome': 'Configuration Bienvenue',
-      'depart': 'Configuration Départ',
+      'welcome-depart': 'Bienvenue / Départ',
       'forum': 'Forum Illimité',
       'shop': 'Boutique',
       'actions': 'Actions',
@@ -234,6 +233,19 @@ document.querySelectorAll('.nav-item').forEach(item => {
     };
     document.getElementById('headerTitle').textContent = titles[section] || 'Dashboard';
   });
+});
+
+// Sub-tabs switching (Bienvenue / Départ)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.sub-tab');
+  if (!btn) return;
+  const parent = btn.closest('.tab-content');
+  parent.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  parent.querySelectorAll('.sub-tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const subtab = btn.getAttribute('data-subtab');
+  const content = parent.querySelector(`#subtab-${subtab}`);
+  if (content) content.classList.add('active');
 });
 
 // Get current user info for preview
@@ -1470,6 +1482,12 @@ async function loadConfig() {
       document.getElementById('levelUpChannel').value = config.levelUpChannel || '';
     }
 
+    if (config.fireReset) {
+      document.getElementById('fireResetEnabled').checked = config.fireReset.enabled || false;
+      document.getElementById('fireResetDay').value       = config.fireReset.day  ?? 1;
+      document.getElementById('fireResetHour').value      = config.fireReset.hour ?? 0;
+    }
+
     if (config.rewards) {
       localStorage.setItem('levelRewards', JSON.stringify(config.rewards));
       loadLevelRewards();
@@ -1552,6 +1570,11 @@ async function saveConfig() {
     levelCurve: {
       base: parseInt(document.getElementById('levelCurveBase').value) || 100,
       factor: parseFloat(document.getElementById('levelCurveFactor').value) || 1.2
+    },
+    fireReset: {
+      enabled: document.getElementById('fireResetEnabled').checked,
+      day:     parseInt(document.getElementById('fireResetDay').value) ?? 1,
+      hour:    parseInt(document.getElementById('fireResetHour').value) ?? 0
     },
     levelUpChannel: document.getElementById('levelUpChannel').value || '',
     rewards: JSON.parse(localStorage.getItem('levelRewards') || '{}'),
