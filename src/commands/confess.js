@@ -24,9 +24,7 @@ module.exports = {
 
     const allowedChannels = config.confession.channels || [];
     if (allowedChannels.length > 0 && !allowedChannels.includes(interaction.channelId)) {
-      const refs = allowedChannels
-        .map(id => `<#${id}>`)
-        .join(', ');
+      const refs = allowedChannels.map(id => `<#${id}>`).join(', ');
       return interaction.reply({
         content: `❌ Cette commande ne peut être utilisée que dans : ${refs}`,
         ephemeral: true
@@ -39,14 +37,26 @@ module.exports = {
 
     const textInput = new TextInputBuilder()
       .setCustomId('confessText')
-      .setLabel('Votre confession')
+      .setLabel('Votre confession (texte)')
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Écrivez votre confession ici… Elle sera publiée anonymement.')
-      .setMinLength(5)
+      .setMinLength(1)
       .setMaxLength(1800)
       .setRequired(true);
 
-    modal.addComponents(new ActionRowBuilder().addComponents(textInput));
+    const imageInput = new TextInputBuilder()
+      .setCustomId('confessImage')
+      .setLabel('Image (URL — optionnel)')
+      .setStyle(TextInputStyle.Short)
+      .setPlaceholder('https://… (lien direct vers une image)')
+      .setRequired(false)
+      .setMaxLength(500);
+
+    modal.addComponents(
+      new ActionRowBuilder().addComponents(textInput),
+      new ActionRowBuilder().addComponents(imageInput)
+    );
+
     await interaction.showModal(modal);
   }
 };
