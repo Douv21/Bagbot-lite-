@@ -15,14 +15,14 @@ module.exports = {
   async execute(interaction) {
     const config = loadGuildConfig(interaction.guild.id);
 
-    if (!config?.confession?.enabled) {
+    if (config?.confession?.enabled === false) {
       return interaction.reply({
         content: '❌ Le système de confessions n\'est pas activé sur ce serveur.',
         ephemeral: true
       });
     }
 
-    const allowedChannels = config.confession.channels || [];
+    const allowedChannels = config?.confession?.channels || [];
     if (allowedChannels.length > 0 && !allowedChannels.includes(interaction.channelId)) {
       const refs = allowedChannels.map(id => `<#${id}>`).join(', ');
       return interaction.reply({
