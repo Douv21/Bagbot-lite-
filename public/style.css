@@ -597,44 +597,68 @@ body {
     display: block;
 }
 
-/* Sub-tabs (Bienvenue / Départ) */
-.sub-tabs {
+/* Nav groups (menus déroulants dans la sidebar) */
+.nav-group {
     display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
+    flex-direction: column;
+    width: 100%;
 }
 
-.sub-tab {
-    padding: 10px 24px;
-    background: transparent;
-    border: 1px solid var(--border-red);
-    border-radius: 8px;
+.nav-parent {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.nav-arrow {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    transition: transform 0.25s ease;
+    margin-left: auto;
+    padding-left: 6px;
+    flex-shrink: 0;
+}
+
+.nav-group.open .nav-arrow {
+    transform: rotate(180deg);
+}
+
+.nav-children {
+    display: none;
+    flex-direction: column;
+    padding-left: 14px;
+    padding-bottom: 4px;
+}
+
+.nav-group.open .nav-children {
+    display: flex;
+}
+
+.nav-sub-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
     color: var(--text-secondary);
-    cursor: pointer;
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    letter-spacing: 0.5px;
-    transition: all 0.25s ease;
+    text-decoration: none;
+    font-size: 0.88rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin: 1px 0;
+    border: 1px solid transparent;
 }
 
-.sub-tab:hover {
+.nav-sub-item:hover {
     background: rgba(196, 30, 58, 0.1);
     color: var(--text-primary);
+    border-color: rgba(196, 30, 58, 0.2);
 }
 
-.sub-tab.active {
-    background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-red-dark) 100%);
+.nav-sub-item.active {
+    background: linear-gradient(135deg, rgba(196, 30, 58, 0.25) 0%, rgba(139, 0, 0, 0.25) 100%);
     color: white;
-    border-color: var(--gold);
-    box-shadow: 0 2px 12px rgba(196, 30, 58, 0.3);
-}
-
-.sub-tab-content {
-    display: none;
-}
-
-.sub-tab-content.active {
-    display: block;
+    border-color: var(--border-red);
 }
 
 /* Section */
