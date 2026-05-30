@@ -5,7 +5,8 @@ try {
   Canvas = require("canvas");
   sharp  = require("sharp");
 } catch (e) {
-  console.warn("⚠️  canvas/sharp indisponible — /niveau désactivé.");
+  console.error("❌ canvas/sharp indisponible:", e.message);
+  console.error("   → Lancez: npm install canvas sharp");
   module.exports = async () => null;
   return;
 }
@@ -43,6 +44,7 @@ function gemPalette(name) {
 // ─── Main ──────────────────────────────────────────────────────────────────
 
 module.exports = async (member, data) => {
+  try {
   const W = 1400, H = 800;
   const canvas = Canvas.createCanvas(W, H);
   const ctx    = canvas.getContext("2d");
@@ -411,6 +413,10 @@ module.exports = async (member, data) => {
   // ════════════════════════════════════════
   const final = await sharp(canvas.toBuffer("image/png")).sharpen().png().toBuffer();
   return new AttachmentBuilder(final, { name: "holographic-card.png" });
+  } catch (err) {
+    console.error("❌ Erreur génération carte:", err.message, "\n", err.stack);
+    return null;
+  }
 };
 
 // ─── Panel helper ──────────────────────────────────────────────────────────
