@@ -1122,7 +1122,7 @@ function loadActionsConfig() {
   actionsGrid.innerHTML = '';
   
   actionsList.forEach(action => {
-    const config = actionsConfig[action.id] || { enabled: true, rewardMin: 5, rewardMax: 15, messages: [] };
+    const config = actionsConfig[action.id] || { enabled: true, rewardMin: 5, rewardMax: 15, karmaMin: 1, karmaMax: 3, messages: [] };
     
     const actionCard = document.createElement('div');
     actionCard.className = 'action-card';
@@ -1137,12 +1137,20 @@ function loadActionsConfig() {
       </div>
       <div class="action-config">
         <div class="config-row">
-          <label>Récompense min:</label>
+          <label>💰 BAG min:</label>
           <input type="number" class="action-reward-min" data-action="${action.id}" value="${config.rewardMin || 5}" min="0">
         </div>
         <div class="config-row">
-          <label>Récompense max:</label>
+          <label>💰 BAG max:</label>
           <input type="number" class="action-reward-max" data-action="${action.id}" value="${config.rewardMax || 15}" min="0">
+        </div>
+        <div class="config-row">
+          <label>⭐ Karma min:</label>
+          <input type="number" class="action-karma-min" data-action="${action.id}" value="${config.karmaMin ?? 1}" min="0">
+        </div>
+        <div class="config-row">
+          <label>⭐ Karma max:</label>
+          <input type="number" class="action-karma-max" data-action="${action.id}" value="${config.karmaMax ?? 3}" min="0">
         </div>
         <div class="config-row">
           <label>Messages:</label>
@@ -1166,6 +1174,14 @@ function loadActionsConfig() {
   document.querySelectorAll('.action-reward-max').forEach(input => {
     input.addEventListener('change', saveActionsConfig);
   });
+
+  document.querySelectorAll('.action-karma-min').forEach(input => {
+    input.addEventListener('change', saveActionsConfig);
+  });
+
+  document.querySelectorAll('.action-karma-max').forEach(input => {
+    input.addEventListener('change', saveActionsConfig);
+  });
   
   document.querySelectorAll('.action-messages').forEach(textarea => {
     textarea.addEventListener('change', saveActionsConfig);
@@ -1176,9 +1192,11 @@ function saveActionsConfig() {
   const actionsConfig = {};
   
   actionsList.forEach(action => {
-    const enabled = document.querySelector(`.action-enabled[data-action="${action.id}"]`)?.checked || true;
-    const rewardMin = parseInt(document.querySelector(`.action-reward-min[data-action="${action.id}"]`)?.value) || 5;
-    const rewardMax = parseInt(document.querySelector(`.action-reward-max[data-action="${action.id}"]`)?.value) || 15;
+    const enabled    = document.querySelector(`.action-enabled[data-action="${action.id}"]`)?.checked ?? true;
+    const rewardMin  = parseInt(document.querySelector(`.action-reward-min[data-action="${action.id}"]`)?.value) || 5;
+    const rewardMax  = parseInt(document.querySelector(`.action-reward-max[data-action="${action.id}"]`)?.value) || 15;
+    const karmaMin   = parseInt(document.querySelector(`.action-karma-min[data-action="${action.id}"]`)?.value) ?? 1;
+    const karmaMax   = parseInt(document.querySelector(`.action-karma-max[data-action="${action.id}"]`)?.value) ?? 3;
     const messagesText = document.querySelector(`.action-messages[data-action="${action.id}"]`)?.value || '';
     const messages = messagesText.split('\n').filter(m => m.trim());
     
@@ -1186,6 +1204,8 @@ function saveActionsConfig() {
       enabled,
       rewardMin,
       rewardMax,
+      karmaMin,
+      karmaMax,
       messages
     };
   });
@@ -1416,7 +1436,7 @@ async function loadConfig() {
         // Initialize with default enabled state
         const defaultActionsConfig = {};
         actionsList.forEach(action => {
-          defaultActionsConfig[action.id] = { enabled: true, rewardMin: 5, rewardMax: 15, messages: [] };
+          defaultActionsConfig[action.id] = { enabled: true, rewardMin: 5, rewardMax: 15, karmaMin: 1, karmaMax: 3, messages: [] };
         });
         localStorage.setItem('actionsConfig', JSON.stringify(defaultActionsConfig));
         loadActionsConfig();
@@ -1425,7 +1445,7 @@ async function loadConfig() {
       // Initialize with default enabled state
       const defaultActionsConfig = {};
       actionsList.forEach(action => {
-        defaultActionsConfig[action.id] = { enabled: true, rewardMin: 5, rewardMax: 15, messages: [] };
+        defaultActionsConfig[action.id] = { enabled: true, rewardMin: 5, rewardMax: 15, karmaMin: 1, karmaMax: 3, messages: [] };
       });
       localStorage.setItem('actionsConfig', JSON.stringify(defaultActionsConfig));
       loadActionsConfig();
