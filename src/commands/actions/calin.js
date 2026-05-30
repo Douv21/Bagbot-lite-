@@ -62,6 +62,11 @@ module.exports = {
       .setFooter({ text: `Solde: ${newBalance} BAG  ·  +${karmaReward} karma` })
       .setTimestamp();
 
-    await interaction.editReply({ embeds: [embed] });
+    const mention = target && target.id !== interaction.user.id ? `<@${target.id}>` : null;
+    await interaction.editReply({
+      content: mention,
+      embeds: [embed],
+      allowedMentions: mention ? { users: [target.id] } : { parse: [] }
+    });
   }
 };
