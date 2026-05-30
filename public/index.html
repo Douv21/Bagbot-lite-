@@ -450,18 +450,18 @@
                             </label>
                         </div>
 
-                        <h3>Salons</h3>
+                        <h3>Salons autorisés</h3>
+                        <p class="help-text">La confession est publiée anonymement dans le salon où la commande est tapée. Limitez ici les salons autorisés.</p>
                         <div class="form-group">
-                            <label>Salon d'entrée <small style="color:var(--text-secondary)">(où <code>/confess</code> peut être utilisé)</small></label>
-                            <select id="confessionInputChannel">
-                                <option value="">Tous les salons</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Salon de publication <small style="color:var(--text-secondary)">(où les confessions apparaissent anonymement)</small></label>
-                            <select id="confessionOutputChannel">
-                                <option value="">Sélectionner un salon...</option>
-                            </select>
+                            <label>Ajouter un salon autorisé</label>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <select id="confessionChannelPicker" style="flex:1;">
+                                    <option value="">Chargement des salons...</option>
+                                </select>
+                                <button type="button" class="btn btn-primary" onclick="addConfessionChannel()" style="white-space:nowrap;">+ Ajouter</button>
+                            </div>
+                            <div id="confessionChannelTags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+                            <small style="color:var(--text-secondary);margin-top:6px;display:block;">Si aucun salon n'est ajouté, la commande est utilisable partout.</small>
                         </div>
                         <div class="form-group">
                             <label>Salon modération <small style="color:var(--text-secondary)">(optionnel — les mods voient l'auteur réel)</small></label>
