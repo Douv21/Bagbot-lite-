@@ -406,6 +406,33 @@ app.get('/api/roles', async (req, res) => {
   }
 });
 
+// API pour sauvegarder uniquement les thèmes (roleThemes + defaultTheme)
+app.patch('/api/config/themes', (req, res) => {
+  try {
+    const guildId = req.session.selectedGuild || (req.session.user && req.body._guildId);
+    if (!guildId) return res.status(400).json({ error: 'No guild selected' });
+
+    const configDir  = path.join(__dirname, '../configs');
+    if (!fs.existsSync(configDir)) fs.mkdirSync(configDir, { recursive: true });
+    const configPath = path.join(configDir, `${guildId}.json`);
+
+    let existing = {};
+    if (fs.existsSync(configPath)) {
+      try { existing = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch (_) {}
+    }
+
+    if (req.body.roleThemes   !== undefined) existing.roleThemes   = req.body.roleThemes;
+    if (req.body.defaultTheme !== undefined) existing.defaultTheme = req.body.defaultTheme;
+
+    fs.writeFileSync(configPath, JSON.stringify(existing, null, 2));
+    console.log(`Themes saved for guild ${guildId}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erreur sauvegarde thèmes:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✓ Dashboard running on port ${PORT}`);
 });
