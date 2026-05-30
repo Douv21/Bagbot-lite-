@@ -1,9 +1,8 @@
 // Standalone card worker — runs as a child process.
 // Reads JSON from stdin, writes PNG buffer to stdout.
-// If canvas/sharp cause SIGILL, only this process dies; the bot survives.
+// Uses @napi-rs/canvas — prebuilt binaries, no native compilation required.
 
-const Canvas = require('canvas');
-const sharp  = require('sharp');
+const { createCanvas, loadImage } = require('@napi-rs/canvas');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -127,7 +126,7 @@ async function run() {
   const { username, discriminator, avatarUrl, data } = JSON.parse(raw);
 
   const W = 1400, H = 800;
-  const canvas = Canvas.createCanvas(W, H);
+  const canvas = createCanvas(W, H);
   const ctx = canvas.getContext('2d');
 
   const level    = data.level    || 0;
@@ -143,7 +142,7 @@ async function run() {
   const rankName = getRankName(level);
   const pal      = gemPalette(rankName);
 
-  const avatar = await Canvas.loadImage(avatarUrl);
+  const avatar = await loadImage(avatarUrl);
 
   // ── Background ────────────────────────────────────────────────────────────
   ctx.fillStyle = '#040a1e'; ctx.fillRect(0, 0, W, H);
@@ -364,7 +363,7 @@ async function run() {
   drawBarcode(ctx, W-48, H-30);
 
   // ── Export ────────────────────────────────────────────────────────────────
-  const buf = await sharp(canvas.toBuffer('image/png')).sharpen().png().toBuffer();
+  const buf = await canvas.encode('png');
   process.stdout.write(buf);
   process.exit(0);
 }
