@@ -84,7 +84,7 @@ module.exports = {
         await interaction.editReply({
           content: mention,
           embeds:  [embed],
-          files:   [{ attachment: card, name: 'holographic-card.png' }]
+          files:   [card]
         });
       } else {
         const embed = new EmbedBuilder()
