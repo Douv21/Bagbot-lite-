@@ -22,12 +22,13 @@ module.exports = {
       });
     }
 
-    const inputChannel = config.confession.inputChannel;
-    if (inputChannel && interaction.channelId !== inputChannel) {
-      const ch = interaction.guild.channels.cache.get(inputChannel);
-      const ref = ch ? `<#${ch.id}>` : 'le salon configuré';
+    const allowedChannels = config.confession.channels || [];
+    if (allowedChannels.length > 0 && !allowedChannels.includes(interaction.channelId)) {
+      const refs = allowedChannels
+        .map(id => `<#${id}>`)
+        .join(', ');
       return interaction.reply({
-        content: `❌ Cette commande doit être utilisée dans ${ref}.`,
+        content: `❌ Cette commande ne peut être utilisée que dans : ${refs}`,
         ephemeral: true
       });
     }
