@@ -23,14 +23,15 @@ async function generateLevelUpCard(user, level, xp, xpToNextLevel, guildIcon, th
     roleName:     stats.roleName     || 'Membre du serveur'
   };
 
-  const result = await generateHolographicCard(mockMember, data);
-  if (!result) return null;
-
-  // AttachmentBuilder stores the buffer in .attachment directly
-  if (result && typeof result === 'object' && result.attachment) {
-    return result.attachment;
+  try {
+    const result = await generateHolographicCard(mockMember, data);
+    if (!result) return null;
+    if (result && typeof result === 'object' && result.attachment) return result.attachment;
+    return result;
+  } catch (err) {
+    console.error('❌ generateLevelUpCard error:', err.message, err.stack);
+    return null;
   }
-  return result;
 }
 
 async function generateBalanceCard(user, balance, currencyName, guildIcon, themeName = null, guild = null) {
@@ -56,13 +57,15 @@ async function generateBalanceCard(user, balance, currencyName, guildIcon, theme
     roleName: 'Solde BAG'
   };
 
-  const result = await generateHolographicCard(mockMember, data);
-  if (!result) return null;
-
-  if (result && typeof result === 'object' && result.attachment) {
-    return result.attachment;
+  try {
+    const result = await generateHolographicCard(mockMember, data);
+    if (!result) return null;
+    if (result && typeof result === 'object' && result.attachment) return result.attachment;
+    return result;
+  } catch (err) {
+    console.error('❌ generateBalanceCard error:', err.message);
+    return null;
   }
-  return result;
 }
 
 module.exports = { generateLevelUpCard, generateBalanceCard };
