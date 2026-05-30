@@ -13,7 +13,7 @@ const path = require('path');
 const express = require('express');
 const { loadGuildConfig } = require('./utils/leveling');
 const { addBalance, addXP, getXP } = require('./utils/economy');
-const { getUserData, updateUserData } = require('./storage/jsonStore');
+const { getUserData, updateUserData, resetFireForGuild } = require('./storage/jsonStore');
 const { xpToLevel, getLastRewardForLevel, getNextRewardForLevel } = require('./utils/levelHelpers');
 
 const client = new Client({
@@ -502,3 +502,32 @@ client.once('ready', async () => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+// ── Réinitialisation hebdomadaire du feu ──────────────────────────────────────
+const fireResetDone = new Map(); // guildId → 'YYYY-WW-D-H' pour éviter double reset
+
+setInterval(async () => {
+  if (!client.isReady()) return;
+  const now = new Date();
+  const day  = now.getDay();
+  const hour = now.getHours();
+  const key  = `${now.getFullYear()}-W${Math.ceil((now - new Date(now.getFullYear(), 0, 1)) / 604800000)}-${day}-${hour}`;
+
+  for (const guild of client.guilds.cache.values()) {
+    try {
+      const config = loadGuildConfig(guild.id);
+      const fr = config?.fireReset;
+      if (!fr?.enabled) continue;
+      const resetDay  = Number(fr.day  ?? 1);
+      const resetHour = Number(fr.hour ?? 0);
+      if (day !== resetDay || hour !== resetHour) continue;
+      const guildKey = `${guild.id}-${key}`;
+      if (fireResetDone.get(guildKey)) continue;
+      fireResetDone.set(guildKey, true);
+      await resetFireForGuild(guild.id);
+      console.log(`✓ Feu réinitialisé pour ${guild.name}`);
+    } catch (e) {
+      console.error(`Erreur reset feu pour ${guild.id}:`, e);
+    }
+  }
+}, 60 * 60 * 1000); // Vérification toutes les heures
