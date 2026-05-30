@@ -166,13 +166,10 @@ async function handleConfessModal(interaction) {
     await interaction.deferReply({ ephemeral: true });
 
     const config = loadGuildConfig(interaction.guild.id);
-    if (!config?.confession?.outputChannel) {
-      return interaction.editReply({ content: '❌ Aucun salon de sortie configuré pour les confessions.' });
-    }
 
-    const outputChannel = await interaction.guild.channels.fetch(config.confession.outputChannel).catch(() => null);
+    const outputChannel = await interaction.guild.channels.fetch(interaction.channelId).catch(() => null);
     if (!outputChannel || !outputChannel.isTextBased()) {
-      return interaction.editReply({ content: '❌ Le salon de confessions est introuvable ou invalide.' });
+      return interaction.editReply({ content: '❌ Impossible d\'accéder à ce salon.' });
     }
 
     const text    = interaction.fields.getTextInputValue('confessText');
