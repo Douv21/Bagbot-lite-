@@ -1307,15 +1307,19 @@ function deleteLevelReward(level) {
 // Add role theme
 // Theme definitions (shared)
 const THEME_META = {
-  '':            { name: 'Aléatoire 🎲', css: 'theme-badge-random' },
-  'blue':        { name: 'Bleu',          css: 'theme-badge-blue' },
-  'gaming':      { name: 'Gaming',        css: 'theme-badge-gaming' },
-  'holographic': { name: 'Holographique', css: 'theme-badge-holo' },
-  'futuristic':  { name: 'Futuriste',     css: 'theme-badge-futuristic' },
-  'love':        { name: 'Amour',         css: 'theme-badge-love' },
-  'sensual':     { name: 'Sensuel',       css: 'theme-badge-sensual' },
-  'rose':        { name: 'Rose',          css: 'theme-badge-rose' },
-  'gold':        { name: 'Or',            css: 'theme-badge-gold' },
+  '':             { name: 'Aléatoire 🎲', css: 'theme-badge-random' },
+  'random':       { name: 'Aléatoire 🎲', css: 'theme-badge-random' },
+  'holographique':{ name: 'Holographique', css: 'theme-badge-holo' },
+  'bleu':         { name: 'Bleu',          css: 'theme-badge-blue' },
+  'gaming':       { name: 'Gaming',        css: 'theme-badge-gaming' },
+  'gold':         { name: 'Or',            css: 'theme-badge-gold' },
+  'argent':       { name: 'Argent',        css: 'theme-badge-argent' },
+  'love':         { name: 'Amour',         css: 'theme-badge-love' },
+  'sensuel':      { name: 'Sensuel',       css: 'theme-badge-sensuel' },
+  'rose':         { name: 'Rose',          css: 'theme-badge-rose' },
+  'cosmos':       { name: 'Cosmos',        css: 'theme-badge-cosmos' },
+  'nature':       { name: 'Nature',        css: 'theme-badge-nature' },
+  'dark':         { name: 'Dark',          css: 'theme-badge-dark' },
 };
 
 // Module-level selected theme (évite les bugs du hidden input)
