@@ -14,11 +14,8 @@
                 <h2>Bagbot</h2>
             </div>
             <nav class="sidebar-nav" id="sidebarNav" style="display: none;">
-                <a href="#" class="nav-item active" data-section="welcome">
-                    <span>👋</span> Bienvenue
-                </a>
-                <a href="#" class="nav-item" data-section="depart">
-                    <span>👋</span> Départ
+                <a href="#" class="nav-item active" data-section="welcome-depart">
+                    <span>👋</span> Bienvenue/Départ
                 </a>
                 <a href="#" class="nav-item" data-section="forum">
                     <span>💬</span> Forum Illimité
@@ -52,7 +49,7 @@
                     <span></span>
                     <span></span>
                 </button>
-                <h1 id="headerTitle">Bienvenue/Depart</h1>
+                <h1 id="headerTitle">Bienvenue / Départ</h1>
                 <div class="header-right">
                     <div class="current-server-header" id="currentServerHeader" style="display: none;">
                         <div class="current-server-icon" id="currentServerIcon"></div>
@@ -85,135 +82,131 @@
             </div>
 
             <div class="content" id="configContent" style="display: none;">
-                <!-- Welcome Tab Content -->
-                <div class="tab-content active" id="tab-welcome">
-                    <div class="section">
-                        <h2>Configuration Bienvenue</h2>
-                        <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
-                        
-                        <!-- Embed Preview -->
-                        <div class="embed-preview" id="welcomeEmbedPreview">
-                            <div class="embed-author" id="welcomeEmbedAuthor" onclick="openAuthorModal('welcome')">
-                                <img src="" alt="Author" id="welcomeEmbedAuthorIcon">
-                                <div class="embed-author-name" id="welcomeEmbedAuthorName"></div>
-                            </div>
-                            <div class="embed-title" id="welcomeEmbedTitle" onclick="openTitleModal('welcome')">👋 Bienvenue</div>
-                            <div class="embed-description" id="welcomeEmbedDescription" onclick="openDescriptionModal('welcome')">Bienvenue {user} sur le serveur !</div>
-                            <div class="embed-fields" id="welcomeEmbedFields"></div>
-                            <div class="embed-thumbnail" id="welcomeEmbedThumbnail" onclick="openThumbnailModal('welcome')">
-                                <img src="" alt="Thumbnail">
-                            </div>
-                            <img class="embed-image" id="welcomeEmbedImage" src="" alt="" onclick="openImageModal('welcome')">
-                            <div class="embed-footer" id="welcomeEmbedFooter" onclick="openFooterModal('welcome')">
-                                <img src="" alt="Footer Icon" id="welcomeEmbedFooterIcon">
-                                <span id="welcomeEmbedFooterText"></span>
-                                <span class="embed-timestamp" id="welcomeEmbedTimestamp"></span>
-                            </div>
-                        </div>
-
-                        <div class="variables-info">
-                            <h4>Variables disponibles :</h4>
-                            <code>{user}</code> - Nom de l'utilisateur<br>
-                            <code>{server}</code> - Nom du serveur<br>
-                            <code>{member_count}</code> - Nombre de membres
-                        </div>
-
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="welcomeEnabled" checked>
-                                Activer les messages de bienvenue
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>Salon de bienvenue</label>
-                            <select id="welcomeChannel">
-                                <option value="">Sélectionner un salon...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Rôle requis (optionnel)</label>
-                            <select id="welcomeRole">
-                                <option value="">Tous les membres</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Couleur de l'embed</label>
-                            <input type="color" id="welcomeColor" value="#C41E3A" oninput="updateWelcomeEmbed()">
-                        </div>
-                        
-                        <!-- Hidden fields for modals -->
-                        <input type="hidden" id="welcomeTitle" value="👋 Bienvenue">
-                        <input type="hidden" id="welcomeSubtitle" value="">
-                        <input type="hidden" id="welcomeMessage" value="Bienvenue {user} sur le serveur !">
-                        <input type="hidden" id="welcomeAuthorName" value="">
-                        <input type="hidden" id="welcomeAuthorIcon" value="">
-                        <input type="hidden" id="welcomeThumbnail" value="">
-                        <input type="hidden" id="welcomeImage" value="">
-                        <input type="hidden" id="welcomeFooterText" value="">
-                        <input type="hidden" id="welcomeFooterIcon" value="">
-                        <input type="hidden" id="welcomeRole" value="">
+                <!-- Bienvenue/Départ Tab Content (merged) -->
+                <div class="tab-content active" id="tab-welcome-depart">
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" data-subtab="welcome">👋 Bienvenue</button>
+                        <button class="sub-tab" data-subtab="depart">🚪 Départ</button>
                     </div>
-                </div>
 
-                <!-- Depart Tab Content -->
-                <div class="tab-content" id="tab-depart">
-                    <div class="section">
-                        <h2>Configuration Départ</h2>
-                        <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
-                        
-                        <!-- Embed Preview -->
-                        <div class="embed-preview" id="departEmbedPreview">
-                            <div class="embed-author" id="departEmbedAuthor" onclick="openAuthorModal('depart')">
-                                <img src="" alt="Author" id="departEmbedAuthorIcon">
-                                <div class="embed-author-name" id="departEmbedAuthorName"></div>
+                    <!-- Sous-onglet Bienvenue -->
+                    <div class="sub-tab-content active" id="subtab-welcome">
+                        <div class="section">
+                            <h2>Configuration Bienvenue</h2>
+                            <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
+                            <div class="embed-preview" id="welcomeEmbedPreview">
+                                <div class="embed-author" id="welcomeEmbedAuthor" onclick="openAuthorModal('welcome')">
+                                    <img src="" alt="Author" id="welcomeEmbedAuthorIcon">
+                                    <div class="embed-author-name" id="welcomeEmbedAuthorName"></div>
+                                </div>
+                                <div class="embed-title" id="welcomeEmbedTitle" onclick="openTitleModal('welcome')">👋 Bienvenue</div>
+                                <div class="embed-description" id="welcomeEmbedDescription" onclick="openDescriptionModal('welcome')">Bienvenue {user} sur le serveur !</div>
+                                <div class="embed-fields" id="welcomeEmbedFields"></div>
+                                <div class="embed-thumbnail" id="welcomeEmbedThumbnail" onclick="openThumbnailModal('welcome')">
+                                    <img src="" alt="Thumbnail">
+                                </div>
+                                <img class="embed-image" id="welcomeEmbedImage" src="" alt="" onclick="openImageModal('welcome')">
+                                <div class="embed-footer" id="welcomeEmbedFooter" onclick="openFooterModal('welcome')">
+                                    <img src="" alt="Footer Icon" id="welcomeEmbedFooterIcon">
+                                    <span id="welcomeEmbedFooterText"></span>
+                                    <span class="embed-timestamp" id="welcomeEmbedTimestamp"></span>
+                                </div>
                             </div>
-                            <div class="embed-title" id="departEmbedTitle" onclick="openTitleModal('depart')">👋 Au revoir</div>
-                            <div class="embed-description" id="departEmbedDescription" onclick="openDescriptionModal('depart')">Au revoir {user} !</div>
-                            <div class="embed-fields" id="departEmbedFields"></div>
-                            <div class="embed-thumbnail" id="departEmbedThumbnail" onclick="openThumbnailModal('depart')">
-                                <img src="" alt="Thumbnail">
+                            <div class="variables-info">
+                                <h4>Variables disponibles :</h4>
+                                <code>{user}</code> - Nom de l'utilisateur<br>
+                                <code>{server}</code> - Nom du serveur<br>
+                                <code>{member_count}</code> - Nombre de membres
                             </div>
-                            <img class="embed-image" id="departEmbedImage" src="" alt="" onclick="openImageModal('depart')">
-                            <div class="embed-footer" id="departEmbedFooter" onclick="openFooterModal('depart')">
-                                <img src="" alt="Footer Icon" id="departEmbedFooterIcon">
-                                <span id="departEmbedFooterText"></span>
-                                <span class="embed-timestamp" id="departEmbedTimestamp"></span>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="welcomeEnabled" checked>
+                                    Activer les messages de bienvenue
+                                </label>
                             </div>
+                            <div class="form-group">
+                                <label>Salon de bienvenue</label>
+                                <select id="welcomeChannel">
+                                    <option value="">Sélectionner un salon...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Rôle requis (optionnel)</label>
+                                <select id="welcomeRole">
+                                    <option value="">Tous les membres</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Couleur de l'embed</label>
+                                <input type="color" id="welcomeColor" value="#C41E3A" oninput="updateWelcomeEmbed()">
+                            </div>
+                            <input type="hidden" id="welcomeTitle" value="👋 Bienvenue">
+                            <input type="hidden" id="welcomeSubtitle" value="">
+                            <input type="hidden" id="welcomeMessage" value="Bienvenue {user} sur le serveur !">
+                            <input type="hidden" id="welcomeAuthorName" value="">
+                            <input type="hidden" id="welcomeAuthorIcon" value="">
+                            <input type="hidden" id="welcomeThumbnail" value="">
+                            <input type="hidden" id="welcomeImage" value="">
+                            <input type="hidden" id="welcomeFooterText" value="">
+                            <input type="hidden" id="welcomeFooterIcon" value="">
+                            <input type="hidden" id="welcomeRole" value="">
                         </div>
+                    </div>
 
-                        <div class="variables-info">
-                            <h4>Variables disponibles :</h4>
-                            <code>{user}</code> - Nom de l'utilisateur<br>
-                            <code>{server}</code> - Nom du serveur
+                    <!-- Sous-onglet Départ -->
+                    <div class="sub-tab-content" id="subtab-depart">
+                        <div class="section">
+                            <h2>Configuration Départ</h2>
+                            <p class="help-text">Cliquez sur un élément de l'embed pour le modifier</p>
+                            <div class="embed-preview" id="departEmbedPreview">
+                                <div class="embed-author" id="departEmbedAuthor" onclick="openAuthorModal('depart')">
+                                    <img src="" alt="Author" id="departEmbedAuthorIcon">
+                                    <div class="embed-author-name" id="departEmbedAuthorName"></div>
+                                </div>
+                                <div class="embed-title" id="departEmbedTitle" onclick="openTitleModal('depart')">👋 Au revoir</div>
+                                <div class="embed-description" id="departEmbedDescription" onclick="openDescriptionModal('depart')">Au revoir {user} !</div>
+                                <div class="embed-fields" id="departEmbedFields"></div>
+                                <div class="embed-thumbnail" id="departEmbedThumbnail" onclick="openThumbnailModal('depart')">
+                                    <img src="" alt="Thumbnail">
+                                </div>
+                                <img class="embed-image" id="departEmbedImage" src="" alt="" onclick="openImageModal('depart')">
+                                <div class="embed-footer" id="departEmbedFooter" onclick="openFooterModal('depart')">
+                                    <img src="" alt="Footer Icon" id="departEmbedFooterIcon">
+                                    <span id="departEmbedFooterText"></span>
+                                    <span class="embed-timestamp" id="departEmbedTimestamp"></span>
+                                </div>
+                            </div>
+                            <div class="variables-info">
+                                <h4>Variables disponibles :</h4>
+                                <code>{user}</code> - Nom de l'utilisateur<br>
+                                <code>{server}</code> - Nom du serveur
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="departEnabled" checked>
+                                    Activer les messages de départ
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Salon de départ</label>
+                                <select id="departChannel">
+                                    <option value="">Sélectionner un salon...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Couleur de l'embed</label>
+                                <input type="color" id="departColor" value="#C41E3A" oninput="updateDepartEmbed()">
+                            </div>
+                            <input type="hidden" id="departTitle" value="👋 Au revoir">
+                            <input type="hidden" id="departSubtitle" value="">
+                            <input type="hidden" id="departMessage" value="Au revoir {user} !">
+                            <input type="hidden" id="departAuthorName" value="">
+                            <input type="hidden" id="departAuthorIcon" value="">
+                            <input type="hidden" id="departThumbnail" value="">
+                            <input type="hidden" id="departImage" value="">
+                            <input type="hidden" id="departFooterText" value="">
+                            <input type="hidden" id="departFooterIcon" value="">
                         </div>
-
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="departEnabled" checked>
-                                Activer les messages de départ
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>Salon de départ</label>
-                            <select id="departChannel">
-                                <option value="">Sélectionner un salon...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Couleur de l'embed</label>
-                            <input type="color" id="departColor" value="#C41E3A" oninput="updateDepartEmbed()">
-                        </div>
-                        
-                        <!-- Hidden fields for modals -->
-                        <input type="hidden" id="departTitle" value="👋 Au revoir">
-                        <input type="hidden" id="departSubtitle" value="">
-                        <input type="hidden" id="departMessage" value="Au revoir {user} !">
-                        <input type="hidden" id="departAuthorName" value="">
-                        <input type="hidden" id="departAuthorIcon" value="">
-                        <input type="hidden" id="departThumbnail" value="">
-                        <input type="hidden" id="departImage" value="">
-                        <input type="hidden" id="departFooterText" value="">
-                        <input type="hidden" id="departFooterIcon" value="">
                     </div>
                 </div>
 
@@ -404,6 +397,31 @@
                         <h3>Récompenses configurées</h3>
                         <div id="levelRewardsList" style="margin-top: 20px;">
                             <p>Aucune récompense configurée.</p>
+                        </div>
+
+                        <h3>🔥 Réinitialisation hebdomadaire du Feu</h3>
+                        <p class="help-text">Remet à zéro le compteur FEU de tous les membres une fois par semaine</p>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="fireResetEnabled">
+                                Activer la réinitialisation hebdomadaire
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Jour de réinitialisation</label>
+                            <select id="fireResetDay">
+                                <option value="1">Lundi</option>
+                                <option value="2">Mardi</option>
+                                <option value="3">Mercredi</option>
+                                <option value="4">Jeudi</option>
+                                <option value="5">Vendredi</option>
+                                <option value="6">Samedi</option>
+                                <option value="0">Dimanche</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Heure de réinitialisation</label>
+                            <input type="number" id="fireResetHour" value="0" min="0" max="23" placeholder="0–23">
                         </div>
 
                         <h3>Thèmes de carte</h3>
