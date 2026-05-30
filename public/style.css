@@ -597,6 +597,46 @@ body {
     display: block;
 }
 
+/* Sub-tabs (Bienvenue / Départ) */
+.sub-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.sub-tab {
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid var(--border-red);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease;
+}
+
+.sub-tab:hover {
+    background: rgba(196, 30, 58, 0.1);
+    color: var(--text-primary);
+}
+
+.sub-tab.active {
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-red-dark) 100%);
+    color: white;
+    border-color: var(--gold);
+    box-shadow: 0 2px 12px rgba(196, 30, 58, 0.3);
+}
+
+.sub-tab-content {
+    display: none;
+}
+
+.sub-tab-content.active {
+    display: block;
+}
+
 /* Section */
 .section {
     background: var(--bg-card);
