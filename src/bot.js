@@ -145,8 +145,7 @@ client.on('interactionCreate', async interaction => {
 
   const age = Date.now() - interaction.createdTimestamp;
   if (age > 2800) {
-    console.warn(`⚠️ Interaction /${interaction.commandName} reçue trop tard (${age}ms) — ignorée`);
-    return;
+    console.warn(`⚠️ Interaction /${interaction.commandName} reçue avec ${age}ms de délai (horloge serveur?)`);
   }
 
   const command = commands.find(cmd => cmd.data.name === interaction.commandName);
