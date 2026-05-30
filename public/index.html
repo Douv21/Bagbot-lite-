@@ -448,18 +448,20 @@
                 <div class="tab-content" id="tab-levels-themes">
                     <div class="section">
                         <h2>🎨 Niveaux — Thèmes de carte</h2>
-                        <p class="help-text">Associez des thèmes de carte à des rôles spécifiques</p>
-                        <div class="form-group">
-                            <label>Rôle</label>
-                            <select id="themeRole">
-                                <option value="">Sélectionner un rôle...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Thème</label>
-                            <select id="themeSelect">
-                                <option value="">Aléatoire</option>
-                                <option value="blue">Bleu (par défaut)</option>
+                        <p class="help-text">Associez un thème de carte holographique à chaque rôle. Les membres reçoivent le thème du rôle le plus haut qu'ils possèdent.</p>
+
+                        <!-- Thème par défaut -->
+                        <div class="theme-default-block">
+                            <div class="theme-default-label">
+                                <span>🌐</span>
+                                <div>
+                                    <strong>Thème par défaut</strong>
+                                    <p>Appliqué aux membres sans rôle associé</p>
+                                </div>
+                            </div>
+                            <select id="defaultThemeSelect" onchange="saveDefaultTheme()">
+                                <option value="">Aléatoire 🎲</option>
+                                <option value="blue">Bleu</option>
                                 <option value="gaming">Gaming</option>
                                 <option value="holographic">Holographique</option>
                                 <option value="futuristic">Futuriste</option>
@@ -469,9 +471,65 @@
                                 <option value="gold">Or</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary" onclick="addRoleTheme()">Associer le thème</button>
-                        <h3>Thèmes configurés</h3>
-                        <div id="roleThemesList" style="margin-top: 20px;">
+
+                        <h3>Associer un thème à un rôle</h3>
+
+                        <div class="form-group">
+                            <label>Rôle Discord</label>
+                            <select id="themeRole">
+                                <option value="">Sélectionner un rôle...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Choisir le thème</label>
+                            <input type="hidden" id="themeSelect" value="">
+                            <div class="theme-picker" id="themePickerGrid">
+                                <div class="theme-card selected" data-theme="" title="Aléatoire">
+                                    <div class="theme-preview theme-random"></div>
+                                    <span>Aléatoire 🎲</span>
+                                </div>
+                                <div class="theme-card" data-theme="blue" title="Bleu">
+                                    <div class="theme-preview" style="background: linear-gradient(135deg, #0d4fa0 0%, #0099ff 100%)"></div>
+                                    <span>Bleu</span>
+                                </div>
+                                <div class="theme-card" data-theme="gaming" title="Gaming">
+                                    <div class="theme-preview" style="background: linear-gradient(135deg, #0a0a0a 0%, #00ff88 50%, #9900ff 100%)"></div>
+                                    <span>Gaming</span>
+                                </div>
+                                <div class="theme-card" data-theme="holographic" title="Holographique">
+                                    <div class="theme-preview theme-holo"></div>
+                                    <span>Holographique</span>
+                                </div>
+                                <div class="theme-card" data-theme="futuristic" title="Futuriste">
+                                    <div class="theme-preview" style="background: linear-gradient(135deg, #050520 0%, #0044ff 50%, #00ffff 100%)"></div>
+                                    <span>Futuriste</span>
+                                </div>
+                                <div class="theme-card" data-theme="love" title="Amour">
+                                    <div class="theme-preview" style="background: linear-gradient(135deg, #1a0010 0%, #ff3366 50%, #ff99bb 100%)"></div>
+                                    <span>Amour</span>
+                                </div>
+                                <div class="theme-card" data-theme="sensual" title="Sensuel">
+                                    <div class="theme-preview" style="background: linear-gradient(135deg, #1a0800 0%, #cc4400 50%, #ff8833 100%)"></div>
+                                    <span>Sensuel</span>
+                                </div>
+                                <div class="theme-card" data-theme="rose" title="Rose">
+                                    <div class="theme-preview" style="background: linear-gradient(135deg, #1a0010 0%, #ff3399 50%, #ffaadd 100%)"></div>
+                                    <span>Rose</span>
+                                </div>
+                                <div class="theme-card" data-theme="gold" title="Or">
+                                    <div class="theme-preview" style="background: linear-gradient(135deg, #1a1000 0%, #cc8800 50%, #ffdd00 100%)"></div>
+                                    <span>Or</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="addRoleTheme()" style="margin-top: 8px;">
+                            ＋ Associer ce thème au rôle
+                        </button>
+
+                        <h3 style="margin-top: 32px;">Associations configurées</h3>
+                        <div id="roleThemesList" style="margin-top: 16px;">
                             <p>Aucun thème configuré.</p>
                         </div>
                     </div>
