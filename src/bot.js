@@ -172,30 +172,38 @@ async function handleConfessModal(interaction) {
       return interaction.editReply({ content: '❌ Impossible d\'accéder à ce salon.' });
     }
 
-    const text    = interaction.fields.getTextInputValue('confessText');
-    const count   = incrementConfessCount(interaction.guild.id);
-    const color   = parseInt((config.confession.color || '#5865f2').replace('#', ''), 16) || 0x5865f2;
+    const text      = interaction.fields.getTextInputValue('confessText');
+    const imageUrl  = interaction.fields.getTextInputValue('confessImage')?.trim() || '';
+    const count     = incrementConfessCount(interaction.guild.id);
+    const color     = parseInt((config?.confession?.color || '#5865f2').replace('#', ''), 16) || 0x5865f2;
 
     const { EmbedBuilder } = require('discord.js');
     const embed = new EmbedBuilder()
       .setColor(color)
       .setAuthor({ name: `🙊 Confession anonyme #${count}` })
-      .setDescription(text)
       .setFooter({ text: `${interaction.guild.name} • Confession anonyme` })
       .setTimestamp();
 
+    // Image-only, text-only, or both
+    const hasText  = text.trim().length > 0;
+    const hasImage = imageUrl.length > 0 && /^https?:\/\/.+/i.test(imageUrl);
+
+    if (hasText)  embed.setDescription(text);
+    if (hasImage) embed.setImage(imageUrl);
+
     await outputChannel.send({ embeds: [embed] });
 
-    // Optionally post to mod channel with author info
-    if (config.confession.modChannel) {
+    // Log to mod channel with author info
+    if (config?.confession?.modChannel) {
       const modCh = await interaction.guild.channels.fetch(config.confession.modChannel).catch(() => null);
       if (modCh && modCh.isTextBased()) {
         const modEmbed = new EmbedBuilder()
           .setColor(0xff4444)
           .setTitle(`🔍 Log confession #${count}`)
-          .setDescription(text)
+          .setDescription(hasText ? text : '*(pas de texte)*')
           .addFields({ name: 'Auteur', value: `<@${interaction.user.id}> (${interaction.user.tag})`, inline: true })
           .setTimestamp();
+        if (hasImage) modEmbed.setImage(imageUrl);
         await modCh.send({ embeds: [modEmbed] });
       }
     }
