@@ -1,10 +1,12 @@
 require('dotenv').config();
 
 process.on('uncaughtException', err => {
-  console.error('💥 UNCAUGHT EXCEPTION — bot va redémarrer:', err);
+  console.error('💥 UNCAUGHT EXCEPTION — arrêt forcé pour redémarrage PM2:', err);
+  process.exit(1);
 });
 process.on('unhandledRejection', (reason, promise) => {
   console.error('💥 UNHANDLED REJECTION — promesse non catchée:', reason);
+  process.exit(1);
 });
 
 const { Client, GatewayIntentBits, REST, Routes, Partials, EmbedBuilder } = require('discord.js');
@@ -438,7 +440,7 @@ client.on('threadUpdate', async (oldThread, newThread) => {
 });
 
 // Au démarrage, réouvrir tous les threads archivés dans les salons forum illimités
-client.once('ready', async () => {
+client.once('clientReady', async () => {
   console.log(`✓ Bot connecté en tant que ${client.user.tag}`);
   console.log(`✓ Prêt sur ${client.guilds.cache.size} serveur(s)`);
 
