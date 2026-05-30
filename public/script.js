@@ -1336,7 +1336,26 @@ document.addEventListener('click', e => {
   _selectedTheme = card.dataset.theme ?? '';
 });
 
-function addRoleTheme() {
+async function _saveThemesToServer(roleThemes, defaultTheme) {
+  try {
+    const body = {};
+    if (roleThemes   !== undefined) body.roleThemes   = roleThemes;
+    if (defaultTheme !== undefined) body.defaultTheme = defaultTheme;
+    const r = await fetch('/api/config/themes', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      console.error('Erreur sauvegarde thèmes:', d.error || r.status);
+    }
+  } catch (e) {
+    console.error('Erreur sauvegarde thèmes:', e);
+  }
+}
+
+async function addRoleTheme() {
   const roleId = document.getElementById('themeRole').value;
   const theme  = _selectedTheme;
 
@@ -1349,6 +1368,9 @@ function addRoleTheme() {
   roleThemes[roleId] = theme === '' ? 'random' : theme;
   localStorage.setItem('roleThemes', JSON.stringify(roleThemes));
 
+  // Sauvegarde immédiate sur le serveur
+  await _saveThemesToServer(roleThemes, undefined);
+
   // Reset form
   document.getElementById('themeRole').value = '';
   _selectedTheme = '';
@@ -1359,9 +1381,11 @@ function addRoleTheme() {
   loadRoleThemes();
 }
 
-function saveDefaultTheme() {
+async function saveDefaultTheme() {
   const val = document.getElementById('defaultThemeSelect').value;
   localStorage.setItem('defaultTheme', val);
+  // Sauvegarde immédiate sur le serveur
+  await _saveThemesToServer(undefined, val);
 }
 
 // Load role themes list
@@ -1406,10 +1430,12 @@ async function loadRoleThemes() {
 }
 
 // Delete role theme
-function deleteRoleTheme(roleId) {
+async function deleteRoleTheme(roleId) {
   let roleThemes = JSON.parse(localStorage.getItem('roleThemes') || '{}');
   delete roleThemes[roleId];
   localStorage.setItem('roleThemes', JSON.stringify(roleThemes));
+  // Sauvegarde immédiate sur le serveur
+  await _saveThemesToServer(roleThemes, undefined);
   loadRoleThemes();
 }
 
