@@ -35,6 +35,9 @@
                 <a href="#" class="nav-item" data-section="levels">
                     <span>⭐</span> Niveaux
                 </a>
+                <a href="#" class="nav-item" data-section="confession">
+                    <span>🙊</span> Confessions
+                </a>
             </nav>
             <div class="login-section" id="loginSection">
                 <a href="/login" class="btn btn-login">Connexion Discord</a>
@@ -430,6 +433,53 @@
                         <h3>Thèmes configurés</h3>
                         <div id="roleThemesList" style="margin-top: 20px;">
                             <p>Aucun thème configuré.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confession Section -->
+                <div class="tab-content" id="tab-confession">
+                    <div class="section">
+                        <h2>🙊 Système de Confessions</h2>
+                        <p class="help-text">Permettez aux membres d'envoyer des confessions anonymes via <code>/confess</code>. Seul le salon d'entrée est requis pour limiter l'usage de la commande.</p>
+
+                        <div class="form-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="confessionEnabled">
+                                Activer les confessions
+                            </label>
+                        </div>
+
+                        <h3>Salons</h3>
+                        <div class="form-group">
+                            <label>Salon d'entrée <small style="color:var(--text-secondary)">(où <code>/confess</code> peut être utilisé)</small></label>
+                            <select id="confessionInputChannel">
+                                <option value="">Tous les salons</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Salon de publication <small style="color:var(--text-secondary)">(où les confessions apparaissent anonymement)</small></label>
+                            <select id="confessionOutputChannel">
+                                <option value="">Sélectionner un salon...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Salon modération <small style="color:var(--text-secondary)">(optionnel — les mods voient l'auteur réel)</small></label>
+                            <select id="confessionModChannel">
+                                <option value="">Désactivé</option>
+                            </select>
+                        </div>
+
+                        <h3>Apparence</h3>
+                        <div class="form-group">
+                            <label>Couleur des embeds</label>
+                            <input type="color" id="confessionColor" value="#5865f2">
+                        </div>
+
+                        <div class="info-box" style="background:rgba(88,101,242,0.1);border:1px solid rgba(88,101,242,0.3);border-radius:8px;padding:14px 18px;margin-top:16px;">
+                            <p style="margin:0;font-size:13px;color:var(--text-secondary);">
+                                💡 <strong>Comment ça marche :</strong> Un membre tape <code>/confess</code> dans le salon configuré. Un formulaire s'ouvre. Sa confession est publiée anonymement dans le salon de publication sous la forme <em>Confession anonyme #N</em>. Si un salon modération est défini, les mods reçoivent un log privé avec le nom de l'auteur.
+                            </p>
                         </div>
                     </div>
                 </div>
