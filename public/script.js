@@ -855,10 +855,40 @@ async function loadChannels() {
       });
     };
 
+    const confessionInputSelect  = document.getElementById('confessionInputChannel');
+    const confessionOutputSelect = document.getElementById('confessionOutputChannel');
+    const confessionModSelect    = document.getElementById('confessionModChannel');
+
     populateSelect(welcomeChannelSelect);
     populateSelect(departChannelSelect);
     populateSelect(shopChannelSelect);
     populateSelect(levelUpChannelSelect);
+
+    // Confession selectors have different default options
+    if (confessionInputSelect) {
+      confessionInputSelect.innerHTML = '<option value="">Tous les salons</option>';
+      textChannels.forEach(ch => {
+        const o = document.createElement('option');
+        o.value = ch.id; o.textContent = ch.name || 'Sans nom';
+        confessionInputSelect.appendChild(o);
+      });
+    }
+    if (confessionOutputSelect) {
+      confessionOutputSelect.innerHTML = '<option value="">Sélectionner un salon...</option>';
+      textChannels.forEach(ch => {
+        const o = document.createElement('option');
+        o.value = ch.id; o.textContent = ch.name || 'Sans nom';
+        confessionOutputSelect.appendChild(o);
+      });
+    }
+    if (confessionModSelect) {
+      confessionModSelect.innerHTML = '<option value="">Désactivé</option>';
+      textChannels.forEach(ch => {
+        const o = document.createElement('option');
+        o.value = ch.id; o.textContent = ch.name || 'Sans nom';
+        confessionModSelect.appendChild(o);
+      });
+    }
   } catch (error) {
     console.error('Error loading channels:', error);
   }
@@ -1385,6 +1415,14 @@ async function loadConfig() {
       localStorage.setItem('roleThemes', JSON.stringify(config.roleThemes));
       loadRoleThemes();
     }
+
+    if (config.confession) {
+      document.getElementById('confessionEnabled').checked    = config.confession.enabled  || false;
+      document.getElementById('confessionInputChannel').value  = config.confession.inputChannel  || '';
+      document.getElementById('confessionOutputChannel').value = config.confession.outputChannel || '';
+      document.getElementById('confessionModChannel').value    = config.confession.modChannel    || '';
+      document.getElementById('confessionColor').value         = config.confession.color         || '#5865f2';
+    }
   } catch (error) {
     console.error('Error loading config:', error);
   }
@@ -1450,7 +1488,14 @@ async function saveConfig() {
     },
     levelUpChannel: document.getElementById('levelUpChannel').value || '',
     rewards: JSON.parse(localStorage.getItem('levelRewards') || '{}'),
-    roleThemes: JSON.parse(localStorage.getItem('roleThemes') || '{}')
+    roleThemes: JSON.parse(localStorage.getItem('roleThemes') || '{}'),
+    confession: {
+      enabled:       document.getElementById('confessionEnabled').checked,
+      inputChannel:  document.getElementById('confessionInputChannel').value  || '',
+      outputChannel: document.getElementById('confessionOutputChannel').value || '',
+      modChannel:    document.getElementById('confessionModChannel').value    || '',
+      color:         document.getElementById('confessionColor').value         || '#5865f2'
+    }
   };
   
   try {
