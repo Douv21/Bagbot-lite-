@@ -1305,9 +1305,34 @@ function deleteLevelReward(level) {
 }
 
 // Add role theme
+// Theme definitions (shared)
+const THEME_META = {
+  '':            { name: 'Aléatoire 🎲', css: 'theme-badge-random' },
+  'blue':        { name: 'Bleu',          css: 'theme-badge-blue' },
+  'gaming':      { name: 'Gaming',        css: 'theme-badge-gaming' },
+  'holographic': { name: 'Holographique', css: 'theme-badge-holo' },
+  'futuristic':  { name: 'Futuriste',     css: 'theme-badge-futuristic' },
+  'love':        { name: 'Amour',         css: 'theme-badge-love' },
+  'sensual':     { name: 'Sensuel',       css: 'theme-badge-sensual' },
+  'rose':        { name: 'Rose',          css: 'theme-badge-rose' },
+  'gold':        { name: 'Or',            css: 'theme-badge-gold' },
+};
+
+// Theme picker card clicks
+document.addEventListener('click', e => {
+  const card = e.target.closest('.theme-card');
+  if (!card) return;
+  const grid = card.closest('.theme-picker');
+  if (!grid) return;
+  grid.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  const hidden = document.getElementById('themeSelect');
+  if (hidden) hidden.value = card.getAttribute('data-theme') || '';
+});
+
 function addRoleTheme() {
   const roleId = document.getElementById('themeRole').value;
-  const theme = document.getElementById('themeSelect').value;
+  const theme  = document.getElementById('themeSelect').value;
 
   if (!roleId) {
     alert('Veuillez sélectionner un rôle.');
@@ -1315,69 +1340,61 @@ function addRoleTheme() {
   }
 
   let roleThemes = JSON.parse(localStorage.getItem('roleThemes') || '{}');
-  roleThemes[roleId] = theme || 'random';
+  roleThemes[roleId] = theme === '' ? 'random' : theme;
   localStorage.setItem('roleThemes', JSON.stringify(roleThemes));
 
-  // Clear form
   document.getElementById('themeRole').value = '';
   document.getElementById('themeSelect').value = '';
+  document.querySelectorAll('#themePickerGrid .theme-card').forEach(c => c.classList.remove('selected'));
+  const firstCard = document.querySelector('#themePickerGrid .theme-card');
+  if (firstCard) firstCard.classList.add('selected');
 
   loadRoleThemes();
 }
 
-// Load role themes
+function saveDefaultTheme() {
+  const val = document.getElementById('defaultThemeSelect').value;
+  localStorage.setItem('defaultTheme', val);
+}
+
+// Load role themes list
 async function loadRoleThemes() {
   const roleThemes = JSON.parse(localStorage.getItem('roleThemes') || '{}');
   const themesList = document.getElementById('roleThemesList');
-
   if (!themesList) return;
 
   const entries = Object.entries(roleThemes);
   if (entries.length === 0) {
-    themesList.innerHTML = '<p>Aucun thème configuré.</p>';
+    themesList.innerHTML = '<p style="color:var(--text-secondary)">Aucune association configurée.</p>';
     return;
   }
 
-  // Fetch roles to get role names
   let roles = [];
   try {
-    const response = await fetch('/api/roles');
-    const rolesData = await response.json();
-    roles = rolesData;
-  } catch (error) {
-    console.error('Error loading roles:', error);
-  }
-
-  const themeNames = {
-    'random': 'Aléatoire',
-    'blue': 'Bleu',
-    'gaming': 'Gaming',
-    'holographic': 'Holographique',
-    'futuristic': 'Futuriste',
-    'love': 'Amour',
-    'sensual': 'Sensuel',
-    'rose': 'Rose',
-    'gold': 'Or'
-  };
+    const res = await fetch('/api/roles');
+    roles = await res.json();
+  } catch (_) {}
 
   themesList.innerHTML = '';
   entries.forEach(([roleId, theme]) => {
-    const role = roles.find(r => r.id === roleId);
-    const roleName = role ? role.name : roleId;
-    const themeName = themeNames[theme] || theme;
-    
-    const themeDiv = document.createElement('div');
-    themeDiv.className = 'theme-item';
-    themeDiv.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 10px;">
-        <div>
-          <strong>${roleName}</strong>
-          <br><small>Thème: ${themeName}</small>
-        </div>
-        <button class="btn btn-danger" onclick="deleteRoleTheme('${roleId}')">Supprimer</button>
+    const role      = roles.find(r => r.id === roleId);
+    const roleName  = role ? role.name : roleId;
+    const roleColor = role ? role.color : 0;
+    const hex       = roleColor ? '#' + roleColor.toString(16).padStart(6, '0') : 'var(--text-secondary)';
+    const key       = theme === 'random' ? '' : theme;
+    const meta      = THEME_META[key] || { name: theme, css: '' };
+
+    const row = document.createElement('div');
+    row.className = 'theme-row';
+    row.innerHTML = `
+      <div class="theme-row-role">
+        <span class="role-dot" style="background:${hex}"></span>
+        <strong>${roleName}</strong>
       </div>
+      <span class="theme-badge ${meta.css}">${meta.name}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteRoleTheme('${roleId}')">✕</button>
     `;
-    themesList.appendChild(themeDiv);
+    themesList.appendChild(row);
   });
 }
 
@@ -1505,6 +1522,12 @@ async function loadConfig() {
       loadRoleThemes();
     }
 
+    if (config.defaultTheme !== undefined) {
+      localStorage.setItem('defaultTheme', config.defaultTheme);
+      const sel = document.getElementById('defaultThemeSelect');
+      if (sel) sel.value = config.defaultTheme || '';
+    }
+
     if (config.confession) {
       document.getElementById('confessionEnabled').checked = config.confession.enabled || false;
       document.getElementById('confessionModChannel').value = config.confession.modChannel || '';
@@ -1585,7 +1608,8 @@ async function saveConfig() {
     },
     levelUpChannel: document.getElementById('levelUpChannel').value || '',
     rewards: JSON.parse(localStorage.getItem('levelRewards') || '{}'),
-    roleThemes: JSON.parse(localStorage.getItem('roleThemes') || '{}'),
+    roleThemes:   JSON.parse(localStorage.getItem('roleThemes') || '{}'),
+    defaultTheme: localStorage.getItem('defaultTheme') || '',
     confession: {
       enabled:    document.getElementById('confessionEnabled').checked,
       channels:   selectedConfessionChannels,
