@@ -7,7 +7,7 @@ const path                  = require('path');
 const { AttachmentBuilder } = require('discord.js');
 
 const WORKER     = path.join(__dirname, 'card-worker.js');
-const TIMEOUT_MS = 20_000;
+const TIMEOUT_MS = 40_000;
 
 module.exports = async (member, data, theme) => {
   try {
