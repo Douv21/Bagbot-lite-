@@ -116,7 +116,6 @@ module.exports = {
 
       // Create collector for button interactions
       const collector = message.createMessageComponentCollector({
-        componentType: ComponentType,
         time: 60000 // 1 minute
       });
 

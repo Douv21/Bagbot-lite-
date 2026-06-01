@@ -107,7 +107,7 @@ module.exports = {
 
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : null;
 
-      if (false) { // <--- MODIFICATION ICI
+      try {
         const card = await genCard(member, cardData, theme);
         if (card) {
           return interaction.editReply({
@@ -116,6 +116,9 @@ module.exports = {
             allowedMentions: mention ? { users: [targetUser.id] } : { parse: [] }
           });
         }
+      } catch (cardError) {
+        console.error('Erreur génération carte karma:', cardError);
+        // Continue with fallback embed
       }
 
       // Fallback embed

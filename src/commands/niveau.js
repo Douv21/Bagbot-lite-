@@ -119,15 +119,19 @@ module.exports = {
         roleName:     roleName              || \'\'
       };
 
-      const cardAttachment = false; // MODIFICATION ICI
-
-      if (cardAttachment) {
-        await interaction.editReply({
-          content: mention || null,
-          files: [cardAttachment],
-          allowedMentions: mention ? { users: [targetUser.id] } : { parse: [] }
-        });
-        return;
+      try {
+        const cardAttachment = await genCard(member, cardData, theme);
+        if (cardAttachment) {
+          await interaction.editReply({
+            content: mention || null,
+            files: [cardAttachment],
+            allowedMentions: mention ? { users: [targetUser.id] } : { parse: [] }
+          });
+          return;
+        }
+      } catch (cardError) {
+        console.error('Erreur génération carte niveau:', cardError);
+        // Continue with fallback embed
       }
 
       // Fallback embed si la carte échoue
