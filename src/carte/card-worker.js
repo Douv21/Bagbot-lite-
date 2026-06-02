@@ -284,7 +284,7 @@ async function run() {
   ctx.restore();
 
   // Username
-  ctx.font = 'bold 68px sans-serif';
+  ctx.font = 'bold 68px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = theme.titleGlow;
   ctx.shadowBlur = 16;
@@ -295,7 +295,7 @@ async function run() {
   const NX = 860, NY = 40, NW = 510, NH = 350;
   drawPanel(ctx, NX, NY, NW, NH, theme);
 
-  ctx.font = 'bold 44px sans-serif';
+  ctx.font = 'bold 44px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 10;
@@ -303,7 +303,7 @@ async function run() {
   ctx.shadowBlur = 0;
 
   const lvlStr = String(data.displayNumStr || level);
-  ctx.font = 'bold 150px sans-serif';
+  ctx.font = 'bold 150px "DejaVu Sans", "Liberation Sans", sans-serif';
   const lvlMw = ctx.measureText(lvlStr).width;
   const lvlStartX = NX + (NW - lvlMw) / 2;
 
@@ -319,7 +319,7 @@ async function run() {
   const EX = 42, EY = 418, EW = W - 84, EH = 62;
   drawPanel(ctx, EX, EY, EW, EH, theme);
 
-  ctx.font = 'bold 26px sans-serif';
+  ctx.font = 'bold 26px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.statColor;
   ctx.fillText('EXP', EX + 18, EY + 40);
 
@@ -337,7 +337,7 @@ async function run() {
   drawPanel(ctx, p2x, PY, PW, PH, theme);
   drawPanel(ctx, p3x, PY, PW, PH, theme);
 
-  ctx.font = 'bold 22px sans-serif';
+  ctx.font = 'bold 22px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.titleColor;
   ctx.fillText('STATISTIQUES', p1x + 18, PY + 34);
   ctx.fillText('RANG', p2x + 18, PY + 34);
