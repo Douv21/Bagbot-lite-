@@ -289,6 +289,9 @@ async function run() {
   ctx.shadowColor = theme.titleGlow;
   ctx.shadowBlur = 16;
   console.error('[card-worker] Drawing username:', username);
+  console.error('[card-worker] Font:', ctx.font);
+  console.error('[card-worker] Text width:', ctx.measureText(username).width);
+  console.error('[card-worker] Text position: x=324, y=220');
   ctx.fillText(username, 324, 220);
   ctx.shadowBlur = 0;
 
