@@ -349,6 +349,12 @@ async function run() {
 
   // Render to PNG
   const buf = await canvas.encode('png');
+  
+  // Save to file for debugging
+  const fs = require('fs');
+  fs.writeFileSync('/tmp/card-debug.png', buf);
+  console.error('[card-worker] Saved debug image to /tmp/card-debug.png');
+  
   process.stdout.write(buf);
   process.exit(0);
 }
