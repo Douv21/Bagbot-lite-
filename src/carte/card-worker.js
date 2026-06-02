@@ -288,6 +288,7 @@ async function run() {
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = theme.titleGlow;
   ctx.shadowBlur = 16;
+  console.error('[card-worker] Drawing username:', username);
   ctx.fillText(username, 324, 220);
   ctx.shadowBlur = 0;
 
