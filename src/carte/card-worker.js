@@ -4,7 +4,7 @@
 
 const { createCanvas, loadImage } = require('@napi-rs/canvas');
 
-// ─── Themes ───────────────────────────────────────────────────────────────────
+// ─── Themes ───────────────────────────────────────────────────────────[...]
 
 function getTheme(name) {
   const t = (name || 'holographique').toLowerCase();
@@ -346,6 +346,30 @@ async function run() {
   ctx.fillText('STATISTIQUES', p1x + 18, PY + 34);
   ctx.fillText('RANG', p2x + 18, PY + 34);
   ctx.fillText('PROCHAIN', p3x + 18, PY + 34);
+
+  // STATISTIQUES panel content
+  ctx.font = 'bold 18px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillStyle = theme.statColor;
+  const stats = [
+    { label: 'MSG', value: messages },
+    { label: 'VOIX', value: `${Math.floor(voiceMin)}m` },
+    { label: 'STREAK', value: `${streak}j` }
+  ];
+  const statX = p1x + PW / 6;
+  stats.forEach((stat, i) => {
+    const sx = statX + (i * PW / 3) - 20;
+    ctx.fillText(stat.label, sx, PY + 65);
+    ctx.font = 'bold 32px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.fillText(String(stat.value), sx, PY + 95);
+    ctx.font = 'bold 18px "DejaVu Sans", "Liberation Sans", sans-serif';
+  });
+
+  // RANG gem
+  const gemColors = theme.gemOverride || ['#80ff80', '#00cc40', '#005020', '#00ff50'];
+  drawCrystalGem(ctx, p2x + PW / 2, PY + 120, 45, gemColors);
+
+  // PROCHAIN NIVEAU gem
+  drawCrystalGem(ctx, p3x + PW / 2, PY + 120, 45, gemColors);
 
   // Render to PNG
   const buf = await canvas.encode('png');
