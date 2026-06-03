@@ -350,7 +350,7 @@ async function run() {
   ctx.fillText('PROCHAIN', p3x + 18, PY + 34);
 
   // Render to PNG
-  const buf = await canvas.encode('png');
+  const buf = canvas.toBuffer('image/png');
   process.stdout.write(buf);
   process.exit(0);
 }
