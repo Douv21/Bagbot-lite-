@@ -348,28 +348,35 @@ async function run() {
   ctx.fillText('PROCHAIN', p3x + 18, PY + 34);
 
   // STATISTIQUES panel content
-  ctx.font = 'bold 18px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 16px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.statColor;
-  const stats = [
-    { label: 'MSG', value: messages },
-    { label: 'VOIX', value: `${Math.floor(voiceMin)}m` },
-    { label: 'STREAK', value: `${streak}j` }
-  ];
-  const statX = p1x + PW / 6;
-  stats.forEach((stat, i) => {
-    const sx = statX + (i * PW / 3) - 20;
-    ctx.fillText(stat.label, sx, PY + 65);
-    ctx.font = 'bold 32px "DejaVu Sans", "Liberation Sans", sans-serif';
-    ctx.fillText(String(stat.value), sx, PY + 95);
-    ctx.font = 'bold 18px "DejaVu Sans", "Liberation Sans", sans-serif';
-  });
+  ctx.textAlign = 'center';
+  
+  // Column 1: Messages
+  ctx.fillText('MESSAGES', p1x + PW / 6, PY + 75);
+  ctx.font = 'bold 48px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillText(String(messages), p1x + PW / 6, PY + 130);
+  
+  // Column 2: Voice
+  ctx.font = 'bold 16px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillText('VOIX', p1x + PW / 2 + PW / 6, PY + 75);
+  ctx.font = 'bold 48px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillText(String(Math.floor(voiceMin)) + 'm', p1x + PW / 2 + PW / 6, PY + 130);
+  
+  // Column 3: Streak
+  ctx.font = 'bold 16px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillText('STREAK', p1x + PW - PW / 6, PY + 75);
+  ctx.font = 'bold 48px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillText(String(streak) + 'j', p1x + PW - PW / 6, PY + 130);
+  
+  ctx.textAlign = 'left';
 
   // RANG gem
   const gemColors = theme.gemOverride || ['#80ff80', '#00cc40', '#005020', '#00ff50'];
-  drawCrystalGem(ctx, p2x + PW / 2, PY + 120, 45, gemColors);
+  drawCrystalGem(ctx, p2x + PW / 2, PY + 100, 55, gemColors);
 
   // PROCHAIN NIVEAU gem
-  drawCrystalGem(ctx, p3x + PW / 2, PY + 120, 45, gemColors);
+  drawCrystalGem(ctx, p3x + PW / 2, PY + 100, 55, gemColors);
 
   // Render to PNG
   const buf = await canvas.encode('png');
