@@ -1,8 +1,14 @@
 // Standalone card worker — runs as a child process.
 // Reads JSON from stdin, writes PNG buffer to stdout.
-// Uses @napi-rs/canvas — prebuilt binaries, no native compilation required.
+// Uses canvas (node-canvas) with registered system fonts.
 
-const { createCanvas, loadImage } = require('@napi-rs/canvas');
+const { createCanvas, loadImage, registerFont } = require('canvas');
+
+// Enregistrer les polices système Linux
+registerFont('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', { family: 'DejaVu Sans', weight: 'bold' });
+registerFont('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', { family: 'DejaVu Sans', weight: 'normal' });
+registerFont('/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', { family: 'Liberation Sans', weight: 'bold' });
+registerFont('/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', { family: 'Liberation Sans', weight: 'normal' });
 
 // ─── Themes ───────────────────────────────────────────────────────────────────
 
