@@ -283,6 +283,7 @@ async function run() {
   // Avatar
   const avatar = await loadImage(avatarUrl);
   const ax = 180, ay = 270, ar = 108;
+  ctx.save();
   ctx.beginPath();
   ctx.arc(ax, ay, ar, 0, Math.PI * 2);
   ctx.clip();
