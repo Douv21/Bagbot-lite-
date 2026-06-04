@@ -350,6 +350,32 @@ async function run() {
   ctx.fillText('RANG', p2x + 18, PY + 34);
   ctx.fillText('PROCHAIN', p3x + 18, PY + 34);
 
+  // Stats values
+  ctx.font = 'bold 28px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillStyle = theme.statColor;
+  
+  // Panel 1: Statistics
+  const statsY = PY + 80;
+  const lineHeight = 38;
+  ctx.fillText(`Messages: ${messages}`, p1x + 18, statsY);
+  ctx.fillText(`Voix: ${voiceMin} min`, p1x + 18, statsY + lineHeight);
+  ctx.fillText(`Streak: ${streak}`, p1x + 18, statsY + lineHeight * 2);
+  ctx.fillText(`Karma: ${karma}`, p1x + 18, statsY + lineHeight * 3);
+
+  // Panel 2: Rank
+  const rank = data.rank || '#1';
+  ctx.font = 'bold 48px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillStyle = theme.levelGlow;
+  ctx.fillText(rank, p2x + (PW - ctx.measureText(rank).width) / 2, PY + 120);
+
+  // Panel 3: Next level
+  const nextLevel = level + 1;
+  const nextXp = required - xp;
+  ctx.font = 'bold 32px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.fillStyle = theme.statColor;
+  ctx.fillText(`Niveau ${nextLevel}`, p3x + 18, PY + 80);
+  ctx.fillText(`${nextXp} XP restants`, p3x + 18, PY + 130);
+
   // Render to PNG
   const buf = canvas.toBuffer('image/png');
   process.stdout.write(buf);
