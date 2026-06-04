@@ -351,12 +351,12 @@ async function run() {
   ctx.fillText('PROCHAIN', p3x + 18, PY + 34);
 
   // Stats values
-  ctx.font = 'bold 28px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 24px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.statColor;
   
   // Panel 1: Statistics
-  const statsY = PY + 80;
-  const lineHeight = 38;
+  const statsY = PY + 70;
+  const lineHeight = 32;
   ctx.fillText(`Messages: ${messages}`, p1x + 18, statsY);
   ctx.fillText(`Voix: ${voiceMin} min`, p1x + 18, statsY + lineHeight);
   ctx.fillText(`Streak: ${streak}`, p1x + 18, statsY + lineHeight * 2);
@@ -364,17 +364,20 @@ async function run() {
 
   // Panel 2: Rank
   const rank = data.rank || '#1';
-  ctx.font = 'bold 48px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 52px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.levelGlow;
-  ctx.fillText(rank, p2x + (PW - ctx.measureText(rank).width) / 2, PY + 120);
+  ctx.shadowColor = theme.levelGlow;
+  ctx.shadowBlur = 20;
+  ctx.fillText(rank, p2x + (PW - ctx.measureText(rank).width) / 2, PY + 110);
+  ctx.shadowBlur = 0;
 
   // Panel 3: Next level
   const nextLevel = level + 1;
   const nextXp = required - xp;
-  ctx.font = 'bold 32px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 28px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.statColor;
-  ctx.fillText(`Niveau ${nextLevel}`, p3x + 18, PY + 80);
-  ctx.fillText(`${nextXp} XP restants`, p3x + 18, PY + 130);
+  ctx.fillText(`Niveau ${nextLevel}`, p3x + 18, PY + 75);
+  ctx.fillText(`${nextXp} XP`, p3x + 18, PY + 115);
 
   // Render to PNG
   const buf = canvas.toBuffer('image/png');
