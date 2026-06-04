@@ -22,7 +22,7 @@ module.exports = async (member, data, theme) => {
     });
 
     const buf = await new Promise((resolve, reject) => {
-      const child  = spawn(process.execPath, [WORKER], { stdio: ['pipe','pipe','pipe'] });
+      const child  = spawn(process.execPath, [WORKER], { stdio: ['pipe','pipe','pipe'], cwd: __dirname });
       const chunks = [];
 
       child.stdout.on('data', c => chunks.push(c));
