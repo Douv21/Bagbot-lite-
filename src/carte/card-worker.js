@@ -275,7 +275,7 @@ async function run() {
   const { username, discriminator, avatarUrl, data, theme: themeName } = JSON.parse(raw);
 
   const theme = getTheme(themeName);
-  const W = 1400, H = 800;
+  const W = 900, H = 500;
   const canvas = createCanvas(W, H);
   const ctx = canvas.getContext('2d');
 
@@ -295,7 +295,7 @@ async function run() {
   ctx.fillStyle = theme.bg1;
   ctx.fillRect(0, 0, W, H);
 
-  const a1 = ctx.createRadialGradient(120, 80, 0, 120, 80, 420);
+  const a1 = ctx.createRadialGradient(77, 50, 0, 77, 50, 269);
   a1.addColorStop(0, theme.aura1[0]);
   a1.addColorStop(0.3, theme.aura1[1]);
   a1.addColorStop(0.6, theme.aura1[2]);
@@ -305,7 +305,7 @@ async function run() {
 
   // Avatar
   const avatar = await loadImage(avatarUrl);
-  const ax = 180, ay = 270, ar = 108;
+  const ax = 115, ay = 169, ar = 69;
   ctx.save();
   ctx.beginPath();
   ctx.arc(ax, ay, ar, 0, Math.PI * 2);
@@ -314,26 +314,26 @@ async function run() {
   ctx.restore();
 
   // Username
-  ctx.font = 'bold 68px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 44px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = theme.titleGlow;
   ctx.shadowBlur = 16;
-  ctx.fillText(username, 324, 220);
+  ctx.fillText(username, 207, 138);
   ctx.shadowBlur = 0;
 
   // Niveau panel
-  const NX = 860, NY = 40, NW = 510, NH = 350;
+  const NX = 550, NY = 25, NW = 326, NH = 219;
   drawPanel(ctx, NX, NY, NW, NH, theme);
 
-  ctx.font = 'bold 44px Arial';
+  ctx.font = 'bold 28px Arial';
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 10;
-  ctx.fillText('NIVEAU', NX + 36, NY + 76);
+  ctx.fillText('NIVEAU', NX + 23, NY + 48);
   ctx.shadowBlur = 0;
 
   const lvlStr = String(level);
-  const lvlPx = lvlStr.length > 2 ? 160 : 210;
+  const lvlPx = lvlStr.length > 2 ? 102 : 134;
   ctx.font = `bold ${lvlPx}px Arial`;
   const lvlMw = ctx.measureText(lvlStr).width;
   const lvlStartX = NX + (NW - lvlMw) / 2;
@@ -342,24 +342,24 @@ async function run() {
   ctx.fillStyle = lvlGrad;
   ctx.shadowColor = theme.levelGlow;
   ctx.shadowBlur = 50;
-  ctx.fillText(lvlStr, lvlStartX, NY + NH - 30);
+  ctx.fillText(lvlStr, lvlStartX, NY + NH - 19);
   ctx.shadowBlur = 0;
 
   // EXP bar
-  const EX = 42, EY = 418, EW = W - 84, EH = 62;
+  const EX = 27, EY = 261, EW = W - 54, EH = 39;
   drawPanel(ctx, EX, EY, EW, EH, theme);
 
-  ctx.font = 'bold 26px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 17px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.statColor;
-  ctx.fillText('EXP', EX + 18, EY + 40);
+  ctx.fillText('EXP', EX + 11, EY + 25);
 
   const expLabel = data.expBarLabel || `${xp} / ${required} EXP`;
   ctx.textAlign = 'right';
-  ctx.fillText(expLabel, EX + EW - 18, EY + 40);
+  ctx.fillText(expLabel, EX + EW - 11, EY + 25);
   ctx.textAlign = 'left';
 
   // Stats panels
-  const PY = 506, PH = H - PY - 48;
+  const PY = 316, PH = H - PY - 30;
   const PW = (W - 84 - 24) / 3;
   const p1x = 42, p2x = p1x + PW + 12, p3x = p2x + PW + 12;
 
@@ -367,11 +367,11 @@ async function run() {
   drawPanel(ctx, p2x, PY, PW, PH, theme);
   drawPanel(ctx, p3x, PY, PW, PH, theme);
 
-  ctx.font = 'bold 22px Arial';
+  ctx.font = 'bold 14px Arial';
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
-  ctx.shadowBlur = 6;
-  ctx.fillText('STATISTIQUES', p1x + 18, PY + 34);
+  ctx.shadowBlur = 4;
+  ctx.fillText('STATISTIQUES', p1x + 11, PY + 21);
   ctx.shadowBlur = 0;
 
   // Stats panel - 3 columns with icons
@@ -386,68 +386,68 @@ async function run() {
   ];
   const colW = PW/3;
   statsData.forEach((s,i) => {
-    const sx = p1x+14+i*colW;
-    ctx.font = 'bold 16px Arial';
+    const sx = p1x+9+i*colW;
+    ctx.font = 'bold 10px Arial';
     ctx.fillStyle = theme.statColor;
     ctx.shadowColor = theme.panelGlow;
-    ctx.shadowBlur = 4;
-    ctx.fillText(s.icon, sx, PY+74);
+    ctx.shadowBlur = 2;
+    ctx.fillText(s.icon, sx, PY+47);
     ctx.shadowBlur = 0;
-    ctx.font = '14px Arial';
+    ctx.font = '9px Arial';
     ctx.fillStyle = theme.statColor;
     ctx.globalAlpha = 0.7;
-    ctx.fillText(s.label, sx, PY+98);
+    ctx.fillText(s.label, sx, PY+62);
     ctx.globalAlpha = 1;
-    ctx.font = 'bold 30px Arial';
-    const sg = ctx.createLinearGradient(sx, PY+100, sx+colW-10, PY+140);
+    ctx.font = 'bold 19px Arial';
+    const sg = ctx.createLinearGradient(sx, PY+64, sx+colW-6, PY+90);
     theme.barColors.slice(0,2).forEach((c,ii) => sg.addColorStop(ii, c));
     ctx.fillStyle = sg;
-    ctx.fillText(s.value, sx, PY+136);
+    ctx.fillText(s.value, sx, PY+87);
   });
 
   // Rang panel
-  ctx.font = 'bold 22px Arial';
+  ctx.font = 'bold 14px Arial';
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
-  ctx.shadowBlur = 6;
+  ctx.shadowBlur = 4;
   const rangLabel = 'RANG ACTUEL';
-  ctx.fillText(rangLabel, p2x+PW/2-ctx.measureText(rangLabel).width/2, PY+34);
+  ctx.fillText(rangLabel, p2x+PW/2-ctx.measureText(rangLabel).width/2, PY+21);
   ctx.shadowBlur = 0;
-  const gemCx = p2x+PW/2, gemCy = PY+PH/2-12;
-  drawCrystalGem(ctx, gemCx, gemCy, 60, pal);
+  const gemCx = p2x+PW/2, gemCy = PY+PH/2-8;
+  drawCrystalGem(ctx, gemCx, gemCy, 38, pal);
   ctx.textAlign = 'center';
-  ctx.font = 'bold 28px Arial';
-  const rnG = ctx.createLinearGradient(p2x, PY+PH-48, p2x+PW, PY+PH-28);
+  ctx.font = 'bold 18px Arial';
+  const rnG = ctx.createLinearGradient(p2x, PY+PH-30, p2x+PW, PY+PH-18);
   rnG.addColorStop(0, pal[0]);
   rnG.addColorStop(1, pal[1]);
   ctx.fillStyle = rnG;
   ctx.shadowColor = pal[0];
-  ctx.shadowBlur = 14;
-  ctx.fillText(rankName, gemCx, PY+PH-26);
+  ctx.shadowBlur = 9;
+  ctx.fillText(rankName, gemCx, PY+PH-16);
   ctx.shadowBlur = 0;
   ctx.textAlign = 'left';
 
   // Prochain niveau panel
-  ctx.font = 'bold 22px Arial';
+  ctx.font = 'bold 14px Arial';
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
-  ctx.shadowBlur = 6;
-  ctx.fillText('PROCHAIN NIVEAU', p3x+18, PY+34);
+  ctx.shadowBlur = 4;
+  ctx.fillText('PROCHAIN NIVEAU', p3x+11, PY+21);
   ctx.shadowBlur = 0;
-  drawCrystalGem(ctx, p3x+60, PY+PH/2-8, 34, pal);
-  ctx.font = 'bold 36px Arial';
-  const nlG = ctx.createLinearGradient(p3x+98, PY+80, p3x+PW, PY+130);
+  drawCrystalGem(ctx, p3x+38, PY+PH/2-5, 22, pal);
+  ctx.font = 'bold 23px Arial';
+  const nlG = ctx.createLinearGradient(p3x+62, PY+50, p3x+PW, PY+83);
   nlG.addColorStop(0, theme.titleColor);
   nlG.addColorStop(1, theme.statColor);
   ctx.fillStyle = nlG;
-  ctx.fillText(`NIV. ${nextLvl}`, p3x+98, PY+118);
-  ctx.font = 'bold 26px Arial';
+  ctx.fillText(`NIV. ${nextLvl}`, p3x+62, PY+75);
+  ctx.font = 'bold 17px Arial';
   ctx.fillStyle = theme.statColor;
-  ctx.fillText(`${xpLeft.toLocaleString('fr-FR')} XP`, p3x+98, PY+158);
-  ctx.font = '18px Arial';
+  ctx.fillText(`${xpLeft.toLocaleString('fr-FR')} XP`, p3x+62, PY+101);
+  ctx.font = '11px Arial';
   ctx.fillStyle = theme.statColor;
   ctx.globalAlpha = 0.65;
-  ctx.fillText('RESTANTES', p3x+98, PY+188);
+  ctx.fillText('RESTANTES', p3x+62, PY+120);
   ctx.globalAlpha = 1;
 
   // Render to PNG
