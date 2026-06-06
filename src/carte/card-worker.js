@@ -350,34 +350,55 @@ async function run() {
   ctx.fillText('RANG', p2x + 18, PY + 34);
   ctx.fillText('PROCHAIN', p3x + 18, PY + 34);
 
-  // Stats values
-  ctx.font = 'bold 24px "DejaVu Sans", "Liberation Sans", sans-serif';
+  // Stats values - displayed in columns
+  ctx.font = 'bold 26px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.statColor;
   
-  // Panel 1: Statistics
+  // Panel 1: Statistics (column layout)
+  const col1X = p1x + 18;
+  const col2X = p1x + PW / 2 + 10;
   const statsY = PY + 70;
-  const lineHeight = 32;
-  ctx.fillText(`Messages: ${messages}`, p1x + 18, statsY);
-  ctx.fillText(`Voix: ${voiceMin} min`, p1x + 18, statsY + lineHeight);
-  ctx.fillText(`Streak: ${streak}`, p1x + 18, statsY + lineHeight * 2);
-  ctx.fillText(`Karma: ${karma}`, p1x + 18, statsY + lineHeight * 3);
+  const lineHeight = 36;
+  
+  // Column 1
+  ctx.fillText(`Messages`, col1X, statsY);
+  ctx.fillText(`Voix`, col1X, statsY + lineHeight);
+  ctx.fillText(`Streak`, col1X, statsY + lineHeight * 2);
+  ctx.fillText(`Karma`, col1X, statsY + lineHeight * 3);
+  
+  // Column 2 (values)
+  ctx.textAlign = 'right';
+  ctx.fillText(`${messages}`, col2X, statsY);
+  ctx.fillText(`${voiceMin} min`, col2X, statsY + lineHeight);
+  ctx.fillText(`${streak}`, col2X, statsY + lineHeight * 2);
+  ctx.fillText(`${karma}`, col2X, statsY + lineHeight * 3);
+  ctx.textAlign = 'left';
 
   // Panel 2: Rank
   const rank = data.rank || '#1';
-  ctx.font = 'bold 52px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 56px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.levelGlow;
   ctx.shadowColor = theme.levelGlow;
-  ctx.shadowBlur = 20;
-  ctx.fillText(rank, p2x + (PW - ctx.measureText(rank).width) / 2, PY + 110);
+  ctx.shadowBlur = 25;
+  ctx.fillText(rank, p2x + (PW - ctx.measureText(rank).width) / 2, PY + 115);
   ctx.shadowBlur = 0;
 
-  // Panel 3: Next level
+  // Panel 3: Next level + FEU stat
   const nextLevel = level + 1;
   const nextXp = required - xp;
-  ctx.font = 'bold 28px "DejaVu Sans", "Liberation Sans", sans-serif';
+  const feu = data.feu || 0;
+  
+  ctx.font = 'bold 30px "DejaVu Sans", "Liberation Sans", sans-serif';
   ctx.fillStyle = theme.statColor;
   ctx.fillText(`Niveau ${nextLevel}`, p3x + 18, PY + 75);
   ctx.fillText(`${nextXp} XP`, p3x + 18, PY + 115);
+  
+  // FEU stat
+  ctx.fillStyle = '#ff4444';
+  ctx.shadowColor = '#ff4444';
+  ctx.shadowBlur = 15;
+  ctx.fillText(`FEU: ${feu}`, p3x + 18, PY + 160);
+  ctx.shadowBlur = 0;
 
   // Render to PNG
   const buf = canvas.toBuffer('image/png');
