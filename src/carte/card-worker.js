@@ -344,61 +344,83 @@ async function run() {
   drawPanel(ctx, p2x, PY, PW, PH, theme);
   drawPanel(ctx, p3x, PY, PW, PH, theme);
 
-  ctx.font = 'bold 22px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 22px Arial';
   ctx.fillStyle = theme.titleColor;
+  ctx.shadowColor = theme.panelGlow;
+  ctx.shadowBlur = 6;
   ctx.fillText('STATISTIQUES', p1x + 18, PY + 34);
-  ctx.fillText('RANG', p2x + 18, PY + 34);
-  ctx.fillText('PROCHAIN', p3x + 18, PY + 34);
+  ctx.shadowBlur = 0;
 
-  // Stats values - displayed in columns
-  ctx.font = 'bold 26px "DejaVu Sans", "Liberation Sans", sans-serif';
-  ctx.fillStyle = theme.statColor;
-  
-  // Panel 1: Statistics (column layout)
-  const col1X = p1x + 18;
-  const col2X = p1x + PW / 2 + 10;
-  const statsY = PY + 70;
-  const lineHeight = 36;
-  
-  // Column 1
-  ctx.fillText(`Messages`, col1X, statsY);
-  ctx.fillText(`Voix`, col1X, statsY + lineHeight);
-  ctx.fillText(`Streak`, col1X, statsY + lineHeight * 2);
-  ctx.fillText(`Karma`, col1X, statsY + lineHeight * 3);
-  
-  // Column 2 (values)
-  ctx.textAlign = 'right';
-  ctx.fillText(`${messages}`, col2X, statsY);
-  ctx.fillText(`${voiceMin} min`, col2X, statsY + lineHeight);
-  ctx.fillText(`${streak}`, col2X, statsY + lineHeight * 2);
-  ctx.fillText(`${karma}`, col2X, statsY + lineHeight * 3);
-  ctx.textAlign = 'left';
+  // Stats panel - 3 columns with icons
+  const voiceStr = voiceMin >= 60 ? `${Math.floor(voiceMin/60)}h` : `${voiceMin}m`;
+  const msgStr   = messages >= 10000 ? `${Math.floor(messages/1000)}K`
+                 : messages >= 1000  ? `${(messages/1000).toFixed(1)}K` : String(messages);
+  const fireStr  = streak >= 1000 ? `${Math.floor(streak/1000)}K` : String(streak);
+  const statsData = [
+    { icon:'MSG', label:'MESSAGES', value: msgStr },
+    { icon:'VOC', label:'VOCAL',    value: voiceStr },
+    { icon:'🔥',  label:'FEU',      value: fireStr }
+  ];
+  const colW = PW/3;
+  statsData.forEach((s,i) => {
+    const sx = p1x+14+i*colW;
+    ctx.font = 'bold 16px Arial';
+    ctx.fillStyle = theme.statColor;
+    ctx.shadowColor = theme.panelGlow;
+    ctx.shadowBlur = 4;
+    ctx.fillText(s.icon, sx, PY+74);
+    ctx.shadowBlur = 0;
+    ctx.font = '14px Arial';
+    ctx.fillStyle = theme.statColor;
+    ctx.globalAlpha = 0.7;
+    ctx.fillText(s.label, sx, PY+98);
+    ctx.globalAlpha = 1;
+    ctx.font = 'bold 30px Arial';
+    const sg = ctx.createLinearGradient(sx, PY+100, sx+colW-10, PY+140);
+    theme.barColors.slice(0,2).forEach((c,ii) => sg.addColorStop(ii, c));
+    ctx.fillStyle = sg;
+    ctx.fillText(s.value, sx, PY+136);
+  });
 
-  // Panel 2: Rank
+  // Rang panel
+  ctx.font = 'bold 22px Arial';
+  ctx.fillStyle = theme.titleColor;
+  ctx.shadowColor = theme.panelGlow;
+  ctx.shadowBlur = 6;
+  const rangLabel = 'RANG ACTUEL';
+  ctx.fillText(rangLabel, p2x+PW/2-ctx.measureText(rangLabel).width/2, PY+34);
+  ctx.shadowBlur = 0;
   const rank = data.rank || '#1';
-  ctx.font = 'bold 56px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 56px Arial';
   ctx.fillStyle = theme.levelGlow;
   ctx.shadowColor = theme.levelGlow;
   ctx.shadowBlur = 25;
   ctx.fillText(rank, p2x + (PW - ctx.measureText(rank).width) / 2, PY + 115);
   ctx.shadowBlur = 0;
 
-  // Panel 3: Next level + FEU stat
+  // Prochain niveau panel
+  ctx.font = 'bold 22px Arial';
+  ctx.fillStyle = theme.titleColor;
+  ctx.shadowColor = theme.panelGlow;
+  ctx.shadowBlur = 6;
+  ctx.fillText('PROCHAIN NIVEAU', p3x + 18, PY + 34);
+  ctx.shadowBlur = 0;
   const nextLevel = level + 1;
   const nextXp = required - xp;
-  const feu = data.feu || 0;
-  
-  ctx.font = 'bold 30px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 36px Arial';
+  const nlG = ctx.createLinearGradient(p3x+98, PY+80, p3x+PW, PY+130);
+  nlG.addColorStop(0, theme.titleColor);
+  nlG.addColorStop(1, theme.statColor);
+  ctx.fillStyle = nlG;
+  ctx.fillText(`NIV. ${nextLevel}`, p3x+98, PY+118);
+  ctx.font = 'bold 26px Arial';
   ctx.fillStyle = theme.statColor;
-  ctx.fillText(`Niveau ${nextLevel}`, p3x + 18, PY + 75);
-  ctx.fillText(`${nextXp} XP`, p3x + 18, PY + 115);
-  
-  // FEU stat
-  ctx.fillStyle = '#ff4444';
-  ctx.shadowColor = '#ff4444';
-  ctx.shadowBlur = 15;
-  ctx.fillText(`FEU: ${feu}`, p3x + 18, PY + 160);
-  ctx.shadowBlur = 0;
+  ctx.fillText(`${nextXp} XP`, p3x+98, PY+158);
+  ctx.font = '18px Arial';
+  ctx.fillStyle = theme.statColor;
+  ctx.globalAlpha = 0.65;
+  ctx.fillText('RESTANTES', p3x+98, PY+188);
+  ctx.globalAlpha = 1;
 
   // Render to PNG
   const buf = canvas.toBuffer('image/png');
