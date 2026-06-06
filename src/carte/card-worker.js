@@ -239,27 +239,31 @@ function drawPanel(ctx, x, y, w, h, theme) {
   ctx.shadowBlur = 0;
 }
 
-function drawCrystalGem(ctx, cx, cy, s, colors) {
-  const [hi, mid, dark, glow] = colors;
-  ctx.shadowColor = glow;
-  ctx.shadowBlur = 28;
-
-  ctx.fillStyle = hi;
+function poly(ctx, pts, grad) {
   ctx.beginPath();
-  ctx.moveTo(cx, cy - s);
-  ctx.lineTo(cx - s * 0.62, cy - s * 0.18);
-  ctx.lineTo(cx - s * 0.28, cy + s * 0.1);
+  ctx.moveTo(...pts[0]);
+  pts.slice(1).forEach(p => ctx.lineTo(...p));
   ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = grad; ctx.fill();
+}
 
-  ctx.fillStyle = mid;
-  ctx.beginPath();
-  ctx.moveTo(cx - s * 0.62, cy - s * 0.18);
-  ctx.lineTo(cx - s * 0.72, cy + s * 0.1);
-  ctx.lineTo(cx - s * 0.28, cy + s * 0.1);
-  ctx.closePath();
-  ctx.fill();
+function lerpGrad(ctx, x1, y1, x2, y2, colors) {
+  const g = ctx.createLinearGradient(x1, y1, x2, y2);
+  colors.forEach((c, i) => g.addColorStop(i / (colors.length - 1), c));
+  return g;
+}
 
+function drawCrystalGem(ctx, cx, cy, s, pal) {
+  const [hi, mid, dark, glow] = pal;
+  ctx.shadowColor = glow; ctx.shadowBlur = 28;
+  poly(ctx, [[cx,cy-s],[cx-s*0.62,cy-s*0.18],[cx-s*0.28,cy+s*0.10]],
+    lerpGrad(ctx, cx-s*0.6,cy-s, cx,cy+s*0.1, [hi,'rgba(255,255,255,0.8)',mid]));
+  poly(ctx, [[cx,cy-s],[cx+s*0.62,cy-s*0.18],[cx+s*0.28,cy+s*0.10]],
+    lerpGrad(ctx, cx,cy+s*0.1, cx+s*0.6,cy-s, [hi,'rgba(255,255,255,0.8)',mid]));
+  poly(ctx, [[cx-s*0.62,cy-s*0.18],[cx+s*0.62,cy-s*0.18],[cx,cy+s*0.10]],
+    lerpGrad(ctx, cx-s*0.62,cy-s*0.18, cx+s*0.62,cy-s*0.18, [mid,'rgba(255,255,255,0.6)',dark]));
+  poly(ctx, [[cx-s*0.28,cy+s*0.10],[cx+s*0.28,cy+s*0.10],[cx,cy+s*0.10+s*0.5]],
+    lerpGrad(ctx, cx-s*0.28,cy+s*0.10, cx+s*0.28,cy+s*0.10, [dark,mid,hi]));
   ctx.shadowBlur = 0;
 }
 
@@ -321,18 +325,18 @@ async function run() {
   const NX = 860, NY = 40, NW = 510, NH = 350;
   drawPanel(ctx, NX, NY, NW, NH, theme);
 
-  ctx.font = 'bold 44px "DejaVu Sans", "Liberation Sans", sans-serif';
+  ctx.font = 'bold 44px Arial';
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 10;
-  ctx.fillText((data.panelTitle || 'NIVEAU').toUpperCase(), NX + 36, NY + 76);
+  ctx.fillText('NIVEAU', NX + 36, NY + 76);
   ctx.shadowBlur = 0;
 
-  const lvlStr = String(data.displayNumStr || level);
-  ctx.font = 'bold 150px "DejaVu Sans", "Liberation Sans", sans-serif';
+  const lvlStr = String(level);
+  const lvlPx = lvlStr.length > 2 ? 160 : 210;
+  ctx.font = `bold ${lvlPx}px Arial`;
   const lvlMw = ctx.measureText(lvlStr).width;
   const lvlStartX = NX + (NW - lvlMw) / 2;
-
   const lvlGrad = ctx.createLinearGradient(lvlStartX, NY + 100, lvlStartX + lvlMw, NY + NH - 20);
   theme.levelColors.forEach((c, i) => lvlGrad.addColorStop(i / (theme.levelColors.length - 1), c));
   ctx.fillStyle = lvlGrad;
