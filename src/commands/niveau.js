@@ -69,7 +69,18 @@ module.exports = {
           for (const role of sorted) {
             if (roleThemes[role.id]) {
               const t = roleThemes[role.id];
-              theme = (t === 'random') ? null : t;
+              // Si c'est 'random', utiliser null (random parmi tous)
+              if (t === 'random') {
+                theme = null;
+                break;
+              }
+              // Si c'est un tableau, choisir aléatoirement parmi les thèmes
+              if (Array.isArray(t) && t.length > 0) {
+                theme = t[Math.floor(Math.random() * t.length)];
+                break;
+              }
+              // Sinon, utiliser le thème unique
+              theme = t;
               break;
             }
           }

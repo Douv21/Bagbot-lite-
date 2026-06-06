@@ -1325,15 +1325,14 @@ const THEME_META = {
 // Module-level selected theme (évite les bugs du hidden input)
 let _selectedTheme = '';
 
-// Theme picker card clicks
+// Theme picker card clicks (sélection multiple)
 document.addEventListener('click', e => {
   const card = e.target.closest('.theme-card');
   if (!card) return;
   const grid = card.closest('.theme-picker');
   if (!grid) return;
-  grid.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
-  _selectedTheme = card.dataset.theme ?? '';
+  // Toggle la sélection au lieu de remplacer
+  card.classList.toggle('selected');
 });
 
 async function _saveThemesToServer(roleThemes, defaultTheme) {
@@ -1357,15 +1356,29 @@ async function _saveThemesToServer(roleThemes, defaultTheme) {
 
 async function addRoleTheme() {
   const roleId = document.getElementById('themeRole').value;
-  const theme  = _selectedTheme;
+  const selectedCards = document.querySelectorAll('#themePickerGrid .theme-card.selected');
+  const selectedThemes = Array.from(selectedCards).map(c => c.dataset.theme);
 
   if (!roleId) {
     alert('Veuillez sélectionner un rôle.');
     return;
   }
 
+  if (selectedThemes.length === 0) {
+    alert('Veuillez sélectionner au moins un thème.');
+    return;
+  }
+
   let roleThemes = JSON.parse(localStorage.getItem('roleThemes') || '{}');
-  roleThemes[roleId] = theme === '' ? 'random' : theme;
+  
+  // Si seul "Aléatoire" est sélectionné, stocker 'random'
+  if (selectedThemes.length === 1 && selectedThemes[0] === '') {
+    roleThemes[roleId] = 'random';
+  } else {
+    // Filtrer les thèmes vides et stocker le tableau
+    roleThemes[roleId] = selectedThemes.filter(t => t !== '');
+  }
+  
   localStorage.setItem('roleThemes', JSON.stringify(roleThemes));
 
   // Sauvegarde immédiate sur le serveur
@@ -1373,10 +1386,7 @@ async function addRoleTheme() {
 
   // Reset form
   document.getElementById('themeRole').value = '';
-  _selectedTheme = '';
   document.querySelectorAll('#themePickerGrid .theme-card').forEach(c => c.classList.remove('selected'));
-  const firstCard = document.querySelector('#themePickerGrid .theme-card');
-  if (firstCard) firstCard.classList.add('selected');
 
   loadRoleThemes();
 }
@@ -1407,13 +1417,26 @@ async function loadRoleThemes() {
   } catch (_) {}
 
   themesList.innerHTML = '';
-  entries.forEach(([roleId, theme]) => {
+  entries.forEach(([roleId, themeValue]) => {
     const role      = roles.find(r => r.id === roleId);
     const roleName  = role ? role.name : roleId;
     const roleColor = role ? role.color : 0;
     const hex       = roleColor ? '#' + roleColor.toString(16).padStart(6, '0') : 'var(--text-secondary)';
-    const key       = theme === 'random' ? '' : theme;
-    const meta      = THEME_META[key] || { name: theme, css: '' };
+
+    // Déterminer si c'est un tableau ou une chaîne
+    const themes = Array.isArray(themeValue) ? themeValue : [themeValue];
+    const isRandom = themes.length === 1 && themes[0] === 'random';
+
+    let themeBadges = '';
+    if (isRandom) {
+      themeBadges = '<span class="theme-badge">Aléatoire 🎲</span>';
+    } else {
+      themeBadges = themes.map(t => {
+        const key = t === '' ? '' : t;
+        const meta = THEME_META[key] || { name: t, css: '' };
+        return `<span class="theme-badge ${meta.css}">${meta.name}</span>`;
+      }).join(' ');
+    }
 
     const row = document.createElement('div');
     row.className = 'theme-row';
@@ -1422,7 +1445,7 @@ async function loadRoleThemes() {
         <span class="role-dot" style="background:${hex}"></span>
         <strong>${roleName}</strong>
       </div>
-      <span class="theme-badge ${meta.css}">${meta.name}</span>
+      <div class="theme-row-themes">${themeBadges}</div>
       <button class="btn btn-danger btn-sm" onclick="deleteRoleTheme('${roleId}')">✕</button>
     `;
     themesList.appendChild(row);

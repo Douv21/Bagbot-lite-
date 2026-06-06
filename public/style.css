@@ -800,6 +800,12 @@ body {
     flex-shrink: 0;
 }
 
+.theme-row-themes {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
 /* Badges de thème */
 .theme-badge {
     padding: 3px 10px;
