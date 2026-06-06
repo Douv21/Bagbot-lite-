@@ -286,9 +286,9 @@ async function run() {
   const voiceMin = data.voiceMinutes || 0;
   const streak = data.streak || 0;
   const karma = data.karma || 0;
-  const rankName = data.rankName || 'BRONZE I';
-  const nextLvl = level + 1;
-  const xpLeft = required - xp;
+  const rankName = data.rankName || data.rankDisplay || 'BRONZE I';
+  const nextLvl = data.nextPanelBig || level + 1;
+  const xpLeft = data.nextPanelSub ? parseInt(data.nextPanelSub.replace(/[^0-9]/g, '')) || required - xp : required - xp;
   const pal = gemPalette(rankName, theme.gemOverride);
 
   // Background
