@@ -378,7 +378,7 @@ async function run() {
   const statsData = [
     { icon:'MSG', label:'MESSAGES', value: msgStr },
     { icon:'VOC', label:'VOCAL',    value: voiceStr },
-    { icon:'ƒöÑ',  label:'FEU',      value: fireStr }
+    { icon:'🔥',  label:'FEU',      value: fireStr }
   ];
   const colW = PW/3;
   statsData.forEach((s,i) => {
