@@ -195,6 +195,21 @@ function getTheme(name) {
   return themes[t] || themes['holographique'];
 }
 
+// ─── Helper functions ────────────────────────────────────────────────────────
+
+function gemPalette(name, themeOverride) {
+  if (themeOverride) return themeOverride;
+  if (name.includes('BRONZE'))     return ['#ffd090','#c07820','#804010','#ffb050'];
+  if (name.includes('ARGENT'))     return ['#ffffff','#c0c8d8','#8090a8','#e0e8f8'];
+  if (name.includes('OR'))         return ['#fff0a0','#ffd700','#a07800','#ffe860'];
+  if (name.includes('PLATINE'))    return ['#e0f4ff','#a0d0f0','#4090c0','#c0e8ff'];
+  if (name.includes('DIAMANT'))    return ['#c0f8ff','#60c8ff','#1060c8','#80e8ff'];
+  if (name.includes('MAITRE'))     return ['#e8c0ff','#a040e0','#600090','#d080ff'];
+  if (name.includes('GRAND'))      return ['#ffc080','#ff4010','#a00000','#ff8040'];
+  if (name.includes('CHALLENGER')) return ['#fff080','#ff8020','#cc0000','#ffcc40'];
+  return ['#c0e8ff','#6090d0','#304880','#90c0f0'];
+}
+
 // ─── Core drawing functions ───────────────────────────────────────────────────
 
 function drawPanel(ctx, x, y, w, h, theme) {
@@ -267,6 +282,10 @@ async function run() {
   const voiceMin = data.voiceMinutes || 0;
   const streak = data.streak || 0;
   const karma = data.karma || 0;
+  const rankName = data.rankName || 'BRONZE I';
+  const nextLvl = level + 1;
+  const xpLeft = required - xp;
+  const pal = gemPalette(rankName, theme.gemOverride);
 
   // Background
   ctx.fillStyle = theme.bg1;
@@ -390,32 +409,37 @@ async function run() {
   const rangLabel = 'RANG ACTUEL';
   ctx.fillText(rangLabel, p2x+PW/2-ctx.measureText(rangLabel).width/2, PY+34);
   ctx.shadowBlur = 0;
-  const rank = data.rank || '#1';
-  ctx.font = 'bold 56px Arial';
-  ctx.fillStyle = theme.levelGlow;
-  ctx.shadowColor = theme.levelGlow;
-  ctx.shadowBlur = 25;
-  ctx.fillText(rank, p2x + (PW - ctx.measureText(rank).width) / 2, PY + 115);
+  const gemCx = p2x+PW/2, gemCy = PY+PH/2-12;
+  drawCrystalGem(ctx, gemCx, gemCy, 60, pal);
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 28px Arial';
+  const rnG = ctx.createLinearGradient(p2x, PY+PH-48, p2x+PW, PY+PH-28);
+  rnG.addColorStop(0, pal[0]);
+  rnG.addColorStop(1, pal[1]);
+  ctx.fillStyle = rnG;
+  ctx.shadowColor = pal[0];
+  ctx.shadowBlur = 14;
+  ctx.fillText(rankName, gemCx, PY+PH-26);
   ctx.shadowBlur = 0;
+  ctx.textAlign = 'left';
 
   // Prochain niveau panel
   ctx.font = 'bold 22px Arial';
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 6;
-  ctx.fillText('PROCHAIN NIVEAU', p3x + 18, PY + 34);
+  ctx.fillText('PROCHAIN NIVEAU', p3x+18, PY+34);
   ctx.shadowBlur = 0;
-  const nextLevel = level + 1;
-  const nextXp = required - xp;
+  drawCrystalGem(ctx, p3x+60, PY+PH/2-8, 34, pal);
   ctx.font = 'bold 36px Arial';
   const nlG = ctx.createLinearGradient(p3x+98, PY+80, p3x+PW, PY+130);
   nlG.addColorStop(0, theme.titleColor);
   nlG.addColorStop(1, theme.statColor);
   ctx.fillStyle = nlG;
-  ctx.fillText(`NIV. ${nextLevel}`, p3x+98, PY+118);
+  ctx.fillText(`NIV. ${nextLvl}`, p3x+98, PY+118);
   ctx.font = 'bold 26px Arial';
   ctx.fillStyle = theme.statColor;
-  ctx.fillText(`${nextXp} XP`, p3x+98, PY+158);
+  ctx.fillText(`${xpLeft.toLocaleString('fr-FR')} XP`, p3x+98, PY+158);
   ctx.font = '18px Arial';
   ctx.fillStyle = theme.statColor;
   ctx.globalAlpha = 0.65;
