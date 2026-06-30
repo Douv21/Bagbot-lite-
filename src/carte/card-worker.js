@@ -310,14 +310,27 @@ async function run() {
   ctx.fillStyle = a1;
   ctx.fillRect(0, 0, W, H);
 
-  // Avatar
-  const avatar = await loadImage(avatarUrl);
+  // Avatar — with fallback if CDN fails
+  let avatar = null;
+  try { avatar = await loadImage(avatarUrl); } catch (_) { /* fallback below */ }
   const ax = 180, ay = 270, ar = 108;
   ctx.save();
   ctx.beginPath();
   ctx.arc(ax, ay, ar, 0, Math.PI * 2);
   ctx.clip();
-  ctx.drawImage(avatar, ax - ar, ay - ar, ar * 2, ar * 2);
+  if (avatar) {
+    ctx.drawImage(avatar, ax - ar, ay - ar, ar * 2, ar * 2);
+  } else {
+    // Colored circle + first letter
+    const fbg = ctx.createRadialGradient(ax, ay, 0, ax, ay, ar);
+    fbg.addColorStop(0, theme.titleColor); fbg.addColorStop(1, theme.panelBg1);
+    ctx.fillStyle = fbg; ctx.fillRect(ax - ar, ay - ar, ar * 2, ar * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `bold ${ar}px Arial`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText((username[0] || '?').toUpperCase(), ax, ay);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  }
   ctx.restore();
 
   // Username
