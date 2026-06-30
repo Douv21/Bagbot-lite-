@@ -7,15 +7,20 @@ const path                  = require('path');
 const { AttachmentBuilder } = require('discord.js');
 
 const WORKER     = path.join(__dirname, 'card-worker.js');
-const TIMEOUT_MS = 20_000;
+const TIMEOUT_MS = 30_000; // 30s — CDN peut être lent
 
-module.exports = async (member, data, theme) => {
+module.exports = async (memberOrUser, data, theme) => {
   try {
-    const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
+    // Accept GuildMember, User, or null (fallback gracefully)
+    const user = memberOrUser?.user ?? memberOrUser;
+    if (!user) throw new Error('No user provided to genCard');
+
+    const avatarUrl = user.displayAvatarURL({ extension: 'png', size: 512, forceStatic: true });
+    const username  = user.username || user.globalName || 'Membre';
 
     const payload = JSON.stringify({
-      username:      member.user.username,
-      discriminator: member.user.discriminator,
+      username,
+      discriminator: user.discriminator || '0',
       avatarUrl,
       data,
       theme: theme || 'holographique'
