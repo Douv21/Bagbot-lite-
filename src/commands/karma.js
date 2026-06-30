@@ -94,8 +94,8 @@ module.exports = {
           ? `${karma.toLocaleString('fr-FR')} KARMA — LÉGENDE MAX`
           : `${karma.toLocaleString('fr-FR')} / ${nextThreshold.toLocaleString('fr-FR')} KARMA`,
         statsItems: [
-          { icon: '⭐',  label: 'KARMA',    value: fmt(karma) },
-          { icon: '🔥',  label: 'FEU',      value: fmt(fire) },
+          { icon: 'KRM', label: 'KARMA',    value: fmt(karma) },
+          { icon: 'FEU', label: 'FEU',      value: fmt(fire) },
           { icon: 'MSG', label: 'MESSAGES', value: fmt(messages) },
         ],
         rankDisplay:     rank.name,
