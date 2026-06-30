@@ -411,18 +411,18 @@ async function run() {
     ctx.fillStyle = theme.statColor;
     ctx.shadowColor = theme.panelGlow;
     ctx.shadowBlur = 4;
-    ctx.fillText(s.icon, sx, PY+74);
+    ctx.fillText(safeText(s.icon), sx, PY+74);
     ctx.shadowBlur = 0;
     ctx.font = '14px Arial';
     ctx.fillStyle = theme.statColor;
     ctx.globalAlpha = 0.7;
-    ctx.fillText(s.label, sx, PY+98);
+    ctx.fillText(safeText(s.label), sx, PY+98);
     ctx.globalAlpha = 1;
     ctx.font = 'bold 30px Arial';
     const sg = ctx.createLinearGradient(sx, PY+100, sx+colW-10, PY+140);
     theme.barColors.slice(0,2).forEach((c,ii) => sg.addColorStop(ii, c));
     ctx.fillStyle = sg;
-    ctx.fillText(s.value, sx, PY+136);
+    ctx.fillText(safeText(s.value), sx, PY+136);
   });
 
   // Rang panel
@@ -460,7 +460,8 @@ async function run() {
   nlG.addColorStop(0, theme.titleColor);
   nlG.addColorStop(1, theme.statColor);
   ctx.fillStyle = nlG;
-  ctx.fillText(`NIV. ${nextLvl}`, p3x+98, PY+118);
+  const _nextBig = typeof nextLvl === 'number' ? `NIV. ${nextLvl}` : String(nextLvl);
+  ctx.fillText(safeText(_nextBig), p3x+98, PY+118);
   ctx.font = 'bold 26px Arial';
   ctx.fillStyle = theme.statColor;
   ctx.fillText(nextPanelSub, p3x+98, PY+158);
