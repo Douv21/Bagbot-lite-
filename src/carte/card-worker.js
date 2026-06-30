@@ -291,6 +291,13 @@ async function run() {
   const xpLeft = data.nextPanelSub ? parseInt(data.nextPanelSub.replace(/[^0-9]/g, '')) || required - xp : required - xp;
   const pal = gemPalette(rankName, theme.gemOverride);
 
+  // ── Dynamic mode labels (all optional, keep full backward-compat) ────────
+  const panelTitle      = (data.panelTitle || 'NIVEAU').toUpperCase();
+  const displayNumStr   = data.displayNumStr != null ? String(data.displayNumStr) : String(level);
+  const nextPanelTitle  = data.nextPanelTitle  || 'PROCHAIN NIVEAU';
+  const nextPanelSub    = data.nextPanelSub    || `${xpLeft.toLocaleString('fr-FR')} XP`;
+  const nextPanelSubSub = data.nextPanelSubSub || 'RESTANTES';
+
   // Background
   ctx.fillStyle = theme.bg1;
   ctx.fillRect(0, 0, W, H);
@@ -329,11 +336,11 @@ async function run() {
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 10;
-  ctx.fillText('NIVEAU', NX + 36, NY + 76);
+  ctx.fillText(panelTitle, NX + 36, NY + 76);
   ctx.shadowBlur = 0;
 
-  const lvlStr = String(level);
-  const lvlPx = lvlStr.length > 2 ? 160 : 210;
+  const lvlStr = displayNumStr;
+  const lvlPx = lvlStr.length > 7 ? 70 : lvlStr.length > 5 ? 100 : lvlStr.length > 3 ? 150 : 210;
   ctx.font = `bold ${lvlPx}px Arial`;
   const lvlMw = ctx.measureText(lvlStr).width;
   const lvlStartX = NX + (NW - lvlMw) / 2;
@@ -379,12 +386,12 @@ async function run() {
   const msgStr   = messages >= 10000 ? `${Math.floor(messages/1000)}K`
                  : messages >= 1000  ? `${(messages/1000).toFixed(1)}K` : String(messages);
   const fireStr  = streak >= 1000 ? `${Math.floor(streak/1000)}K` : String(streak);
-  const statsData = [
+  const statsData = Array.isArray(data.statsItems) ? data.statsItems : [
     { icon:'MSG', label:'MESSAGES', value: msgStr },
     { icon:'VOC', label:'VOCAL',    value: voiceStr },
     { icon:'🔥',  label:'FEU',      value: fireStr }
   ];
-  const colW = PW/3;
+  const colW = PW / Math.max(1, statsData.length);
   statsData.forEach((s,i) => {
     const sx = p1x+14+i*colW;
     ctx.font = 'bold 16px Arial';
@@ -432,7 +439,7 @@ async function run() {
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 6;
-  ctx.fillText('PROCHAIN NIVEAU', p3x+18, PY+34);
+  ctx.fillText(nextPanelTitle, p3x+18, PY+34);
   ctx.shadowBlur = 0;
   drawCrystalGem(ctx, p3x+60, PY+PH/2-8, 34, pal);
   ctx.font = 'bold 36px Arial';
@@ -443,11 +450,11 @@ async function run() {
   ctx.fillText(`NIV. ${nextLvl}`, p3x+98, PY+118);
   ctx.font = 'bold 26px Arial';
   ctx.fillStyle = theme.statColor;
-  ctx.fillText(`${xpLeft.toLocaleString('fr-FR')} XP`, p3x+98, PY+158);
+  ctx.fillText(nextPanelSub, p3x+98, PY+158);
   ctx.font = '18px Arial';
   ctx.fillStyle = theme.statColor;
   ctx.globalAlpha = 0.65;
-  ctx.fillText('RESTANTES', p3x+98, PY+188);
+  ctx.fillText(nextPanelSubSub, p3x+98, PY+188);
   ctx.globalAlpha = 1;
 
   // Render to PNG
