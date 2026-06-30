@@ -320,6 +320,27 @@ async function run() {
   ctx.fillStyle = a1;
   ctx.fillRect(0, 0, W, H);
 
+  // Aura2 (opposite corner)
+  const a2 = ctx.createRadialGradient(W-120, H-80, 0, W-120, H-80, 420);
+  a2.addColorStop(0, theme.aura2[0]);
+  a2.addColorStop(0.3, theme.aura2[1]);
+  a2.addColorStop(0.6, theme.aura2[2]);
+  a2.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = a2;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid overlay
+  ctx.save();
+  ctx.strokeStyle = theme.grid;
+  ctx.lineWidth = 1;
+  for (let gx = 0; gx < W; gx += 40) {
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+  }
+  for (let gy = 0; gy < H; gy += 40) {
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+  }
+  ctx.restore();
+
   // Avatar — with fallback if CDN fails
   let avatar = null;
   try { avatar = await loadImage(avatarUrl); } catch (_) { /* fallback below */ }
@@ -342,6 +363,24 @@ async function run() {
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   }
   ctx.restore();
+
+  // Avatar ring (theme ringColors)
+  const ringColors = theme.ringColors || [];
+  const ringN = ringColors.length;
+  if (ringN > 0) {
+    for (let ri = 0; ri < ringN; ri++) {
+      const sa = (ri / ringN) * Math.PI * 2 - Math.PI / 2;
+      const ea = ((ri + 1) / ringN) * Math.PI * 2 - Math.PI / 2;
+      ctx.beginPath();
+      ctx.arc(ax, ay, ar + 10, sa, ea);
+      ctx.strokeStyle = ringColors[ri];
+      ctx.lineWidth = 5;
+      ctx.shadowColor = ringColors[ri];
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+  }
 
   // Username
   ctx.font = 'bold 68px "DejaVu Sans", "Liberation Sans", sans-serif';
@@ -480,6 +519,33 @@ async function run() {
   ctx.globalAlpha = 0.65;
   ctx.fillText(safeText(nextPanelSubSub), p3x+98, PY+188);
   ctx.globalAlpha = 1;
+
+  // Card border
+  ctx.strokeStyle = theme.border;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = theme.borderGlow;
+  ctx.shadowBlur = 22;
+  ctx.strokeRect(8, 8, W - 16, H - 16);
+  ctx.shadowBlur = 0;
+
+  // Corner accents
+  const CL = 60;
+  ctx.strokeStyle = theme.corner;
+  ctx.lineWidth = 4;
+  ctx.shadowColor = theme.cornerGlow;
+  ctx.shadowBlur = 16;
+  [[16, 16, CL, 0, 0, CL], [W-16-CL, 16, CL, 0, 0, CL],
+   [16, H-16-CL, 0, CL, CL, 0], [W-16-CL, H-16-CL, 0, CL, CL, 0]].forEach(([x,y,dx1,dy1,dx2,dy2], idx) => {
+    const ox = idx >= 2 ? x + (idx === 3 ? CL : 0) : x;
+    const oy = idx >= 2 ? y + CL : y;
+    ctx.beginPath();
+    if (idx === 0) { ctx.moveTo(x, y + CL); ctx.lineTo(x, y); ctx.lineTo(x + CL, y); }
+    if (idx === 1) { ctx.moveTo(W-16-CL, 16); ctx.lineTo(W-16, 16); ctx.lineTo(W-16, 16+CL); }
+    if (idx === 2) { ctx.moveTo(16, H-16-CL); ctx.lineTo(16, H-16); ctx.lineTo(16+CL, H-16); }
+    if (idx === 3) { ctx.moveTo(W-16-CL, H-16); ctx.lineTo(W-16, H-16); ctx.lineTo(W-16, H-16-CL); }
+    ctx.stroke();
+  });
+  ctx.shadowBlur = 0;
 
   // Render to PNG
   const buf = canvas.toBuffer('image/png');
