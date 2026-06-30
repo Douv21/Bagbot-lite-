@@ -92,9 +92,9 @@ module.exports = {
           ? `${balance.toLocaleString('fr-FR')} BAG — FORTUNE MAX`
           : `${balance.toLocaleString('fr-FR')} / ${nextThreshold.toLocaleString('fr-FR')} BAG`,
         statsItems: [
-          { icon: '💰', label: 'BAG',   value: fmt(balance) },
-          { icon: '⭐', label: 'KARMA', value: fmt(karma) },
-          { icon: '🔥', label: 'FEU',   value: String(fire) },
+          { icon: 'BAG', label: 'BAG',   value: fmt(balance) },
+          { icon: 'KRM', label: 'KARMA', value: fmt(karma) },
+          { icon: 'FEU', label: 'FEU',   value: String(fire) },
         ],
         rankDisplay:     rank.name,
         nextPanelTitle:  'PROCHAINE FORTUNE',
