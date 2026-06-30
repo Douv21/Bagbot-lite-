@@ -106,7 +106,8 @@ module.exports = {
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : null;
 
       try {
-        const card = await genCard(member, cardData, theme);
+        const cardTarget = member || { user: targetUser };
+        const card = await genCard(cardTarget, cardData, theme);
         if (card) {
           return interaction.editReply({
             content: mention,
