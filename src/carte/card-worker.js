@@ -412,23 +412,23 @@ async function run() {
   const statsData = Array.isArray(data.statsItems) ? data.statsItems : [
     { icon:'MSG', label:'MESSAGES', value: msgStr },
     { icon:'VOC', label:'VOCAL',    value: voiceStr },
-    { icon:'🔥',  label:'FEU',      value: fireStr }
+    { icon:'FEU', label:'FEU',      value: fireStr }
   ];
   const colW = PW / Math.max(1, statsData.length);
   statsData.forEach((s,i) => {
     const sx = p1x+14+i*colW;
-    ctx.font = 'bold 16px Arial';
+    ctx.font = 'bold 24px "DejaVu Sans"';
     ctx.fillStyle = theme.statColor;
     ctx.shadowColor = theme.panelGlow;
     ctx.shadowBlur = 4;
     ctx.fillText(safeText(s.icon), sx, PY+74);
     ctx.shadowBlur = 0;
-    ctx.font = '14px Arial';
+    ctx.font = '13px "DejaVu Sans"';
     ctx.fillStyle = theme.statColor;
     ctx.globalAlpha = 0.7;
     ctx.fillText(safeText(s.label), sx, PY+98);
     ctx.globalAlpha = 1;
-    ctx.font = 'bold 30px Arial';
+    ctx.font = 'bold 30px "DejaVu Sans"';
     const sg = ctx.createLinearGradient(sx, PY+100, sx+colW-10, PY+140);
     theme.barColors.slice(0,2).forEach((c,ii) => sg.addColorStop(ii, c));
     ctx.fillStyle = sg;
