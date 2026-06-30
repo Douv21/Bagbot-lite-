@@ -108,7 +108,9 @@ module.exports = {
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : null;
 
       try {
-        const card = await genCard(member, cardData, theme);
+        // member can be null if the user left — pass user directly as fallback
+        const cardTarget = member || { user: targetUser };
+        const card = await genCard(cardTarget, cardData, theme);
         if (card) {
           return interaction.editReply({
             content: mention,
