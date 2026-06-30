@@ -210,6 +210,16 @@ function gemPalette(name, themeOverride) {
   return ['#c0e8ff','#6090d0','#304880','#90c0f0'];
 }
 
+// Retire les emoji que les polices système ne savent pas afficher
+// (regex sans flag u — compatible tous Node.js)
+function safeText(s) {
+  return String(s == null ? '' : s)
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // paires surrogates (emoji 4 octets)
+    .replace(/[\u2600-\u27BF]/g, '')                   // symboles divers / dingbats
+    .replace(/[\uFE00-\uFEFF]/g, '')                   // sélecteurs de variation
+    .replace(/\s{2,}/g, ' ').trim();
+}
+
 // ─── Core drawing functions ───────────────────────────────────────────────────
 
 function drawPanel(ctx, x, y, w, h, theme) {
@@ -338,7 +348,7 @@ async function run() {
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = theme.titleGlow;
   ctx.shadowBlur = 16;
-  ctx.fillText(username, 324, 220);
+  ctx.fillText(safeText(username), 324, 220);
   ctx.shadowBlur = 0;
 
   // Niveau panel
@@ -349,7 +359,7 @@ async function run() {
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 10;
-  ctx.fillText(panelTitle, NX + 36, NY + 76);
+  ctx.fillText(safeText(panelTitle), NX + 36, NY + 76);
   ctx.shadowBlur = 0;
 
   const lvlStr = displayNumStr;
@@ -362,7 +372,7 @@ async function run() {
   ctx.fillStyle = lvlGrad;
   ctx.shadowColor = theme.levelGlow;
   ctx.shadowBlur = 50;
-  ctx.fillText(lvlStr, lvlStartX, NY + NH - 30);
+  ctx.fillText(safeText(lvlStr), lvlStartX, NY + NH - 30);
   ctx.shadowBlur = 0;
 
   // EXP bar
@@ -431,7 +441,7 @@ async function run() {
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 6;
   const rangLabel = 'RANG ACTUEL';
-  ctx.fillText(rangLabel, p2x+PW/2-ctx.measureText(rangLabel).width/2, PY+34);
+  const _rl=safeText(rangLabel); ctx.fillText(_rl, p2x+PW/2-ctx.measureText(_rl).width/2, PY+34);
   ctx.shadowBlur = 0;
   const gemCx = p2x+PW/2, gemCy = PY+PH/2-12;
   drawCrystalGem(ctx, gemCx, gemCy, 60, pal);
@@ -443,7 +453,7 @@ async function run() {
   ctx.fillStyle = rnG;
   ctx.shadowColor = pal[0];
   ctx.shadowBlur = 14;
-  ctx.fillText(rankName, gemCx, PY+PH-26);
+  ctx.fillText(safeText(rankName), gemCx, PY+PH-26);
   ctx.shadowBlur = 0;
   ctx.textAlign = 'left';
 
@@ -452,7 +462,7 @@ async function run() {
   ctx.fillStyle = theme.titleColor;
   ctx.shadowColor = theme.panelGlow;
   ctx.shadowBlur = 6;
-  ctx.fillText(nextPanelTitle, p3x+18, PY+34);
+  ctx.fillText(safeText(nextPanelTitle), p3x+18, PY+34);
   ctx.shadowBlur = 0;
   drawCrystalGem(ctx, p3x+60, PY+PH/2-8, 34, pal);
   ctx.font = 'bold 36px Arial';
@@ -464,11 +474,11 @@ async function run() {
   ctx.fillText(safeText(_nextBig), p3x+98, PY+118);
   ctx.font = 'bold 26px Arial';
   ctx.fillStyle = theme.statColor;
-  ctx.fillText(nextPanelSub, p3x+98, PY+158);
+  ctx.fillText(safeText(nextPanelSub), p3x+98, PY+158);
   ctx.font = '18px Arial';
   ctx.fillStyle = theme.statColor;
   ctx.globalAlpha = 0.65;
-  ctx.fillText(nextPanelSubSub, p3x+98, PY+188);
+  ctx.fillText(safeText(nextPanelSubSub), p3x+98, PY+188);
   ctx.globalAlpha = 1;
 
   // Render to PNG
