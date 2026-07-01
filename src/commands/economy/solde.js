@@ -30,7 +30,7 @@ const ALL_THEMES = ['holographique','gaming','love','sensuel','cosmos','nature',
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('solde')
-    .setDescription('Affiche votre solde ou celui d'un autre membre')
+    .setDescription(`Affiche votre solde ou celui d'un autre membre`)
     .addUserOption(option =>
       option.setName('membre').setDescription('Membre (optionnel)').setRequired(false)),
 
