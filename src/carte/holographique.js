@@ -7,27 +7,22 @@ const path                  = require('path');
 const { AttachmentBuilder } = require('discord.js');
 
 const WORKER     = path.join(__dirname, 'card-worker.js');
-const TIMEOUT_MS = 30_000; // 30s — CDN peut être lent
+const TIMEOUT_MS = 20_000;
 
-module.exports = async (memberOrUser, data, theme) => {
+module.exports = async (member, data, theme) => {
   try {
-    // Accept GuildMember, User, or null (fallback gracefully)
-    const user = memberOrUser?.user ?? memberOrUser;
-    if (!user) throw new Error('No user provided to genCard');
-
-    const avatarUrl = user.displayAvatarURL({ extension: 'png', size: 512, forceStatic: true });
-    const username  = user.username || user.globalName || 'Membre';
+    const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
 
     const payload = JSON.stringify({
-      username,
-      discriminator: user.discriminator || '0',
+      username:      member.user.username,
+      discriminator: member.user.discriminator,
       avatarUrl,
       data,
       theme: theme || 'holographique'
     });
 
     const buf = await new Promise((resolve, reject) => {
-      const child  = spawn(process.execPath, [WORKER], { stdio: ['pipe','pipe','pipe'], cwd: __dirname });
+      const child  = spawn(process.execPath, [WORKER], { stdio: ['pipe','pipe','pipe'] });
       const chunks = [];
 
       child.stdout.on('data', c => chunks.push(c));
