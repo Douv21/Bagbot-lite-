@@ -47,7 +47,7 @@ module.exports = async (member, data, theme) => {
       child.stdin.end();
     });
 
-    return new AttachmentBuilder(buf, { name: 'niveau-card.png' });
+    return new AttachmentBuilder(buf, { name: 'niveau-card.jpg' });
   } catch (err) {
     console.error('❌ Carte indisponible:', err.message);
     return null;
