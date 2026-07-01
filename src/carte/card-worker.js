@@ -954,7 +954,8 @@ async function run() {
   ctx.fillStyle = a3; ctx.fillRect(0, 0, W, H);
 
   // ── Theme-specific background decorations ─────────────────────────────────
-  drawThemeBackground(ctx, W, H, theme, themeName);
+  try { drawThemeBackground(ctx, W, H, theme, themeName); } catch(e) { process.stderr.write('[card-worker] drawThemeBackground error: ' + e.message + '\n'); }
+  ctx.globalAlpha = 1;
 
   // ── Grid overlay ──────────────────────────────────────────────────────────
   ctx.save(); ctx.strokeStyle = theme.grid; ctx.lineWidth = 1;
@@ -1177,7 +1178,7 @@ async function run() {
   drawBarcode(ctx, W-48, H-30, theme);
 
   // ── Theme overlay (drawn last, visible over panels) ───────────────────────
-  drawThemeOverlay(ctx, W, H, theme, themeName);
+  try { drawThemeOverlay(ctx, W, H, theme, themeName); } catch(e) { process.stderr.write('[card-worker] drawThemeOverlay error: ' + e.message + '\n'); }
 
   // ── Export ────────────────────────────────────────────────────────────────
   const buf = await canvas.encode('png');
