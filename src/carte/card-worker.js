@@ -1180,8 +1180,8 @@ async function run() {
   // ── Theme overlay (drawn last, visible over panels) ───────────────────────
   try { drawThemeOverlay(ctx, W, H, theme, themeName); } catch(e) { process.stderr.write('[card-worker] drawThemeOverlay error: ' + e.message + '\n'); }
 
-  // ── Export ────────────────────────────────────────────────────────────────
-  const buf = await canvas.encode('png');
+  // ── Export (JPEG pour limiter la taille et forcer l'aperçu Discord) ───────
+  const buf = await canvas.encode('jpeg', 92);
   process.stdout.write(buf);
   process.exit(0);
 }
