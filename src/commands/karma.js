@@ -94,8 +94,8 @@ module.exports = {
           ? `${karma.toLocaleString('fr-FR')} KARMA — LÉGENDE MAX`
           : `${karma.toLocaleString('fr-FR')} / ${nextThreshold.toLocaleString('fr-FR')} KARMA`,
         statsItems: [
-          { icon: 'KRM', label: 'KARMA',    value: fmt(karma) },
-          { icon: 'FEU', label: 'FEU',      value: fmt(fire) },
+          { icon: '⭐',  label: 'KARMA',    value: fmt(karma) },
+          { icon: '🔥',  label: 'FEU',      value: fmt(fire) },
           { icon: 'MSG', label: 'MESSAGES', value: fmt(messages) },
         ],
         rankDisplay:     rank.name,
@@ -108,9 +108,7 @@ module.exports = {
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : null;
 
       try {
-        // member can be null if the user left — pass user directly as fallback
-        const cardTarget = member || { user: targetUser };
-        const card = await genCard(cardTarget, cardData, theme);
+        const card = await genCard(member, cardData, theme);
         if (card) {
           return interaction.editReply({
             content: mention,
