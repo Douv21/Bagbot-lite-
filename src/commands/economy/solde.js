@@ -1,17 +1,17 @@
-const { SlashCommandBuilder, EmbedBuilder } = require(\'discord.js\');
-const { getBalance }     = require(\'../../utils/economy\');
-const { getUserData }    = require(\'../../storage/jsonStore\');
-const { loadGuildConfig } = require(\'../../utils/leveling\');
-const { fetchMember }    = require(\'../../utils/levelHelpers\');
-const genCard            = require(\'../../carte/holographique\');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { getBalance }     = require('../../utils/economy');
+const { getUserData }    = require('../../storage/jsonStore');
+const { loadGuildConfig } = require('../../utils/leveling');
+const { fetchMember }    = require('../../utils/levelHelpers');
+const genCard            = require('../../carte/holographique');
 
 const WEALTH_RANKS = [
-  { min: 200000, name: \'💎 MILLIARDAIRE\', next: Infinity, nextName: \'MAX\' },
-  { min: 50000,  name: \'🏆 FORTUNE\',      next: 200000,   nextName: \'💎 MILLIARDAIRE\' },
-  { min: 10000,  name: \'👑 RICHE\',         next: 50000,    nextName: \'🏆 FORTUNE\' },
-  { min: 2000,   name: \'💰 AISÉ\',          next: 10000,    nextName: \'👑 RICHE\' },
-  { min: 500,    name: \'📈 ÉCONOME\',       next: 2000,     nextName: \'💰 AISÉ\' },
-  { min: 0,      name: \'🌱 PAUVRE\',        next: 500,      nextName: \'📈 ÉCONOME\' },
+  { min: 200000, name: '💎 MILLIARDAIRE', next: Infinity, nextName: 'MAX' },
+  { min: 50000,  name: '🏆 FORTUNE',      next: 200000,   nextName: '💎 MILLIARDAIRE' },
+  { min: 10000,  name: '👑 RICHE',         next: 50000,    nextName: '🏆 FORTUNE' },
+  { min: 2000,   name: '💰 AISÉ',          next: 10000,    nextName: '👑 RICHE' },
+  { min: 500,    name: '📈 ÉCONOME',       next: 2000,     nextName: '💰 AISÉ' },
+  { min: 0,      name: '🌱 PAUVRE',        next: 500,      nextName: '📈 ÉCONOME' },
 ];
 
 function getWealthRank(b) {
@@ -22,22 +22,22 @@ function fmt(n) {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
   if (n >= 10000)   return `${Math.floor(n / 1000)}K`;
   if (n >= 1000)    return `${(n / 1000).toFixed(1)}K`;
-  return n.toLocaleString(\'fr-FR\');
+  return n.toLocaleString('fr-FR');
 }
 
-const ALL_THEMES = [\'holographique\',\'gaming\',\'love\',\'sensuel\',\'cosmos\',\'nature\',\'dark\',\'gold\',\'argent\',\'bleu\',\'rose\'];
+const ALL_THEMES = ['holographique','gaming','love','sensuel','cosmos','nature','dark','gold','argent','bleu','rose'];
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName(\'solde\')
-    .setDescription(\'Affiche votre solde ou celui d\'un autre membre\')
+    .setName('solde')
+    .setDescription('Affiche votre solde ou celui d'un autre membre')
     .addUserOption(option =>
-      option.setName(\'membre\').setDescription(\'Membre (optionnel)\').setRequired(false)),
+      option.setName('membre').setDescription('Membre (optionnel)').setRequired(false)),
 
   async execute(interaction) {
     await interaction.deferReply();
     try {
-      const targetUser = interaction.options.getUser(\'membre\') || interaction.user;
+      const targetUser = interaction.options.getUser('membre') || interaction.user;
       const guildId    = interaction.guildId;
       const balance    = await getBalance(guildId, targetUser.id);
       const member     = await fetchMember(interaction.guild, targetUser.id);
@@ -46,7 +46,7 @@ module.exports = {
       // Theme selection: roleThemes > defaultTheme > random
       let theme = null;
       const roleThemes   = config?.roleThemes  || {};
-      const defaultTheme = config?.defaultTheme || \'\';
+      const defaultTheme = config?.defaultTheme || '';
       if (member && Object.keys(roleThemes).length > 0) {
         const sorted = [...member.roles.cache.values()]
           .filter(r => r.id !== interaction.guild.id)
@@ -54,13 +54,13 @@ module.exports = {
         for (const role of sorted) {
           if (roleThemes[role.id]) {
             const t = roleThemes[role.id];
-            theme = t === \'random\' ? null : t;
+            theme = t === 'random' ? null : t;
             break;
           }
         }
       }
       if (!theme) {
-        theme = (defaultTheme && defaultTheme !== \'random\' && defaultTheme !== \'\')
+        theme = (defaultTheme && defaultTheme !== 'random' && defaultTheme !== '')
           ? defaultTheme
           : ALL_THEMES[Math.floor(Math.random() * ALL_THEMES.length)];
       }
@@ -78,7 +78,7 @@ module.exports = {
       const rangeSize     = nextThreshold - rank.min;
 
       const cardData = {
-        panelTitle:    \'SOLDE BAG\',
+        panelTitle:    'SOLDE BAG',
         displayNumStr: fmt(balance),
         level:         0,
         xp:            Math.max(0, progress),
@@ -87,20 +87,20 @@ module.exports = {
         voiceMinutes:  0,
         streak:        fire,
         karma,
-        roleName:      \'SOLDE BAG\',
+        roleName:      'SOLDE BAG',
         expBarLabel:   rank.next === Infinity
-          ? `${balance.toLocaleString(\'fr-FR\')} BAG — FORTUNE MAX`
-          : `${balance.toLocaleString(\'fr-FR\')} / ${nextThreshold.toLocaleString(\'fr-FR\')} BAG`,
+          ? `${balance.toLocaleString('fr-FR')} BAG — FORTUNE MAX`
+          : `${balance.toLocaleString('fr-FR')} / ${nextThreshold.toLocaleString('fr-FR')} BAG`,
         statsItems: [
-          { icon: \'💰\', label: \'BAG\',   value: fmt(balance) },
-          { icon: \'⭐\', label: \'KARMA\', value: fmt(karma) },
-          { icon: \'🔥\', label: \'FEU\',   value: String(fire) },
+          { icon: '💰', label: 'BAG',   value: fmt(balance) },
+          { icon: '⭐', label: 'KARMA', value: fmt(karma) },
+          { icon: '🔥', label: 'FEU',   value: String(fire) },
         ],
         rankDisplay:     rank.name,
-        nextPanelTitle:  \'PROCHAINE FORTUNE\',
+        nextPanelTitle:  'PROCHAINE FORTUNE',
         nextPanelBig:    rank.nextName,
-        nextPanelSub:    rank.next === Infinity ? \'MAX\' : `${(rank.next - balance).toLocaleString(\'fr-FR\')} BAG`,
-        nextPanelSubSub: \'RESTANTS\',
+        nextPanelSub:    rank.next === Infinity ? 'MAX' : `${(rank.next - balance).toLocaleString('fr-FR')} BAG`,
+        nextPanelSubSub: 'RESTANTS',
       };
 
       const mention = targetUser.id !== interaction.user.id ? `<@${targetUser.id}>` : null;
@@ -121,8 +121,8 @@ module.exports = {
         .setColor(0x5865f2)
         .setTitle(`💰 Solde de ${targetUser.username}`)
         .addFields(
-          { name: \'💰 BAG\',   value: `${balance.toLocaleString(\'fr-FR\')}`, inline: true },
-          { name: \'🏅 Rang\',  value: rank.name,                             inline: true },
+          { name: '💰 BAG',   value: `${balance.toLocaleString('fr-FR')}`, inline: true },
+          { name: '🏅 Rang',  value: rank.name,                             inline: true },
         )
         .setTimestamp();
       await interaction.editReply({
@@ -131,8 +131,8 @@ module.exports = {
         allowedMentions: mention ? { users: [targetUser.id] } : { parse: [] }
       });
     } catch (error) {
-      console.error(\'Erreur commande solde:\', error);
-      await interaction.editReply({ content: \'❌ Une erreur est survenue.\' }).catch(() => {});
+      console.error('Erreur commande solde:', error);
+      await interaction.editReply({ content: '❌ Une erreur est survenue.' }).catch(() => {});
     }
   }
 };
