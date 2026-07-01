@@ -31,6 +31,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('solde')
     .setDescription(`Affiche votre solde ou celui d'un autre membre`)
+    .setDMPermission(true)
     .addUserOption(option =>
       option.setName('membre').setDescription('Membre (optionnel)').setRequired(false)),
 
@@ -38,9 +39,9 @@ module.exports = {
     await interaction.deferReply();
     try {
       const targetUser = interaction.options.getUser('membre') || interaction.user;
-      const guildId    = interaction.guildId;
+      const guildId    = interaction.guildId || process.env.GUILD_ID;
       const balance    = await getBalance(guildId, targetUser.id);
-      const member     = await fetchMember(interaction.guild, targetUser.id);
+      const member     = interaction.guild ? await fetchMember(interaction.guild, targetUser.id) : null;
       const config     = loadGuildConfig(guildId);
 
       // Theme selection: roleThemes > defaultTheme > random
